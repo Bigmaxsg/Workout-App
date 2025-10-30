@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f5f5dc;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 3px solid #8b7355;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+            color: #d4af37;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .nav {
+            display: flex;
+            background: #d9c7a5;
+            border-bottom: 2px solid #8b7355;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3e3024;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: #f5f5dc;
+            color: #001f3f;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #003d5c;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+            color: #d4af37;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 31, 63, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #8b7355;
+            color: #f5f5dc;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4a6741 0%, #5d8055 100%);
+            color: #f5f5dc;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+            color: #f5f5dc;
+        }
+
+        .exercise-card {
+            background: #e8dcc4;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #003d5c;
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .exercise-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .exercise-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-input label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #6c757d;
+        }
+
+        .detail-input input {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .exercise-image {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .exercise-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .exercise-image-fallback {
+            color: #6c757d;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
+            color: #f5f5dc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #d4af37;
+        }
+
+        .recommendation-card h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .recommendation-card p {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .workout-history {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            background: #e8dcc4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #003d5c;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-type {
+            color: #003d5c;
+            font-weight: 600;
+        }
+
+        .history-exercises {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+            color: #d4af37;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #8b7355;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #d4af37;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            color: #f5f5dc;
+        }
+
+        .progress-chart {
+            background: #e8dcc4;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            border: 2px solid #8b7355;
+        }
+
+        .chart-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-label {
+            width: 120px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .chart-fill {
+            flex: 1;
+            height: 30px;
+            background: linear-gradient(90deg, #001f3f 0%, #003d5c 100%);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .chart-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d4af37;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #d9c7a5;
+            border-left: 4px solid #003d5c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #3e3024;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            background: #8b0000;
+            color: #f5f5dc;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-exercise-btn {
+            background: #4a6741;
+            color: #f5f5dc;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .workout-timer {
+            background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
+            color: #d4af37;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid #d4af37;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .timer-btn {
+            padding: 10px 20px;
+            background: rgba(245, 245, 220, 0.2);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .exercise-details {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-btn {
+                font-size: 12px;
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Tracker Pro</h1>
+            <p>Your Personal Fitness Companion</p>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('workout')">Workout</button>
+            <button class="nav-btn" onclick="showSection('recommend')">Recommend</button>
+            <button class="nav-btn" onclick="showSection('progress')">Progress</button>
+            <button class="nav-btn" onclick="showSection('history')">History</button>
+        </div>
+
+        <div class="content">
+            <!-- Workout Section -->
+            <div id="workout" class="section active">
+                <div class="workout-timer">
+                    <h3>Workout Timer</h3>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                    <div class="timer-controls">
+                        <button class="timer-btn" onclick="startTimer()">Start</button>
+                        <button class="timer-btn" onclick="pauseTimer()">Pause</button>
+                        <button class="timer-btn" onclick="resetTimer()">Reset</button>
+                    </div>
+                </div>
+
+                <div id="workoutSetup">
+                    <div class="form-group">
+                        <label>Select Workout Type</label>
+                        <select id="workoutType" onchange="loadWorkout()">
+                            <option value="">-- Choose a Workout --</option>
+                            <option value="custom">➕ Create Custom Workout</option>
+                            <option value="leg">🦵 Leg Day</option>
+                            <option value="chest">💪 Chest Day</option>
+                            <option value="back">🏋️ Back & Biceps</option>
+                            <option value="shoulders">💪 Shoulders & Triceps</option>
+                            <option value="abs">🔥 Core/Abs Blast</option>
+                            <option value="kettlebell">🏋️ Kettlebell Circuit</option>
+                            <option value="cardio">🚴 Cardio Day</option>
+                            <option value="fullbody">🎯 Full Body Power</option>
+                        </select>
+                    </div>
+
+                    <div id="workoutContainer"></div>
+
+                    <div id="workoutModeSelection" style="display:none;">
+                        <div class="info-box">
+                            <p><strong>Choose Your Workout Style:</strong></p>
+                            <p><strong>Traditional:</strong> Complete all sets of one exercise before moving to the next.</p>
+                            <p><strong>Circuit:</strong> Do one set of each exercise, then repeat for all rounds.</p>
+                            <p style="margin-top: 10px; font-size: 13px;"><strong>⌚ Apple Watch:</strong> If you have an Apple Watch paired, the app will attempt to start a strength training workout automatically.</p>
+                        </div>
+                        <button class="btn" onclick="startGuidedWorkout('traditional')" style="margin-bottom: 10px;">
+                            🏋️ Start Traditional Style
+                        </button>
+                        <button class="btn btn-success" onclick="startGuidedWorkout('circuit')">
+                            🔥 Start Circuit Style
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Guided Workout Mode -->
+                <div id="guidedWorkoutMode" style="display:none;">
+                    <div class="recommendation-card" id="currentExerciseCard">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 id="exerciseProgress">Exercise 1 of 5</h3>
+                            <div id="setProgress" style="font-size: 18px; font-weight: bold;">Set 1/3</div>
+                        </div>
+                        
+                        <h2 id="currentExerciseName" style="font-size: 24px; margin-bottom: 10px;">Dumbbell Squats</h2>
+                        
+                        <div style="background: rgba(245,245,220,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                            <div style="display: flex; justify-content: space-around; text-align: center;">
+                                <div>
+                                    <div style="font-size: 28px; font-weight: bold;" id="currentWeight">25</div>
+                                    <div style="font-size: 14px;">lbs</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 28px; font-weight: bold;" id="currentReps">12</div>
+                                    <div style="font-size: 14px;">reps</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 28px; font-weight: bold;" id="currentSets">3</div>
+                                    <div style="font-size: 14px;">sets</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-secondary" onclick="showCurrentExerciseInfo()" style="margin-bottom: 10px;">
+                            📖 View Form Instructions
+                        </button>
+
+                        <div id="restTimer" style="display:none; text-align: center; margin: 20px 0;">
+                            <h3>Rest Time</h3>
+                            <div style="font-size: 48px; font-weight: bold; color: #d4af37;" id="restDisplay">60</div>
+                            <button class="btn" onclick="skipRest()">Skip Rest</button>
+                        </div>
+
+                        <button class="btn btn-success" id="completeSetBtn" onclick="completeSet()" style="font-size: 18px; padding: 18px;">
+                            ✓ Complete Set
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-danger" onclick="endWorkout()">
+                            End Workout Early
+                        </button>
+                    </div>
+
+                    <!-- Progress Overview -->
+                    <div class="progress-chart" style="margin-top: 20px;">
+                        <h3 class="chart-title">Workout Progress</h3>
+                        <div id="workoutProgressList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation Section -->
+            <div id="recommend" class="section">
+                <h2 style="margin-bottom: 20px;">Today's Recommendation</h2>
+                <div id="recommendationContainer"></div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progress" class="section">
+                <h2 style="margin-bottom: 20px;">Your Progress</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWorkouts">0</div>
+                        <div class="stat-label">Total Workouts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="thisWeek">0</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVolume">0</div>
+                        <div class="stat-label">Total Volume (lbs)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+
+                <div class="progress-chart">
+                    <h3 class="chart-title">Workout Distribution</h3>
+                    <div id="workoutDistribution"></div>
+                </div>
+
+                <div class="progress-chart">
+                    <h3 class="chart-title">Volume Progress (Last 10 Workouts)</h3>
+                    <div id="volumeProgress"></div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="history" class="section">
+                <h2 style="margin-bottom: 20px;">Workout History</h2>
+                <div class="info-box">
+                    <p><strong>Pro Tip:</strong> Track your progress by reviewing past workouts. Try to beat your previous weights and reps!</p>
+                </div>
+                <div id="historyContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Info Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalExerciseName"></h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalExerciseContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Exercise Database with instructions and equipment
+        const exerciseDatabase = {
+            // Leg Exercises
+            'Dumbbell Goblet Squat': {
+                equipment: 'Dumbbell',
+                instructions: 'Hold a dumbbell vertically at chest level. Stand with feet shoulder-width apart. Lower into a squat keeping chest up and knees tracking over toes. Push through heels to return.',
+                sets: 3,
+                reps: 12,
+                weight: 25,
+                image: '🦵 Targets: Quads, Glutes, Core',
+                imageUrl: 'https://www.nerdfitness.com/wp-content/uploads/2019/01/goblet-squat.gif'
+            },
+            'Dumbbell Romanian Deadlift': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells in front of thighs. Hinge at hips, keeping back straight and slight bend in knees. Lower weights along legs until you feel hamstring stretch. Return to standing.',
+                sets: 3,
+                reps: 10,
+                weight: 30,
+                image: '🦵 Targets: Hamstrings, Glutes, Lower Back',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-romanian-deadlift.gif'
+            },
+            'Dumbbell Lunges': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells at sides. Step forward into a lunge, lowering back knee toward ground. Front knee should stay behind toes. Push back to starting position. Alternate legs.',
+                sets: 3,
+                reps: 10,
+                weight: 20,
+                image: '🦵 Targets: Quads, Glutes, Balance',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-lunge.gif'
+            },
+            'Dumbbell Calf Raises': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells at sides. Stand on edge of a step or platform with heels hanging off. Rise up on toes as high as possible, then lower heels below step level.',
+                sets: 3,
+                reps: 15,
+                weight: 25,
+                image: '🦵 Targets: Calves',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/10/dumbbell-calf-raise.gif'
+            },
+            'Bodyweight Squats': {
+                equipment: 'Bodyweight',
+                instructions: 'Stand with feet shoulder-width apart, toes slightly pointed out. Keep chest up and core tight. Lower down by bending knees and pushing hips back as if sitting in a chair. Go as low as comfortable, ideally until thighs are parallel to ground. Push through heels to return to standing.',
+                sets: 3,
+                reps: 20,
+                weight: 0,
+                image: '🦵 Targets: Quads, Glutes, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/10/bodyweight-squat.gif'
+            },
+            'Bulgarian Split Squats': {
+                equipment: 'Dumbbells, Bench',
+                instructions: 'Place rear foot elevated on bench behind you. Hold dumbbells at sides. Lower front leg until thigh is parallel to ground, back knee drops toward floor. Push through front heel to return. Complete all reps then switch legs.',
+                sets: 3,
+                reps: 10,
+                weight: 20,
+                image: '🦵 Targets: Quads, Glutes, Balance'
+            },
+            'Walking Lunges': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells at sides. Step forward into lunge with both knees at 90 degrees. Push off front foot and bring back leg forward into next lunge. Continue walking forward alternating legs each step.',
+                sets: 3,
+                reps: 20,
+                weight: 20,
+                image: '🦵 Targets: Quads, Glutes, Coordination'
+            },
+            'Step-Ups': {
+                equipment: 'Dumbbells, Box/Bench',
+                instructions: 'Hold dumbbells at sides, stand facing box or bench. Step up with one foot, drive through heel to lift body onto box. Step down with control. Alternate legs or complete all reps on one side first.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '🦵 Targets: Quads, Glutes, Functional Strength'
+            },
+            'Goblet Squats': {
+                equipment: 'Dumbbell',
+                instructions: 'Hold one dumbbell vertically at chest with both hands (like holding a goblet). Feet shoulder-width. Squat down keeping chest up, elbows track inside knees. Excellent for learning squat form.',
+                sets: 3,
+                reps: 15,
+                weight: 30,
+                image: '🦵 Targets: Quads, Glutes, Core'
+            },
+            'Wall Sits': {
+                equipment: 'Bodyweight',
+                instructions: 'Lean back against wall. Slide down until thighs are parallel to floor, knees at 90 degrees. Hold position. Great for building quad endurance.',
+                sets: 3,
+                reps: 45,
+                weight: 0,
+                image: '🦵 Targets: Quads, Endurance (time in seconds)'
+            },
+            'Jump Squats': {
+                equipment: 'Bodyweight',
+                instructions: 'Start in squat position. Explode up jumping as high as possible. Land softly and immediately descend into next squat. Builds explosive power.',
+                sets: 3,
+                reps: 12,
+                weight: 0,
+                image: '🦵 Targets: Quads, Glutes, Power, Plyometrics'
+            },
+            
+            // Chest Exercises
+            'Incline Dumbbell Press': {
+                equipment: 'Dumbbells, Incline Bench',
+                instructions: 'Set bench to 30-45 degrees. Lie back with dumbbells at shoulder level. Press weights up and together, fully extending arms. Lower with control to chest level.',
+                sets: 4,
+                reps: 10,
+                weight: 35,
+                image: '💪 Targets: Upper Chest, Shoulders, Triceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/incline-dumbbell-bench-press.gif'
+            },
+            'Flat Dumbbell Press': {
+                equipment: 'Dumbbells, Bench',
+                instructions: 'Lie on flat bench with dumbbells at chest level. Press weights straight up, bringing them together at top. Lower with control until elbows are at 90 degrees.',
+                sets: 3,
+                reps: 10,
+                weight: 40,
+                image: '💪 Targets: Middle Chest, Triceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-bench-press.gif'
+            },
+            'Incline Dumbbell Flyes': {
+                equipment: 'Dumbbells, Incline Bench',
+                instructions: 'Set bench to 30 degrees. Start with arms extended above chest, slight elbow bend. Lower weights out to sides in arc motion. Squeeze chest to bring weights back together.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '💪 Targets: Chest, Shoulders (stretch focused)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/09/incline-dumbbell-fly.gif'
+            },
+            'Dumbbell Pullover': {
+                equipment: 'Dumbbell, Bench',
+                instructions: 'Lie perpendicular on bench (upper back only). Hold one dumbbell with both hands above chest. Lower weight behind head in arc, feel chest and lat stretch. Pull back to start.',
+                sets: 3,
+                reps: 12,
+                weight: 25,
+                image: '💪 Targets: Chest, Lats, Serratus',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/10/dumbbell-pullover.gif'
+            },
+            'Barbell Bench Press': {
+                equipment: 'Barbell, Bench',
+                instructions: 'Lie on flat bench, grip barbell slightly wider than shoulders. Lower bar to chest with control. Press bar up until arms fully extended. Keep feet flat on floor.',
+                sets: 4,
+                reps: 8,
+                weight: 135,
+                image: '💪 Targets: Chest, Shoulders, Triceps'
+            },
+            'Incline Barbell Bench Press': {
+                equipment: 'Barbell, Incline Bench',
+                instructions: 'Set bench to 30-45 degrees. Lie back, grip bar slightly wider than shoulders. Lower to upper chest. Press straight up. Targets upper chest.',
+                sets: 4,
+                reps: 8,
+                weight: 115,
+                image: '💪 Targets: Upper Chest, Shoulders, Triceps'
+            },
+            'Decline Dumbbell Press': {
+                equipment: 'Dumbbells, Decline Bench',
+                instructions: 'Set bench to 15-30 degree decline. Secure feet. Lie back with dumbbells at chest. Press weights up and together. Lower with control. Targets lower chest.',
+                sets: 3,
+                reps: 10,
+                weight: 35,
+                image: '💪 Targets: Lower Chest, Triceps'
+            },
+            'Decline Barbell Bench Press': {
+                equipment: 'Barbell, Decline Bench',
+                instructions: 'Set bench to decline, secure feet. Grip bar slightly wider than shoulders. Lower to lower chest. Press up to full extension. Emphasizes lower pecs.',
+                sets: 3,
+                reps: 10,
+                weight: 125,
+                image: '💪 Targets: Lower Chest, Triceps'
+            },
+            'Flat Dumbbell Flyes': {
+                equipment: 'Dumbbells, Bench',
+                instructions: 'Lie on flat bench with dumbbells above chest, slight elbow bend. Lower weights out to sides in wide arc until stretch in chest. Squeeze pecs to bring weights back together.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '💪 Targets: Chest (stretch and squeeze)'
+            },
+            'Decline Dumbbell Flyes': {
+                equipment: 'Dumbbells, Decline Bench',
+                instructions: 'Lie on decline bench. Hold dumbbells above chest with slight elbow bend. Lower in arc motion feeling stretch in lower chest. Squeeze to return.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '💪 Targets: Lower Chest'
+            },
+            'Diamond Push-Ups': {
+                equipment: 'Bodyweight',
+                instructions: 'Get in push-up position. Place hands close together forming diamond shape with index fingers and thumbs. Lower chest to hands. Push back up. Harder on triceps.',
+                sets: 3,
+                reps: 12,
+                weight: 0,
+                image: '💪 Targets: Triceps, Inner Chest, Core'
+            },
+            'Wide Push-Ups': {
+                equipment: 'Bodyweight',
+                instructions: 'Push-up position with hands placed wider than shoulders. Lower chest toward ground. Push back up. Wider grip emphasizes chest more.',
+                sets: 3,
+                reps: 15,
+                weight: 0,
+                image: '💪 Targets: Chest, Shoulders'
+            },
+            'Decline Push-Ups': {
+                equipment: 'Bench/Box',
+                instructions: 'Place feet elevated on bench, hands on ground. Perform push-ups. Elevation increases difficulty and emphasizes upper chest.',
+                sets: 3,
+                reps: 12,
+                weight: 0,
+                image: '💪 Targets: Upper Chest, Shoulders'
+            },
+            'Incline Push-Ups': {
+                equipment: 'Bench/Box',
+                instructions: 'Place hands on elevated bench, feet on ground. Perform push-ups. Easier variation, good for beginners or burnout sets.',
+                sets: 3,
+                reps: 20,
+                weight: 0,
+                image: '💪 Targets: Chest, Triceps (beginner friendly)'
+            },
+            'Chest Dips': {
+                equipment: 'Dip Bar/Parallel Bars',
+                instructions: 'Grip bars, body suspended. Lean forward slightly. Lower body by bending elbows until shoulders are below elbows. Push back up. Lean determines chest vs tricep focus.',
+                sets: 3,
+                reps: 10,
+                weight: 0,
+                image: '💪 Targets: Lower Chest, Triceps, Shoulders'
+            },
+            'Cable Crossover': {
+                equipment: 'Cable Machine',
+                instructions: 'Stand between cable towers, handles at shoulder height. Step forward, slight bend in elbows. Bring handles together in front of chest in arc motion. Control return.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '💪 Targets: Inner Chest, Definition'
+            },
+            'Push-Up': {
+                equipment: 'Bodyweight',
+                instructions: 'Start in plank position with hands shoulder-width apart. Lower body until chest nearly touches floor. Push back up to starting position. Keep core tight throughout.',
+                sets: 3,
+                reps: 15,
+                weight: 0,
+                image: '💪 Targets: Chest, Triceps, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/12/push-up.gif'
+            },
+
+            // Back & Bicep Exercises
+            'Dumbbell Bent-Over Row': {
+                equipment: 'Dumbbells',
+                instructions: 'Hinge at hips with slight knee bend, back straight. Let dumbbells hang at arms length. Pull weights to sides of torso, squeezing shoulder blades together. Lower with control.',
+                sets: 4,
+                reps: 10,
+                weight: 35,
+                image: '🏋️ Targets: Mid Back, Lats, Biceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-bent-over-row.gif'
+            },
+            'Single-Arm Dumbbell Row': {
+                equipment: 'Dumbbell, Bench',
+                instructions: 'Place one knee and hand on bench. Hold dumbbell in free hand. Pull weight to hip, keeping elbow close to body. Lower with control. Complete all reps then switch sides.',
+                sets: 3,
+                reps: 12,
+                weight: 40,
+                image: '🏋️ Targets: Lats, Mid Back, Biceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/one-arm-dumbbell-row.gif'
+            },
+            'Dumbbell Bicep Curls': {
+                equipment: 'Dumbbells',
+                instructions: 'Stand with dumbbells at sides, palms forward. Curl weights up keeping elbows stationary at sides. Squeeze biceps at top. Lower with control, fully extending arms.',
+                sets: 3,
+                reps: 12,
+                weight: 25,
+                image: '🏋️ Targets: Biceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-curl.gif'
+            },
+            'Hammer Curls': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells with palms facing each other. Curl weights up keeping thumbs up throughout movement. Squeeze at top. Lower with control.',
+                sets: 3,
+                reps: 12,
+                weight: 25,
+                image: '🏋️ Targets: Biceps, Forearms',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-hammer-curl.gif'
+            },
+            'Barbell Bicep Curls': {
+                equipment: 'Barbell',
+                instructions: 'Stand holding barbell at arms length, palms up. Curl weight up keeping elbows stationary. Squeeze biceps at top. Lower with control.',
+                sets: 3,
+                reps: 10,
+                weight: 60,
+                image: '🏋️ Targets: Biceps'
+            },
+            'EZ-Bar Curls': {
+                equipment: 'EZ Curl Bar',
+                instructions: 'Hold EZ bar with angled grip (less wrist strain than straight bar). Curl up keeping elbows at sides. Squeeze biceps. Lower slowly.',
+                sets: 3,
+                reps: 12,
+                weight: 50,
+                image: '🏋️ Targets: Biceps (wrist-friendly)'
+            },
+            'Preacher Curls': {
+                equipment: 'Dumbbells or Barbell, Preacher Bench',
+                instructions: 'Sit at preacher bench, arms resting on pad. Curl weight up with strict form (pad prevents cheating). Lower to full extension.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '🏋️ Targets: Biceps (strict form)'
+            },
+            'Concentration Curls': {
+                equipment: 'Dumbbell',
+                instructions: 'Sit on bench, legs spread. Rest elbow against inner thigh. Curl dumbbell up to shoulder. Lower with control. Great isolation exercise.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '🏋️ Targets: Biceps Peak'
+            },
+            'Cable Bicep Curls': {
+                equipment: 'Cable Machine',
+                instructions: 'Stand at cable with low pulley and straight bar. Curl bar up keeping elbows stationary. Constant tension throughout movement.',
+                sets: 3,
+                reps: 15,
+                weight: 50,
+                image: '🏋️ Targets: Biceps (constant tension)'
+            },
+            'Zottman Curls': {
+                equipment: 'Dumbbells',
+                instructions: 'Curl dumbbells up with palms up (supinated). At top, rotate palms down (pronated). Lower slowly. Rotate palms up at bottom. Works biceps and forearms.',
+                sets: 3,
+                reps: 10,
+                weight: 20,
+                image: '🏋️ Targets: Biceps, Forearms'
+            },
+            'Incline Dumbbell Curls': {
+                equipment: 'Dumbbells, Incline Bench',
+                instructions: 'Lie back on incline bench (45 degrees). Let arms hang straight down. Curl weights up. Full stretch at bottom builds long head of bicep.',
+                sets: 3,
+                reps: 12,
+                weight: 20,
+                image: '🏋️ Targets: Biceps (stretch emphasis)'
+            },
+            'Dumbbell Shrugs': {
+                equipment: 'Dumbbells',
+                instructions: 'Stand holding dumbbells at sides. Elevate shoulders straight up toward ears as high as possible. Hold briefly at top. Lower with control. Keep arms straight throughout.',
+                sets: 3,
+                reps: 15,
+                weight: 45,
+                image: '🏋️ Targets: Traps, Upper Back',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-shrug.gif'
+            },
+            'Pull-Ups': {
+                equipment: 'Pull-Up Bar',
+                instructions: 'Hang from bar with overhand grip (palms away), hands shoulder-width. Pull body up until chin clears bar. Lower with control to full extension. One of the best back exercises.',
+                sets: 3,
+                reps: 8,
+                weight: 0,
+                image: '🏋️ Targets: Lats, Biceps, Upper Back'
+            },
+            'Chin-Ups': {
+                equipment: 'Pull-Up Bar',
+                instructions: 'Hang from bar with underhand grip (palms facing you), hands shoulder-width. Pull up until chin over bar. Lower with control. Easier than pull-ups, more bicep activation.',
+                sets: 3,
+                reps: 10,
+                weight: 0,
+                image: '🏋️ Targets: Lats, Biceps, Forearms'
+            },
+            'Assisted Pull-Ups': {
+                equipment: 'Resistance Band or Machine',
+                instructions: 'Use resistance band under feet or assisted pull-up machine. Perform pull-up motion with assistance. Great for building up to unassisted pull-ups.',
+                sets: 3,
+                reps: 10,
+                weight: 0,
+                image: '🏋️ Targets: Lats, Biceps (progression exercise)'
+            },
+            'Negative Pull-Ups': {
+                equipment: 'Pull-Up Bar',
+                instructions: 'Jump or step up to top position of pull-up (chin over bar). Lower yourself down as slowly as possible (5-10 seconds). Step down and repeat. Builds strength for full pull-ups.',
+                sets: 3,
+                reps: 5,
+                weight: 0,
+                image: '🏋️ Targets: Lats, Back (eccentric strength)'
+            },
+            'Wide-Grip Pull-Ups': {
+                equipment: 'Pull-Up Bar',
+                instructions: 'Hang from bar with overhand grip wider than shoulders. Pull up bringing chest toward bar. Lower with control. Wider grip emphasizes lats more.',
+                sets: 3,
+                reps: 6,
+                weight: 0,
+                image: '🏋️ Targets: Lats, Upper Back'
+            },
+            'Barbell Bent-Over Row': {
+                equipment: 'Barbell',
+                instructions: 'Hinge at hips holding barbell, back straight, knees slightly bent. Pull bar to lower chest/upper abs, squeezing shoulder blades. Lower with control.',
+                sets: 4,
+                reps: 10,
+                weight: 95,
+                image: '🏋️ Targets: Mid Back, Lats, Biceps'
+            },
+            'Pendlay Row': {
+                equipment: 'Barbell',
+                instructions: 'Bend at hips until torso parallel to floor. Pull bar from floor to chest explosively. Return bar to floor between each rep. Builds explosive pulling power.',
+                sets: 4,
+                reps: 8,
+                weight: 85,
+                image: '🏋️ Targets: Back, Power, Explosiveness'
+            },
+            'T-Bar Row': {
+                equipment: 'Barbell, V-Handle',
+                instructions: 'Straddle bar with weight on one end. Grip V-handle or bar. Hinge at hips. Pull bar to chest squeezing back. Lower with control.',
+                sets: 3,
+                reps: 10,
+                weight: 70,
+                image: '🏋️ Targets: Mid Back, Lats, Thickness'
+            },
+            'Inverted Row': {
+                equipment: 'Bar/Smith Machine',
+                instructions: 'Lie under bar set at waist height. Grip bar with straight arms. Pull chest to bar. Lower with control. Like reverse push-up. Adjust height for difficulty.',
+                sets: 3,
+                reps: 12,
+                weight: 0,
+                image: '🏋️ Targets: Back, Biceps, Core'
+            },
+            'Lat Pulldown': {
+                equipment: 'Cable Machine',
+                instructions: 'Sit at lat pulldown machine. Grip bar wider than shoulders. Pull bar down to upper chest. Squeeze shoulder blades. Control weight back up.',
+                sets: 3,
+                reps: 12,
+                weight: 80,
+                image: '🏋️ Targets: Lats, Back Width'
+            },
+            'Close-Grip Lat Pulldown': {
+                equipment: 'Cable Machine, V-Handle',
+                instructions: 'Sit at pulldown. Use close-grip V-handle. Pull to upper chest. Squeeze lats and mid-back. Emphasizes thickness.',
+                sets: 3,
+                reps: 12,
+                weight: 80,
+                image: '🏋️ Targets: Lats, Mid Back, Thickness'
+            },
+            'Straight-Arm Pulldown': {
+                equipment: 'Cable Machine',
+                instructions: 'Stand at cable, arms extended overhead holding bar. Keep arms straight, pull bar down to thighs using lats. Control return. Great lat isolation.',
+                sets: 3,
+                reps: 15,
+                weight: 40,
+                image: '🏋️ Targets: Lats (isolation)'
+            },
+            'Face Pulls': {
+                equipment: 'Cable Machine, Rope',
+                instructions: 'Set cable at head height with rope attachment. Pull rope toward face, separating ends at face. Squeeze shoulder blades. Excellent for rear delts and posture.',
+                sets: 3,
+                reps: 15,
+                weight: 30,
+                image: '🏋️ Targets: Rear Delts, Upper Back, Posture'
+            },
+            'Seated Cable Row': {
+                equipment: 'Cable Machine',
+                instructions: 'Sit at cable row station. Feet on platform, knees slightly bent. Pull handle to torso, squeezing shoulder blades. Control return.',
+                sets: 3,
+                reps: 12,
+                weight: 90,
+                image: '🏋️ Targets: Mid Back, Lats, Biceps'
+            },
+            'Barbell Shrugs': {
+                equipment: 'Barbell',
+                instructions: 'Hold barbell at arms length in front of thighs. Elevate shoulders straight up as high as possible. Hold briefly. Lower with control. Builds traps.',
+                sets: 3,
+                reps: 15,
+                weight: 135,
+                image: '🏋️ Targets: Traps, Upper Back'
+            },
+            'Meadows Row': {
+                equipment: 'Barbell',
+                instructions: 'Stand perpendicular to barbell loaded on one end. Hinge at hips. Grab end of bar. Pull to hip rotating slightly. Great for lats and thickness.',
+                sets: 3,
+                reps: 10,
+                weight: 60,
+                image: '🏋️ Targets: Lats, Back Thickness'
+            },
+
+            // Shoulder & Tricep Exercises
+            'Dumbbell Shoulder Press': {
+                equipment: 'Dumbbells',
+                instructions: 'Sit or stand with dumbbells at shoulder level, palms forward. Press weights overhead until arms are fully extended. Lower with control back to shoulders.',
+                sets: 3,
+                reps: 10,
+                weight: 30,
+                image: '💪 Targets: Shoulders, Triceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-shoulder-press.gif'
+            },
+            'Dumbbell Lateral Raises': {
+                equipment: 'Dumbbells',
+                instructions: 'Stand with dumbbells at sides. Raise arms out to sides until parallel with floor, slight bend in elbows. Lead with elbows, not hands. Lower with control.',
+                sets: 3,
+                reps: 12,
+                weight: 15,
+                image: '💪 Targets: Side Delts',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-lateral-raise.gif'
+            },
+            'Dumbbell Front Raises': {
+                equipment: 'Dumbbells',
+                instructions: 'Hold dumbbells in front of thighs. Raise one or both weights forward and up to shoulder level, keeping arms straight. Lower with control.',
+                sets: 3,
+                reps: 12,
+                weight: 15,
+                image: '💪 Targets: Front Delts',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-front-raise.gif'
+            },
+            'Bent-Over Rear Delt Raises': {
+                equipment: 'Dumbbells',
+                instructions: 'Hinge at hips until torso is nearly parallel to floor. Let dumbbells hang down. Raise arms out to sides, squeezing shoulder blades. Lower with control.',
+                sets: 3,
+                reps: 15,
+                weight: 12,
+                image: '💪 Targets: Rear Delts, Upper Back',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/bent-over-dumbbell-rear-delt-raise.gif'
+            },
+            'Overhead Tricep Extension': {
+                equipment: 'Dumbbell',
+                instructions: 'Hold one dumbbell with both hands overhead. Lower weight behind head by bending elbows. Keep upper arms stationary. Extend arms back to start position.',
+                sets: 3,
+                reps: 12,
+                weight: 25,
+                image: '💪 Targets: Triceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/10/two-arm-dumbbell-overhead-extension.gif'
+            },
+            'Dumbbell Tricep Kickbacks': {
+                equipment: 'Dumbbells',
+                instructions: 'Hinge at hips, bring elbows to sides with 90-degree bend. Extend arms backward, straightening elbows fully. Squeeze triceps at top. Return to 90 degrees.',
+                sets: 3,
+                reps: 12,
+                weight: 15,
+                image: '💪 Targets: Triceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-kickback.gif'
+            },
+            'Close-Grip Bench Press': {
+                equipment: 'Barbell, Bench',
+                instructions: 'Lie on bench. Grip bar with hands 8-12 inches apart. Lower to chest. Press up keeping elbows close to body. Excellent for triceps mass.',
+                sets: 4,
+                reps: 10,
+                weight: 95,
+                image: '💪 Targets: Triceps, Chest'
+            },
+            'Skull Crushers': {
+                equipment: 'EZ Bar or Dumbbells, Bench',
+                instructions: 'Lie on bench holding bar above chest. Lower bar toward forehead by bending elbows. Keep upper arms stationary. Extend back up. Also called lying tricep extension.',
+                sets: 3,
+                reps: 12,
+                weight: 40,
+                image: '💪 Targets: Triceps (long head)'
+            },
+            'Tricep Dips': {
+                equipment: 'Parallel Bars or Bench',
+                instructions: 'On parallel bars: grip bars, body suspended, stay upright. Lower by bending elbows. Push back up. Or use bench with feet extended forward.',
+                sets: 3,
+                reps: 12,
+                weight: 0,
+                image: '💪 Targets: Triceps, Chest, Shoulders'
+            },
+            'Cable Tricep Pushdown': {
+                equipment: 'Cable Machine, Rope or Bar',
+                instructions: 'Stand at cable with high pulley. Grip attachment with elbows at sides. Push down straightening arms. Squeeze triceps. Control return.',
+                sets: 3,
+                reps: 15,
+                weight: 50,
+                image: '💪 Targets: Triceps (isolation)'
+            },
+            'Overhead Cable Extension': {
+                equipment: 'Cable Machine, Rope',
+                instructions: 'Face away from cable with rope overhead. Extend arms forward and up. Keep upper arms stationary. Great for tricep stretch.',
+                sets: 3,
+                reps: 15,
+                weight: 30,
+                image: '💪 Targets: Triceps (long head)'
+            },
+            'Diamond Push-Ups': {
+                equipment: 'Bodyweight',
+                instructions: 'Push-up position with hands forming diamond shape (thumbs and index fingers touching). Lower chest to hands. Push up. Intense tricep work.',
+                sets: 3,
+                reps: 10,
+                weight: 0,
+                image: '💪 Targets: Triceps, Inner Chest'
+            },
+            'Bench Dips': {
+                equipment: 'Bench',
+                instructions: 'Sit on edge of bench, hands gripping edge. Slide forward off bench, legs extended. Lower body by bending elbows. Push back up.',
+                sets: 3,
+                reps: 15,
+                weight: 0,
+                image: '💪 Targets: Triceps (bodyweight)'
+            },
+
+            // Core/Abs Exercises
+            'Dumbbell Russian Twists': {
+                equipment: 'Dumbbell',
+                instructions: 'Sit on floor, lean back slightly, lift feet. Hold dumbbell at chest. Rotate torso side to side, touching weight to floor on each side. Keep core tight.',
+                sets: 3,
+                reps: 20,
+                weight: 15,
+                image: '🔥 Targets: Obliques, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/dumbbell-russian-twist.gif'
+            },
+            'Dumbbell Side Bends': {
+                equipment: 'Dumbbell',
+                instructions: 'Stand holding dumbbell in one hand. Bend sideways toward weight, lowering it down your leg. Return to upright. Complete all reps then switch sides.',
+                sets: 3,
+                reps: 15,
+                weight: 25,
+                image: '🔥 Targets: Obliques',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/dumbbell-side-bend.gif'
+            },
+            'Plank': {
+                equipment: 'Bodyweight',
+                instructions: 'Support body on forearms and toes, body in straight line from head to heels. Keep core tight, don\'t let hips sag or pike up. Hold for time.',
+                sets: 3,
+                reps: 60,
+                weight: 0,
+                image: '🔥 Targets: Core, Shoulders (time in seconds)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/forearm-plank.gif'
+            },
+            'Mountain Climbers': {
+                equipment: 'Bodyweight',
+                instructions: 'Start in push-up position. Drive one knee toward chest, then quickly switch legs in running motion. Keep core tight and hips level.',
+                sets: 3,
+                reps: 20,
+                weight: 0,
+                image: '🔥 Targets: Core, Cardio',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/01/mountain-climber.gif'
+            },
+            'Bicycle Crunches': {
+                equipment: 'Bodyweight',
+                instructions: 'Lie on back, hands behind head. Bring opposite elbow to opposite knee in cycling motion. Extend other leg out. Alternate sides in controlled manner.',
+                sets: 3,
+                reps: 20,
+                weight: 0,
+                image: '🔥 Targets: Abs, Obliques',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/bicycle-crunch.gif'
+            },
+
+            // Kettlebell Exercises (30lb)
+            'Kettlebell Swings': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Stand with feet shoulder-width apart, kettlebell between feet. Hinge at hips, swing kettlebell back between legs. Drive hips forward powerfully, swinging weight to shoulder height.',
+                sets: 3,
+                reps: 15,
+                weight: 30,
+                image: '🏋️ Targets: Glutes, Hamstrings, Core, Cardio',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/kettlebell-swing.gif'
+            },
+            'Kettlebell Goblet Squat': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Hold kettlebell at chest by horns. Squat down keeping chest up, elbows inside knees. Push through heels to stand.',
+                sets: 3,
+                reps: 12,
+                weight: 30,
+                image: '🏋️ Targets: Quads, Glutes, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/kettlebell-goblet-squat.gif'
+            },
+            'Kettlebell Turkish Get-Up': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Lie on back holding kettlebell overhead. Complex movement transitioning from lying to standing while keeping weight overhead. Reverse to return. Excellent full-body exercise.',
+                sets: 3,
+                reps: 5,
+                weight: 30,
+                image: '🏋️ Targets: Full Body, Core, Stability',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/kettlebell-turkish-get-up.gif'
+            },
+            'Kettlebell Halos': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Hold kettlebell upside down at chest level. Circle it around your head, keeping core tight. Alternate directions.',
+                sets: 3,
+                reps: 10,
+                weight: 30,
+                image: '🏋️ Targets: Shoulders, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/kettlebell-halo.gif'
+            },
+            'Kettlebell Single-Arm Row': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Hinge at hips, place one hand on bench for support. Row kettlebell to hip with free hand. Keep back straight. Complete reps then switch sides.',
+                sets: 3,
+                reps: 12,
+                weight: 30,
+                image: '🏋️ Targets: Back, Biceps',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/one-arm-kettlebell-row.gif'
+            },
+            'Kettlebell Overhead Press': {
+                equipment: 'Kettlebell (30lb)',
+                instructions: 'Clean kettlebell to shoulder (rack position). Press overhead until arm is fully extended. Lower with control. Complete reps then switch arms.',
+                sets: 3,
+                reps: 10,
+                weight: 30,
+                image: '🏋️ Targets: Shoulders, Core',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/02/kettlebell-overhead-press.gif'
+            },
+
+            // Cardio Exercises
+            'Recumbent Bike': {
+                equipment: 'Recumbent Bike',
+                instructions: 'Adjust seat so legs are nearly fully extended at bottom of pedal stroke. Maintain steady cadence. Monitor heart rate. Vary resistance for intensity.',
+                sets: 1,
+                reps: 20,
+                weight: 0,
+                image: '🚴 Targets: Cardiovascular, Quads, Glutes (time in minutes)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2023/11/recumbent-bike.png'
+            },
+            'Rowing Machine': {
+                equipment: 'Rowing Machine',
+                instructions: 'Strap in feet. Drive with legs, then pull handle to chest. Reverse: extend arms, hinge at hips, bend knees. Keep back straight throughout.',
+                sets: 1,
+                reps: 15,
+                weight: 0,
+                image: '🚣 Targets: Full Body Cardio, Back, Legs (time in minutes)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2023/11/rowing-machine.png'
+            },
+            'Interval Sprints - Bike': {
+                equipment: 'Recumbent Bike',
+                instructions: '30 seconds high intensity, 90 seconds recovery. Repeat for workout duration. Great for fat burning and conditioning.',
+                sets: 8,
+                reps: 1,
+                weight: 0,
+                image: '🚴 Targets: HIIT Cardio, Fat Burning (intervals)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2023/11/recumbent-bike.png'
+            },
+            'Interval Sprints - Rowing': {
+                equipment: 'Rowing Machine',
+                instructions: '30 seconds maximum effort, 90 seconds easy pace. Focus on powerful drives during work intervals.',
+                sets: 8,
+                reps: 1,
+                weight: 0,
+                image: '🚣 Targets: HIIT Full Body, Conditioning (intervals)',
+                imageUrl: 'https://www.inspireusafoundation.org/wp-content/uploads/2023/11/rowing-machine.png'
+            }
+        };
+
+        // Predefined Workout Programs
+        const workoutPrograms = {
+            leg: {
+                name: '🦵 Leg Day',
+                exercises: ['Dumbbell Goblet Squat', 'Dumbbell Romanian Deadlift', 'Dumbbell Lunges', 'Dumbbell Calf Raises']
+            },
+            chest: {
+                name: '💪 Chest Day',
+                exercises: ['Incline Dumbbell Press', 'Flat Dumbbell Press', 'Incline Dumbbell Flyes', 'Dumbbell Pullover', 'Push-Ups']
+            },
+            back: {
+                name: '🏋️ Back & Biceps',
+                exercises: ['Dumbbell Bent-Over Row', 'Single-Arm Dumbbell Row', 'Dumbbell Shrugs', 'Dumbbell Bicep Curls', 'Hammer Curls']
+            },
+            shoulders: {
+                name: '💪 Shoulders & Triceps',
+                exercises: ['Dumbbell Shoulder Press', 'Dumbbell Lateral Raises', 'Dumbbell Front Raises', 'Bent-Over Rear Delt Raises', 'Overhead Tricep Extension', 'Dumbbell Tricep Kickbacks']
+            },
+            abs: {
+                name: '🔥 Core/Abs Blast',
+                exercises: ['Dumbbell Russian Twists', 'Dumbbell Side Bends', 'Plank', 'Mountain Climbers', 'Bicycle Crunches']
+            },
+            kettlebell: {
+                name: '🏋️ Kettlebell Circuit',
+                exercises: ['Kettlebell Swings', 'Kettlebell Goblet Squat', 'Kettlebell Single-Arm Row', 'Kettlebell Overhead Press', 'Kettlebell Halos']
+            },
+            cardio: {
+                name: '🚴 Cardio Day',
+                exercises: ['Recumbent Bike', 'Rowing Machine', 'Interval Sprints - Bike', 'Interval Sprints - Rowing']
+            },
+            fullbody: {
+                name: '🎯 Full Body Power',
+                exercises: ['Dumbbell Goblet Squat', 'Incline Dumbbell Press', 'Dumbbell Bent-Over Row', 'Dumbbell Shoulder Press', 'Dumbbell Romanian Deadlift', 'Plank']
+            }
+        };
+
+        // App State
+        let currentWorkout = [];
+        let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let timerRunning = false;
+        
+        // Guided Workout State
+        let guidedMode = false;
+        let workoutStyle = 'traditional'; // 'traditional' or 'circuit'
+        let currentExerciseIndex = 0;
+        let currentSetNumber = 1;
+        let currentRound = 1;
+        let completedSets = [];
+        let restInterval = null;
+        let restTimeRemaining = 0;
+
+        // Initialize
+        updateRecommendation();
+        updateProgress();
+        updateHistory();
+
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(section).classList.add('active');
+            event.target.classList.add('active');
+
+            if (section === 'recommend') updateRecommendation();
+            if (section === 'progress') updateProgress();
+            if (section === 'history') updateHistory();
+        }
+
+        // Load Workout
+        function loadWorkout() {
+            const type = document.getElementById('workoutType').value;
+            const container = document.getElementById('workoutContainer');
+            
+            if (!type) {
+                container.innerHTML = '';
+                document.getElementById('workoutModeSelection').style.display = 'none';
+                return;
+            }
+
+            if (type === 'custom') {
+                loadCustomWorkout();
+                return;
+            }
+
+            const program = workoutPrograms[type];
+            
+            // Load saved preferences or use defaults
+            const savedPrefs = JSON.parse(localStorage.getItem('workoutPreferences')) || {};
+            const workoutPrefs = savedPrefs[type] || {};
+            
+            currentWorkout = program.exercises.map(name => {
+                const defaults = exerciseDatabase[name];
+                const saved = workoutPrefs[name] || {};
+                return {
+                    name,
+                    ...defaults,
+                    weight: saved.weight !== undefined ? saved.weight : defaults.weight,
+                    sets: saved.sets !== undefined ? saved.sets : defaults.sets,
+                    reps: saved.reps !== undefined ? saved.reps : defaults.reps,
+                    completed: false,
+                    setsCompleted: 0
+                };
+            });
+
+            // Show workout preview with editable values
+            container.innerHTML = `
+                <div class="info-box">
+                    <p><strong>${program.name}</strong></p>
+                    <p>Customize your weights, sets, and reps below. Your changes will be saved!</p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    ${currentWorkout.map((ex, idx) => `
+                        <div class="exercise-card">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #001f3f;">
+                                ${ex.name}
+                            </div>
+                            <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment}</div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <!-- Weight -->
+                                <div style="text-align: center;">
+                                    <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Weight (lbs)</label>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                        <input type="number" id="weight-${idx}" value="${ex.weight}" onchange="updateWorkoutValue(${idx}, 'weight', this.value)" style="width: 60px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                        <button onclick="adjustValue(${idx}, 'weight', 5)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sets -->
+                                <div style="text-align: center;">
+                                    <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Sets</label>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                        <input type="number" id="sets-${idx}" value="${ex.sets}" onchange="updateWorkoutValue(${idx}, 'sets', this.value)" style="width: 50px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                        <button onclick="adjustValue(${idx}, 'sets', 1)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reps -->
+                                <div style="text-align: center;">
+                                    <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Reps</label>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                        <input type="number" id="reps-${idx}" value="${ex.reps}" onchange="updateWorkoutValue(${idx}, 'reps', this.value)" style="width: 50px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                        <button onclick="adjustValue(${idx}, 'reps', 1)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+                                📖 View Instructions
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('workoutModeSelection').style.display = 'block';
+        }
+        
+        function adjustValue(idx, field, change) {
+            const input = document.getElementById(`${field}-${idx}`);
+            let newValue = parseInt(input.value) + change;
+            
+            // Minimum values
+            if (field === 'sets' || field === 'reps') {
+                newValue = Math.max(1, newValue);
+            } else if (field === 'weight') {
+                newValue = Math.max(0, newValue);
+            }
+            
+            input.value = newValue;
+            updateWorkoutValue(idx, field, newValue);
+        }
+        
+        function updateWorkoutValue(idx, field, value) {
+            const numValue = parseFloat(value) || 0;
+            currentWorkout[idx][field] = numValue;
+            
+            // Save preferences
+            saveWorkoutPreferences();
+        }
+        
+        function saveWorkoutPreferences() {
+            const type = document.getElementById('workoutType').value;
+            if (!type || type === 'custom') return;
+            
+            const savedPrefs = JSON.parse(localStorage.getItem('workoutPreferences')) || {};
+            
+            // Create preference object for this workout
+            const workoutPrefs = {};
+            currentWorkout.forEach(ex => {
+                workoutPrefs[ex.name] = {
+                    weight: ex.weight,
+                    sets: ex.sets,
+                    reps: ex.reps
+                };
+            });
+            
+            savedPrefs[type] = workoutPrefs;
+            localStorage.setItem('workoutPreferences', JSON.stringify(savedPrefs));
+        }
+
+        function loadCustomWorkout() {
+            const container = document.getElementById('workoutContainer');
+            const exercises = Object.keys(exerciseDatabase).sort();
+            
+            // Load saved custom workouts
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            const customWorkoutNames = Object.keys(savedCustomWorkouts);
+            
+            container.innerHTML = `
+                <div class="info-box">
+                    <p><strong>Custom Workout Builder:</strong> Build your own workout, or load a saved custom workout.</p>
+                </div>
+                
+                ${customWorkoutNames.length > 0 ? `
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Load Saved Custom Workout</label>
+                        <select id="savedCustomSelect" onchange="loadSavedCustomWorkout()" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px; margin-bottom: 10px;">
+                            <option value="">-- Select a saved workout --</option>
+                            ${customWorkoutNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+                        </select>
+                        <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px;">
+                            🗑️ Delete Selected Workout
+                        </button>
+                    </div>
+                ` : ''}
+                
+                <div style="${customWorkoutNames.length > 0 ? 'border-top: 2px solid #8b7355; padding-top: 20px; margin-top: 20px;' : ''}">
+                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">Build New Custom Workout</label>
+                    <div class="form-group">
+                        <label>Choose Exercise</label>
+                        <select id="customExerciseSelect">
+                            <option value="">-- Select Exercise --</option>
+                            ${exercises.map(ex => `<option value="${ex}">${ex}</option>`).join('')}
+                        </select>
+                        <button class="add-exercise-btn" onclick="addCustomExercise()">+ Add Exercise</button>
+                    </div>
+                </div>
+                
+                <div id="customExercisesList"></div>
+                
+                <div id="saveCustomWorkoutSection" style="display: none; margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 10px;">
+                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">Save This Custom Workout</label>
+                    <input type="text" id="customWorkoutName" placeholder="Enter workout name (e.g., 'My Workout')" style="width: 100%; padding: 12px; border: 2px solid #003d5c; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
+                    <button class="btn" onclick="saveCustomWorkout()" style="width: 100%;">
+                        💾 Save Custom Workout
+                    </button>
+                </div>
+            `;
+
+            currentWorkout = [];
+            document.getElementById('workoutModeSelection').style.display = 'none';
+        }
+        
+        function loadSavedCustomWorkout() {
+            const select = document.getElementById('savedCustomSelect');
+            const workoutName = select.value;
+            
+            if (!workoutName) return;
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            const savedWorkout = savedCustomWorkouts[workoutName];
+            
+            if (!savedWorkout) return;
+            
+            currentWorkout = savedWorkout.map(ex => ({
+                ...exerciseDatabase[ex.name],
+                name: ex.name,
+                weight: ex.weight,
+                sets: ex.sets,
+                reps: ex.reps,
+                completed: false,
+                setsCompleted: 0
+            }));
+            
+            renderCustomWorkout();
+        }
+        
+        function deleteSavedCustomWorkout() {
+            const select = document.getElementById('savedCustomSelect');
+            const workoutName = select.value;
+            
+            if (!workoutName) {
+                alert('Please select a workout to delete');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete "${workoutName}"?`)) {
+                return;
+            }
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            delete savedCustomWorkouts[workoutName];
+            localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+            
+            loadCustomWorkout(); // Reload the page
+        }
+        
+        function saveCustomWorkout() {
+            const nameInput = document.getElementById('customWorkoutName');
+            const workoutName = nameInput.value.trim();
+            
+            if (!workoutName) {
+                alert('Please enter a name for your workout');
+                return;
+            }
+            
+            if (currentWorkout.length === 0) {
+                alert('Add some exercises first!');
+                return;
+            }
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            
+            // Save the workout
+            savedCustomWorkouts[workoutName] = currentWorkout.map(ex => ({
+                name: ex.name,
+                weight: ex.weight,
+                sets: ex.sets,
+                reps: ex.reps
+            }));
+            
+            localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+            
+            alert(`✅ Custom workout "${workoutName}" saved successfully!`);
+            nameInput.value = '';
+        }
+
+        function addCustomExercise() {
+            const select = document.getElementById('customExerciseSelect');
+            const exerciseName = select.value;
+            
+            if (!exerciseName) {
+                alert('Please select an exercise first!');
+                return;
+            }
+
+            currentWorkout.push({
+                name: exerciseName,
+                ...exerciseDatabase[exerciseName],
+                completed: false
+            });
+
+            select.value = '';
+            renderCustomWorkout();
+        }
+
+        function renderCustomWorkout() {
+            const list = document.getElementById('customExercisesList');
+            
+            if (currentWorkout.length === 0) {
+                list.innerHTML = '<p style="color: #6c757d; text-align: center; padding: 20px;">No exercises added yet</p>';
+                document.getElementById('workoutModeSelection').style.display = 'none';
+                document.getElementById('saveCustomWorkoutSection').style.display = 'none';
+                return;
+            }
+
+            list.innerHTML = currentWorkout.map((ex, idx) => `
+                <div class="exercise-card">
+                    <div class="exercise-header">
+                        <div class="exercise-name">${ex.name}</div>
+                        <button class="delete-btn" onclick="removeCustomExercise(${idx})">Remove</button>
+                    </div>
+                    <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment}</div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                        <!-- Weight -->
+                        <div style="text-align: center;">
+                            <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Weight (lbs)</label>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                <input type="number" id="custom-weight-${idx}" value="${ex.weight}" onchange="updateCustomExerciseValue(${idx}, 'weight', this.value)" style="width: 60px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                <button onclick="adjustCustomValue(${idx}, 'weight', 5)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Sets -->
+                        <div style="text-align: center;">
+                            <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Sets</label>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                <input type="number" id="custom-sets-${idx}" value="${ex.sets}" onchange="updateCustomExerciseValue(${idx}, 'sets', this.value)" style="width: 50px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                <button onclick="adjustCustomValue(${idx}, 'sets', 1)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Reps -->
+                        <div style="text-align: center;">
+                            <label style="font-size: 12px; color: #6c757d; display: block; margin-bottom: 5px;">Reps</label>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn" style="background: #8b7355; color: #f5f5dc; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">−</button>
+                                <input type="number" id="custom-reps-${idx}" value="${ex.reps}" onchange="updateCustomExerciseValue(${idx}, 'reps', this.value)" style="width: 50px; text-align: center; font-size: 16px; font-weight: bold; padding: 8px; border: 2px solid #003d5c; border-radius: 6px;">
+                                <button onclick="adjustCustomValue(${idx}, 'reps', 1)" class="adjust-btn" style="background: #003d5c; color: #d4af37; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer;">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+                        📖 View Instructions
+                    </button>
+                </div>
+            `).join('');
+
+            // Initialize setsCompleted for custom workouts
+            currentWorkout.forEach(ex => ex.setsCompleted = 0);
+            
+            document.getElementById('workoutModeSelection').style.display = 'block';
+            document.getElementById('saveCustomWorkoutSection').style.display = 'block';
+        }
+        
+        function adjustCustomValue(idx, field, change) {
+            const input = document.getElementById(`custom-${field}-${idx}`);
+            let newValue = parseInt(input.value) + change;
+            
+            // Minimum values
+            if (field === 'sets' || field === 'reps') {
+                newValue = Math.max(1, newValue);
+            } else if (field === 'weight') {
+                newValue = Math.max(0, newValue);
+            }
+            
+            input.value = newValue;
+            updateCustomExerciseValue(idx, field, newValue);
+        }
+        
+        function updateCustomExerciseValue(idx, field, value) {
+            const numValue = parseFloat(value) || 0;
+            currentWorkout[idx][field] = numValue;
+        }
+
+        function removeCustomExercise(idx) {
+            currentWorkout.splice(idx, 1);
+            renderCustomWorkout();
+        }
+
+        // Guided Workout Functions
+        function startGuidedWorkout(style) {
+            workoutStyle = style;
+            guidedMode = true;
+            currentExerciseIndex = 0;
+            currentSetNumber = 1;
+            currentRound = 1;
+            completedSets = currentWorkout.map(ex => ({ name: ex.name, completed: Array(ex.sets).fill(false) }));
+            
+            // Hide setup, show guided mode
+            document.getElementById('workoutSetup').style.display = 'none';
+            document.getElementById('guidedWorkoutMode').style.display = 'block';
+            
+            // Start timer automatically
+            startTimer();
+            
+            // Try to start Apple Watch workout
+            startAppleWatchWorkout();
+            
+            // Show first exercise
+            updateGuidedDisplay();
+        }
+        
+        function startAppleWatchWorkout() {
+            // Check if we're on iOS/iPadOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (!isIOS) return;
+            
+            try {
+                // Attempt to trigger Apple Watch workout via URL scheme
+                // This opens the Workout app on Apple Watch if paired
+                const workoutType = 'traditionalStrengthTraining'; // Can be: running, cycling, traditionalStrengthTraining, etc.
+                
+                // Try to use the workout URL scheme (iOS 17+)
+                const workoutURL = `workout://start?type=${workoutType}`;
+                
+                // Create hidden iframe to trigger URL
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = workoutURL;
+                document.body.appendChild(iframe);
+                
+                // Clean up after attempt
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 1000);
+                
+                // Note: This may not work on all iOS versions or if Watch isn't paired
+                // User may need to manually start workout on Watch
+                console.log('Attempted to start Apple Watch workout');
+                
+            } catch (error) {
+                console.log('Could not start Apple Watch workout:', error);
+                // Fail silently - not critical to workout tracking
+            }
+        }
+        
+        function endAppleWatchWorkout() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (!isIOS) return;
+            
+            try {
+                // Attempt to end workout on Apple Watch
+                const endURL = 'workout://end';
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = endURL;
+                document.body.appendChild(iframe);
+                
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 1000);
+                
+                console.log('Attempted to end Apple Watch workout');
+                
+            } catch (error) {
+                console.log('Could not end Apple Watch workout:', error);
+            }
+        }
+
+        function updateGuidedDisplay() {
+            const exercise = currentWorkout[currentExerciseIndex];
+            
+            // Update exercise info
+            document.getElementById('currentExerciseName').textContent = exercise.name;
+            document.getElementById('currentWeight').textContent = exercise.weight;
+            document.getElementById('currentReps').textContent = exercise.reps;
+            document.getElementById('currentSets').textContent = exercise.sets;
+            
+            // Update progress
+            if (workoutStyle === 'traditional') {
+                document.getElementById('exerciseProgress').textContent = 
+                    `Exercise ${currentExerciseIndex + 1} of ${currentWorkout.length}`;
+                document.getElementById('setProgress').textContent = 
+                    `Set ${currentSetNumber}/${exercise.sets}`;
+            } else {
+                // Circuit mode
+                document.getElementById('exerciseProgress').textContent = 
+                    `Round ${currentRound} • Exercise ${currentExerciseIndex + 1}/${currentWorkout.length}`;
+                document.getElementById('setProgress').textContent = 
+                    `Set ${currentRound}/${exercise.sets}`;
+            }
+            
+            // Update progress list
+            updateProgressList();
+        }
+
+        function updateProgressList() {
+            const list = document.getElementById('workoutProgressList');
+            list.innerHTML = completedSets.map((ex, idx) => {
+                const completedCount = ex.completed.filter(s => s).length;
+                const totalSets = ex.completed.length;
+                const percentage = (completedCount / totalSets) * 100;
+                
+                return `
+                    <div class="chart-bar" style="margin-bottom: 10px;">
+                        <div class="chart-label" style="width: 150px; font-size: 13px;">${ex.name}</div>
+                        <div style="flex: 1; height: 25px; background: #d9c7a5; border-radius: 5px; position: relative; overflow: hidden;">
+                            <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #001f3f 0%, #003d5c 100%); transition: width 0.3s;"></div>
+                            <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: ${percentage > 50 ? '#d4af37' : '#333'}; font-weight: 600; font-size: 12px;">
+                                ${completedCount}/${totalSets}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function completeSet() {
+            // Mark current set as completed
+            completedSets[currentExerciseIndex].completed[currentSetNumber - 1] = true;
+            
+            // Determine next action based on workout style
+            if (workoutStyle === 'traditional') {
+                // Traditional: complete all sets of current exercise
+                if (currentSetNumber < currentWorkout[currentExerciseIndex].sets) {
+                    // More sets of this exercise
+                    currentSetNumber++;
+                    startRest(60); // 60 second rest between sets
+                } else {
+                    // Move to next exercise
+                    currentExerciseIndex++;
+                    currentSetNumber = 1;
+                    
+                    if (currentExerciseIndex < currentWorkout.length) {
+                        startRest(90); // 90 second rest between exercises
+                    } else {
+                        // Workout complete!
+                        finishWorkout();
+                    }
+                }
+            } else {
+                // Circuit: one set of each exercise, then repeat
+                currentExerciseIndex++;
+                
+                if (currentExerciseIndex < currentWorkout.length) {
+                    // Next exercise in circuit
+                    startRest(30); // 30 second rest between exercises in circuit
+                } else {
+                    // Completed one round
+                    currentRound++;
+                    currentExerciseIndex = 0;
+                    
+                    // Check if all rounds complete
+                    const allComplete = completedSets.every(ex => 
+                        ex.completed.every(s => s)
+                    );
+                    
+                    if (allComplete) {
+                        // Workout complete!
+                        finishWorkout();
+                    } else {
+                        startRest(90); // 90 second rest between rounds
+                    }
+                }
+            }
+        }
+
+        function startRest(seconds) {
+            restTimeRemaining = seconds;
+            document.getElementById('restTimer').style.display = 'block';
+            document.getElementById('completeSetBtn').style.display = 'none';
+            document.getElementById('restDisplay').textContent = restTimeRemaining;
+            
+            restInterval = setInterval(() => {
+                restTimeRemaining--;
+                document.getElementById('restDisplay').textContent = restTimeRemaining;
+                
+                if (restTimeRemaining <= 0) {
+                    skipRest();
+                }
+            }, 1000);
+        }
+
+        function skipRest() {
+            clearInterval(restInterval);
+            document.getElementById('restTimer').style.display = 'none';
+            document.getElementById('completeSetBtn').style.display = 'block';
+            updateGuidedDisplay();
+        }
+
+        function showCurrentExerciseInfo() {
+            const exercise = currentWorkout[currentExerciseIndex];
+            showExerciseInfo(exercise.name);
+        }
+
+        function endWorkout() {
+            if (confirm('Are you sure you want to end this workout early? Your progress will still be saved.')) {
+                finishWorkout();
+            }
+        }
+
+        function finishWorkout() {
+            pauseTimer();
+            
+            // Try to end Apple Watch workout
+            endAppleWatchWorkout();
+            
+            const workoutType = document.getElementById('workoutType').value;
+            const programName = workoutType === 'custom' ? 'Custom Workout' : workoutPrograms[workoutType].name;
+
+            // Calculate volume from completed sets only
+            const totalVolume = completedSets.reduce((sum, ex, idx) => {
+                const completedCount = ex.completed.filter(s => s).length;
+                const exercise = currentWorkout[idx];
+                return sum + (exercise.weight * completedCount * exercise.reps);
+            }, 0);
+
+            const workout = {
+                date: new Date().toISOString(),
+                type: programName + (workoutStyle === 'circuit' ? ' (Circuit)' : ''),
+                exercises: currentWorkout.map((ex, idx) => ({
+                    name: ex.name,
+                    weight: ex.weight,
+                    sets: completedSets[idx].completed.filter(s => s).length,
+                    reps: ex.reps,
+                    plannedSets: ex.sets
+                })),
+                duration: timerSeconds,
+                volume: totalVolume
+            };
+
+            workoutHistory.unshift(workout);
+            localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+
+            // Calculate completion percentage
+            const totalSets = completedSets.reduce((sum, ex) => sum + ex.completed.length, 0);
+            const completedCount = completedSets.reduce((sum, ex) => sum + ex.completed.filter(s => s).length, 0);
+            const percentage = Math.round((completedCount / totalSets) * 100);
+
+            alert(`🎉 Workout ${percentage === 100 ? 'Completed' : 'Saved'}!\n\nCompleted: ${completedCount}/${totalSets} sets (${percentage}%)\nTotal Volume: ${totalVolume} lbs\nDuration: ${formatTime(timerSeconds)}\n\nGreat work! Keep crushing it! 💪`);
+
+            // Reset everything
+            resetWorkoutState();
+        }
+
+        function resetWorkoutState() {
+            guidedMode = false;
+            document.getElementById('workoutSetup').style.display = 'block';
+            document.getElementById('guidedWorkoutMode').style.display = 'none';
+            document.getElementById('workoutType').value = '';
+            document.getElementById('workoutContainer').innerHTML = '';
+            document.getElementById('workoutModeSelection').style.display = 'none';
+            currentWorkout = [];
+            resetTimer();
+            updateRecommendation();
+            updateProgress();
+            updateHistory();
+        }
+
+        function updateExercise(idx, field, value) {
+            currentWorkout[idx][field] = parseFloat(value) || 0;
+        }
+
+        function showExerciseInfo(name) {
+            const exercise = exerciseDatabase[name];
+            const modal = document.getElementById('exerciseModal');
+            const modalName = document.getElementById('modalExerciseName');
+            const modalContent = document.getElementById('modalExerciseContent');
+
+            modalName.textContent = name;
+            modalContent.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Equipment:</strong> ${exercise.equipment}
+                </div>
+                <div class="exercise-image" style="margin: 15px auto;" id="modal-img">
+                    ${exercise.imageUrl ? `<img src="${exercise.imageUrl}" alt="${name}" crossorigin="anonymous" onerror="document.getElementById('modal-img').innerHTML='<div class=exercise-image-fallback>${exercise.image}<br><small>Image unavailable</small></div>'">` : `<div class="exercise-image-fallback">${exercise.image}</div>`}
+                </div>
+                <div style="margin-top: 15px;">
+                    <strong>How to Perform:</strong>
+                    <p style="line-height: 1.6; margin-top: 10px;">${exercise.instructions}</p>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <strong>Suggested:</strong> ${exercise.sets} sets × ${exercise.reps} reps @ ${exercise.weight} lbs
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('exerciseModal').classList.remove('active');
+        }
+
+        // Recommendations
+        function updateRecommendation() {
+            const container = document.getElementById('recommendationContainer');
+            
+            if (workoutHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="recommendation-card">
+                        <h3>🎯 Welcome to Your Fitness Journey!</h3>
+                        <p><strong>Today's Recommendation: Full Body Power</strong></p>
+                        <p>Start with a well-rounded full body workout to establish your baseline strength. This workout includes compound movements that hit all major muscle groups.</p>
+                        <p style="margin-top: 15px;"><strong>Why this workout?</strong> It's perfect for beginners and helps you learn proper form on key exercises while building foundational strength.</p>
+                        <button class="btn" onclick="selectRecommendedWorkout('fullbody')" style="margin-top: 15px;">Start This Workout</button>
+                    </div>
+                    <div class="info-box">
+                        <p><strong>Workout Tips:</strong></p>
+                        <p>• Start with suggested weights and adjust as needed</p>
+                        <p>• Focus on proper form over heavy weight</p>
+                        <p>• Rest 60-90 seconds between sets</p>
+                        <p>• Stay hydrated throughout your workout</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const lastWorkout = workoutHistory[0];
+            const lastWorkoutDate = new Date(lastWorkout.date);
+            const daysSince = Math.floor((Date.now() - lastWorkoutDate) / (1000 * 60 * 60 * 24));
+            
+            const recentTypes = workoutHistory.slice(0, 5).map(w => w.type);
+            const recommendation = getSmartRecommendation(recentTypes, daysSince);
+
+            container.innerHTML = `
+                <div class="recommendation-card">
+                    <h3>${recommendation.title}</h3>
+                    <p><strong>Recommended: ${recommendation.workout}</strong></p>
+                    <p>${recommendation.reason}</p>
+                    <p style="margin-top: 10px;"><strong>Focus:</strong> ${recommendation.focus}</p>
+                    ${daysSince > 3 ? `<p style="margin-top: 10px; color: #fff3cd; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">⚠️ It's been ${daysSince} days since your last workout. Let's get back on track!</p>` : ''}
+                    <button class="btn" onclick="selectRecommendedWorkout('${recommendation.type}')" style="margin-top: 15px;">Start This Workout</button>
+                </div>
+                <div class="info-box">
+                    <p><strong>Last Workout:</strong> ${lastWorkout.type} - ${formatDate(lastWorkout.date)}</p>
+                    <p><strong>Total Volume:</strong> ${lastWorkout.volume} lbs</p>
+                    <p><strong>Duration:</strong> ${formatTime(lastWorkout.duration)}</p>
+                </div>
+            `;
+        }
+
+        function getSmartRecommendation(recentTypes, daysSince) {
+            // If it's been a while, suggest full body or cardio
+            if (daysSince > 5) {
+                return {
+                    title: '🔥 Welcome Back!',
+                    workout: 'Full Body Power or Cardio Day',
+                    type: 'fullbody',
+                    reason: 'After a break, ease back in with a full body workout or cardio to rebuild conditioning.',
+                    focus: 'Overall fitness and getting back into rhythm'
+                };
+            }
+
+            // Check what was done recently
+            const hasLeg = recentTypes.some(t => t.includes('Leg'));
+            const hasChest = recentTypes.some(t => t.includes('Chest'));
+            const hasBack = recentTypes.some(t => t.includes('Back'));
+            const hasShoulder = recentTypes.some(t => t.includes('Shoulder'));
+            const hasAbs = recentTypes.some(t => t.includes('Core') || t.includes('Abs'));
+            const hasCardio = recentTypes.some(t => t.includes('Cardio'));
+            const hasKettlebell = recentTypes.some(t => t.includes('Kettlebell'));
+
+            // Prioritize what hasn't been done
+            if (!hasLeg) {
+                return {
+                    title: '🦵 Time to Train Legs!',
+                    workout: 'Leg Day',
+                    type: 'leg',
+                    reason: 'You haven\'t trained legs recently. Lower body strength is crucial for overall fitness and metabolism.',
+                    focus: 'Quads, hamstrings, glutes, and calves'
+                };
+            }
+
+            if (!hasBack && !hasChest) {
+                return {
+                    title: '💪 Upper Body Push Day',
+                    workout: 'Chest Day',
+                    type: 'chest',
+                    reason: 'Build upper body pushing strength with chest and tricep focused exercises.',
+                    focus: 'Chest, shoulders, and triceps'
+                };
+            }
+
+            if (!hasBack) {
+                return {
+                    title: '🏋️ Pull Day - Back Focus',
+                    workout: 'Back & Biceps',
+                    type: 'back',
+                    reason: 'Balance your training with a pulling day. Strong back muscles improve posture and overall strength.',
+                    focus: 'Lats, traps, rhomboids, and biceps'
+                };
+            }
+
+            if (!hasShoulder) {
+                return {
+                    title: '💪 Shoulder Development',
+                    workout: 'Shoulders & Triceps',
+                    type: 'shoulders',
+                    reason: 'Well-developed shoulders create a strong upper body foundation and improve functional strength.',
+                    focus: 'All three deltoid heads and triceps'
+                };
+            }
+
+            if (!hasCardio && (hasLeg || hasChest || hasBack)) {
+                return {
+                    title: '🚴 Cardio & Recovery',
+                    workout: 'Cardio Day',
+                    type: 'cardio',
+                    reason: 'You\'ve been lifting hard! Time for cardio to boost heart health, burn fat, and aid recovery.',
+                    focus: 'Cardiovascular endurance and active recovery'
+                };
+            }
+
+            if (!hasKettlebell) {
+                return {
+                    title: '🏋️ Kettlebell Circuit',
+                    workout: 'Kettlebell Circuit',
+                    type: 'kettlebell',
+                    reason: 'Mix things up with kettlebell training! Great for explosive power, core strength, and conditioning.',
+                    focus: 'Full body power and conditioning'
+                };
+            }
+
+            if (!hasAbs) {
+                return {
+                    title: '🔥 Core Strength',
+                    workout: 'Core/Abs Blast',
+                    type: 'abs',
+                    reason: 'A strong core is the foundation for all other lifts and protects your back.',
+                    focus: 'Abs, obliques, and core stability'
+                };
+            }
+
+            // Default to full body
+            return {
+                title: '🎯 Balanced Training',
+                workout: 'Full Body Power',
+                type: 'fullbody',
+                reason: 'Hit all major muscle groups with compound movements for balanced development.',
+                focus: 'Total body strength and coordination'
+            };
+        }
+
+        function selectRecommendedWorkout(type) {
+            document.getElementById('workoutType').value = type;
+            loadWorkout();
+            showSection('workout');
+            document.querySelector('.nav-btn').classList.remove('active');
+            document.querySelectorAll('.nav-btn')[0].classList.add('active');
+        }
+
+        // Progress Tracking
+        function updateProgress() {
+            const total = workoutHistory.length;
+            document.getElementById('totalWorkouts').textContent = total;
+
+            // This week
+            const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            const thisWeek = workoutHistory.filter(w => new Date(w.date) > weekAgo).length;
+            document.getElementById('thisWeek').textContent = thisWeek;
+
+            // Total volume
+            const totalVolume = workoutHistory.reduce((sum, w) => sum + w.volume, 0);
+            document.getElementById('totalVolume').textContent = totalVolume.toLocaleString();
+
+            // Streak
+            const streak = calculateStreak();
+            document.getElementById('streak').textContent = streak;
+
+            // Workout distribution
+            updateWorkoutDistribution();
+            
+            // Volume progress
+            updateVolumeProgress();
+        }
+
+        function calculateStreak() {
+            if (workoutHistory.length === 0) return 0;
+
+            let streak = 0;
+            let currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < workoutHistory.length; i++) {
+                const workoutDate = new Date(workoutHistory[i].date);
+                workoutDate.setHours(0, 0, 0, 0);
+
+                const diffDays = Math.floor((currentDate - workoutDate) / (1000 * 60 * 60 * 24));
+
+                if (diffDays === streak) {
+                    streak++;
+                } else if (diffDays > streak) {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        function updateWorkoutDistribution() {
+            const container = document.getElementById('workoutDistribution');
+            const distribution = {};
+
+            workoutHistory.forEach(w => {
+                const type = w.type;
+                distribution[type] = (distribution[type] || 0) + 1;
+            });
+
+            const sorted = Object.entries(distribution).sort((a, b) => b[1] - a[1]);
+            const max = sorted[0]?.[1] || 1;
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; text-align: center;">No workout data yet. Start training to see your progress!</p>';
+                return;
+            }
+
+            container.innerHTML = sorted.map(([type, count]) => {
+                const width = (count / max) * 100;
+                return `
+                    <div class="chart-bar">
+                        <div class="chart-label">${type}</div>
+                        <div class="chart-fill" style="width: ${width}%">
+                            <div class="chart-value">${count}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateVolumeProgress() {
+            const container = document.getElementById('volumeProgress');
+            const recent = workoutHistory.slice(0, 10).reverse();
+
+            if (recent.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; text-align: center;">Complete workouts to track volume progress!</p>';
+                return;
+            }
+
+            const max = Math.max(...recent.map(w => w.volume));
+
+            container.innerHTML = recent.map((w, idx) => {
+                const width = (w.volume / max) * 100;
+                const shortType = w.type.split(' ')[0];
+                return `
+                    <div class="chart-bar">
+                        <div class="chart-label">${shortType} #${recent.length - idx}</div>
+                        <div class="chart-fill" style="width: ${width}%">
+                            <div class="chart-value">${w.volume}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // History
+        function updateHistory() {
+            const container = document.getElementById('historyContainer');
+
+            if (workoutHistory.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; text-align: center; padding: 40px;">No workout history yet. Complete your first workout to start tracking progress!</p>';
+                return;
+            }
+
+            container.innerHTML = workoutHistory.map((w, idx) => `
+                <div class="history-item">
+                    <div class="history-header">
+                        <div class="history-date">${formatDate(w.date)}</div>
+                        <div class="history-type">${w.type}</div>
+                    </div>
+                    <div class="history-exercises">
+                        <strong>Exercises:</strong> ${w.exercises.map(e => e.name).join(', ')}
+                    </div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #6c757d;">
+                        <strong>Volume:</strong> ${w.volume} lbs | <strong>Duration:</strong> ${formatTime(w.duration)}
+                    </div>
+                    <button class="delete-btn" onclick="deleteWorkout(${idx})" style="margin-top: 10px;">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteWorkout(idx) {
+            if (confirm('Are you sure you want to delete this workout?')) {
+                workoutHistory.splice(idx, 1);
+                localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+                updateHistory();
+                updateProgress();
+                updateRecommendation();
+            }
+        }
+
+        // Timer Functions
+        function startTimer() {
+            if (!timerRunning) {
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            timerSeconds = 0;
+            document.getElementById('timerDisplay').textContent = '00:00';
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = now - date;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Close modal on outside click
+        document.getElementById('exerciseModal').addEventListener('click', (e) => {
+            if (e.target.id === 'exerciseModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
