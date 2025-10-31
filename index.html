@@ -606,7 +606,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>ðŸ’ª Workout Tracker Pro</h1>
+            <h1>&#128170; Workout Tracker Pro</h1>
             <p>Your Personal Fitness Companion</p>
         </div>
 
@@ -635,15 +635,15 @@
                         <label>Select Workout Type</label>
                         <select id="workoutType" onchange="loadWorkout()">
                             <option value="">-- Choose a Workout --</option>
-                            <option value="custom">âž• Create Custom Workout</option>
-                            <option value="leg">ðŸ¦µ Leg Day</option>
-                            <option value="chest">ðŸ’ª Chest Day</option>
-                            <option value="back">ðŸ ‹ï¸  Back & Biceps</option>
-                            <option value="shoulders">ðŸ’ª Shoulders & Triceps</option>
-                            <option value="abs">ðŸ”¥ Core/Abs Blast</option>
-                            <option value="kettlebell">ðŸ ‹ï¸  Kettlebell Circuit</option>
-                            <option value="cardio">ðŸš´ Cardio Day</option>
-                            <option value="fullbody">ðŸŽ¯ Full Body Power</option>
+                            <option value="custom">&#10133; Create Custom Workout</option>
+                            <option value="leg">&#129461; Leg Day</option>
+                            <option value="chest">&#128170; Chest Day</option>
+                            <option value="back">&#127947;&#65039; Back & Biceps</option>
+                            <option value="shoulders">&#128170; Shoulders & Triceps</option>
+                            <option value="abs">&#128293; Core/Abs Blast</option>
+                            <option value="kettlebell">&#127947;&#65039; Kettlebell Circuit</option>
+                            <option value="cardio">&#128692; Cardio Day</option>
+                            <option value="fullbody">&#127919; Full Body Power</option>
                         </select>
                     </div>
 
@@ -654,13 +654,13 @@
                             <p><strong>Choose Your Workout Style:</strong></p>
                             <p><strong>Traditional:</strong> Complete all sets of one exercise before moving to the next.</p>
                             <p><strong>Circuit:</strong> Do one set of each exercise, then repeat for all rounds.</p>
-                            <p style="margin-top: 10px; font-size: 13px;"><strong>âŒš Apple Watch Tip:</strong> Manually start a "Traditional Strength Training" workout on your Watch when you begin!</p>
+                            <p style="margin-top: 10px; font-size: 13px;"><strong>&#8986; Apple Watch Tip:</strong> Manually start a "Traditional Strength Training" workout on your Watch when you begin!</p>
                         </div>
                         <button class="btn" onclick="startGuidedWorkout('traditional')" style="margin-bottom: 10px;">
-                            ðŸ ‹ï¸  Start Traditional Style
+                            &#127947;&#65039; Start Traditional Style
                         </button>
                         <button class="btn btn-success" onclick="startGuidedWorkout('circuit')">
-                            ðŸ”¥ Start Circuit Style
+                            &#128293; Start Circuit Style
                         </button>
                     </div>
                 </div>
@@ -693,7 +693,7 @@
                         </div>
 
                         <button class="btn btn-secondary" onclick="showCurrentExerciseInfo()" style="margin-bottom: 10px;">
-                            ðŸ“– View Form Instructions
+                            &#128214; View Form Instructions
                         </button>
 
                         <div id="restTimer" style="display:none; text-align: center; margin: 20px 0;">
@@ -703,7 +703,7 @@
                         </div>
 
                         <button class="btn btn-success" id="completeSetBtn" onclick="completeSet()" style="font-size: 18px; padding: 18px;">
-                            âœ“ Complete Set
+                            &#10004; Complete Set
                         </button>
                     </div>
 
@@ -786,7 +786,7 @@
     <div id="addExerciseModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">âž• Add Custom Exercise</h3>
+                <h3 class="modal-title">&#10133; Add Custom Exercise</h3>
                 <button class="modal-close" onclick="closeAddExerciseModal()">&times;</button>
             </div>
             <div>
@@ -804,7 +804,7 @@
                 </div>
                 <div class="form-group">
                     <label>Target Muscles/Description</label>
-                    <input type="text" id="newExerciseImage" placeholder="e.g., ðŸ’ª Targets: Chest, Shoulders">
+                    <input type="text" id="newExerciseImage" placeholder="e.g., &#128170; Targets: Chest, Shoulders">
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
                     <div class="form-group">
@@ -820,7 +820,7 @@
                         <input type="number" id="newExerciseReps" value="12">
                     </div>
                 </div>
-                <button class="btn" onclick="saveNewExercise()">ðŸ’¾ Add Exercise to Database</button>
+                <button class="btn" onclick="saveNewExercise()">&#128190; Add Exercise to Database</button>
             </div>
         </div>
     </div>
@@ -831,7 +831,7 @@
         
         // Helper function to get free exercise image URL
         function getExerciseImageUrl(exerciseName) {
-            // Map specific exercise names to their correct repository paths
+            // **FIXED**: This mapping now correctly points to the folder names in the image repository.
             const exerciseMapping = {
                 'Dumbbell Goblet Squat': 'Dumbbell_Goblet_Squat',
                 'Dumbbell Romanian Deadlift': 'Romanian_Deadlift',
@@ -872,7 +872,7 @@
                 'Pendlay Row': 'Pendlay_Row',
                 'T-Bar Row': 'T-Bar_Row',
                 'Inverted Row': 'Inverted_Row',
-                'Lat Pulldown': 'Wide-Grip_Lat_Pulldown',
+                'Lat Pulldown': 'Wide_Grip_Lat_Pulldown',
                 'Close-Grip Lat Pulldown': 'Close_Grip_Front_Lat_Pulldown',
                 'Straight-Arm Pulldown': 'Straight-Arm_Pulldown',
                 'Face Pulls': 'Face_Pull',
@@ -905,17 +905,17 @@
                 'Dumbbell Side Bends': 'Side_Bend',
                 'Plank': 'Plank',
                 'Mountain Climbers': 'Mountain_Climber',
-                'Bicycle Crunches': 'Bicycle_Crunches',
+                'Bicycle Crunches': 'Bicycle_Crunch',
                 'Kettlebell Swings': 'Kettlebell_Swing',
                 'Kettlebell Goblet Squat': 'Kettlebell_Goblet_Squat',
-                'Kettlebell Turkish Get-Up': 'Turkish_Get-Up',
-                'Kettlebell Halos': 'Kettlebell_Halos',
+                'Kettlebell Turkish Get-Up': 'Turkish_Get_Up',
+                'Kettlebell Halos': 'Kettlebell_Halo',
                 'Kettlebell Single-Arm Row': 'Kettlebell_One-Arm_Row',
                 'Kettlebell Overhead Press': 'Kettlebell_Overhead_Press',
-                'Recumbent Bike': 'Air_Bike',
-                'Rowing Machine': 'Seated_Cable_Row',
+                'Recumbent Bike': 'Air_Bike', // Using best available alternative
+                'Rowing Machine': 'Rowing_Machine', // Corrected to show actual rowing machine
                 'Interval Sprints - Bike': 'Air_Bike',
-                'Interval Sprints - Rowing': 'Seated_Cable_Row'
+                'Interval Sprints - Rowing': 'Rowing_Machine' // Corrected
             };
             
             const mappedName = exerciseMapping[exerciseName] || exerciseName.replace(/ /g, '_');
@@ -931,7 +931,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 25,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Core'
+                image: '&#129461; Targets: Quads, Glutes, Core'
             },
             'Dumbbell Romanian Deadlift': {
                 equipment: 'Dumbbells',
@@ -939,7 +939,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 30,
-                image: 'ðŸ¦µ Targets: Hamstrings, Glutes, Lower Back'
+                image: '&#129461; Targets: Hamstrings, Glutes, Lower Back'
             },
             'Dumbbell Lunges': {
                 equipment: 'Dumbbells',
@@ -947,7 +947,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 20,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Balance'
+                image: '&#129461; Targets: Quads, Glutes, Balance'
             },
             'Dumbbell Calf Raises': {
                 equipment: 'Dumbbells',
@@ -955,7 +955,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 25,
-                image: 'ðŸ¦µ Targets: Calves'
+                image: '&#129461; Targets: Calves'
             },
             'Bodyweight Squats': {
                 equipment: 'Bodyweight',
@@ -963,7 +963,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 0,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Core'
+                image: '&#129461; Targets: Quads, Glutes, Core'
             },
             'Bulgarian Split Squats': {
                 equipment: 'Dumbbells, Bench',
@@ -971,7 +971,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 20,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Balance'
+                image: '&#129461; Targets: Quads, Glutes, Balance'
             },
             'Walking Lunges': {
                 equipment: 'Dumbbells',
@@ -979,7 +979,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 20,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Coordination'
+                image: '&#129461; Targets: Quads, Glutes, Coordination'
             },
             'Step-Ups': {
                 equipment: 'Dumbbells, Box/Bench',
@@ -987,7 +987,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Functional Strength'
+                image: '&#129461; Targets: Quads, Glutes, Functional Strength'
             },
             'Goblet Squats': {
                 equipment: 'Dumbbell',
@@ -995,7 +995,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 30,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Core'
+                image: '&#129461; Targets: Quads, Glutes, Core'
             },
             'Wall Sits': {
                 equipment: 'Bodyweight',
@@ -1003,7 +1003,7 @@
                 sets: 3,
                 reps: 45,
                 weight: 0,
-                image: 'ðŸ¦µ Targets: Quads, Endurance (time in seconds)'
+                image: '&#129461; Targets: Quads, Endurance (time in seconds)'
             },
             'Jump Squats': {
                 equipment: 'Bodyweight',
@@ -1011,7 +1011,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 0,
-                image: 'ðŸ¦µ Targets: Quads, Glutes, Power, Plyometrics'
+                image: '&#129461; Targets: Quads, Glutes, Power, Plyometrics'
             },
             
             // Chest Exercises
@@ -1021,7 +1021,7 @@
                 sets: 4,
                 reps: 10,
                 weight: 35,
-                image: 'ðŸ’ª Targets: Upper Chest, Shoulders, Triceps'
+                image: '&#128170; Targets: Upper Chest, Shoulders, Triceps'
             },
             'Flat Dumbbell Press': {
                 equipment: 'Dumbbells, Bench',
@@ -1029,7 +1029,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 40,
-                image: 'ðŸ’ª Targets: Middle Chest, Triceps'
+                image: '&#128170; Targets: Middle Chest, Triceps'
             },
             'Incline Dumbbell Flyes': {
                 equipment: 'Dumbbells, Incline Bench',
@@ -1037,7 +1037,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ’ª Targets: Chest, Shoulders (stretch focused)'
+                image: '&#128170; Targets: Chest, Shoulders (stretch focused)'
             },
             'Dumbbell Pullover': {
                 equipment: 'Dumbbell, Bench',
@@ -1045,7 +1045,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 25,
-                image: 'ðŸ’ª Targets: Chest, Lats, Serratus'
+                image: '&#128170; Targets: Chest, Lats, Serratus'
             },
             'Barbell Bench Press': {
                 equipment: 'Barbell, Bench',
@@ -1053,7 +1053,7 @@
                 sets: 4,
                 reps: 8,
                 weight: 135,
-                image: 'ðŸ’ª Targets: Chest, Shoulders, Triceps'
+                image: '&#128170; Targets: Chest, Shoulders, Triceps'
             },
             'Incline Barbell Bench Press': {
                 equipment: 'Barbell, Incline Bench',
@@ -1061,7 +1061,7 @@
                 sets: 4,
                 reps: 8,
                 weight: 115,
-                image: 'ðŸ’ª Targets: Upper Chest, Shoulders, Triceps'
+                image: '&#128170; Targets: Upper Chest, Shoulders, Triceps'
             },
             'Decline Dumbbell Press': {
                 equipment: 'Dumbbells, Decline Bench',
@@ -1069,7 +1069,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 35,
-                image: 'ðŸ’ª Targets: Lower Chest, Triceps'
+                image: '&#128170; Targets: Lower Chest, Triceps'
             },
             'Decline Barbell Bench Press': {
                 equipment: 'Barbell, Decline Bench',
@@ -1077,7 +1077,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 125,
-                image: 'ðŸ’ª Targets: Lower Chest, Triceps'
+                image: '&#128170; Targets: Lower Chest, Triceps'
             },
             'Flat Dumbbell Flyes': {
                 equipment: 'Dumbbells, Bench',
@@ -1085,7 +1085,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ’ª Targets: Chest (stretch and squeeze)'
+                image: '&#128170; Targets: Chest (stretch and squeeze)'
             },
             'Decline Dumbbell Flyes': {
                 equipment: 'Dumbbells, Decline Bench',
@@ -1093,7 +1093,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ’ª Targets: Lower Chest'
+                image: '&#128170; Targets: Lower Chest'
             },
             'Diamond Push-Ups': {
                 equipment: 'Bodyweight',
@@ -1101,7 +1101,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Triceps, Inner Chest, Core'
+                image: '&#128170; Targets: Triceps, Inner Chest, Core'
             },
             'Wide Push-Ups': {
                 equipment: 'Bodyweight',
@@ -1109,7 +1109,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Chest, Shoulders'
+                image: '&#128170; Targets: Chest, Shoulders'
             },
             'Decline Push-Ups': {
                 equipment: 'Bench/Box',
@@ -1117,7 +1117,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Upper Chest, Shoulders'
+                image: '&#128170; Targets: Upper Chest, Shoulders'
             },
             'Incline Push-Ups': {
                 equipment: 'Bench/Box',
@@ -1125,7 +1125,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Chest, Triceps (beginner friendly)'
+                image: '&#128170; Targets: Chest, Triceps (beginner friendly)'
             },
             'Chest Dips': {
                 equipment: 'Dip Bar/Parallel Bars',
@@ -1133,7 +1133,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Lower Chest, Triceps, Shoulders'
+                image: '&#128170; Targets: Lower Chest, Triceps, Shoulders'
             },
             'Cable Crossover': {
                 equipment: 'Cable Machine',
@@ -1141,7 +1141,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ’ª Targets: Inner Chest, Definition'
+                image: '&#128170; Targets: Inner Chest, Definition'
             },
             'Push-Up': {
                 equipment: 'Bodyweight',
@@ -1149,7 +1149,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Chest, Triceps, Core'
+                image: '&#128170; Targets: Chest, Triceps, Core'
             },
 
             // Back & Bicep Exercises
@@ -1159,7 +1159,7 @@
                 sets: 4,
                 reps: 10,
                 weight: 35,
-                image: 'ðŸ ‹ï¸  Targets: Mid Back, Lats, Biceps'
+                image: '&#127947;&#65039; Targets: Mid Back, Lats, Biceps'
             },
             'Single-Arm Dumbbell Row': {
                 equipment: 'Dumbbell, Bench',
@@ -1167,7 +1167,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 40,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Mid Back, Biceps'
+                image: '&#127947;&#65039; Targets: Lats, Mid Back, Biceps'
             },
             'Dumbbell Bicep Curls': {
                 equipment: 'Dumbbells',
@@ -1175,7 +1175,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 25,
-                image: 'ðŸ ‹ï¸  Targets: Biceps'
+                image: '&#127947;&#65039; Targets: Biceps'
             },
             'Hammer Curls': {
                 equipment: 'Dumbbells',
@@ -1183,7 +1183,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 25,
-                image: 'ðŸ ‹ï¸  Targets: Biceps, Forearms'
+                image: '&#127947;&#65039; Targets: Biceps, Forearms'
             },
             'Barbell Bicep Curls': {
                 equipment: 'Barbell',
@@ -1191,7 +1191,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 60,
-                image: 'ðŸ ‹ï¸  Targets: Biceps'
+                image: '&#127947;&#65039; Targets: Biceps'
             },
             'EZ-Bar Curls': {
                 equipment: 'EZ Curl Bar',
@@ -1199,7 +1199,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 50,
-                image: 'ðŸ ‹ï¸  Targets: Biceps (wrist-friendly)'
+                image: '&#127947;&#65039; Targets: Biceps (wrist-friendly)'
             },
             'Preacher Curls': {
                 equipment: 'Dumbbells or Barbell, Preacher Bench',
@@ -1207,7 +1207,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ ‹ï¸  Targets: Biceps (strict form)'
+                image: '&#127947;&#65039; Targets: Biceps (strict form)'
             },
             'Concentration Curls': {
                 equipment: 'Dumbbell',
@@ -1215,7 +1215,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ ‹ï¸  Targets: Biceps Peak'
+                image: '&#127947;&#65039; Targets: Biceps Peak'
             },
             'Cable Bicep Curls': {
                 equipment: 'Cable Machine',
@@ -1223,7 +1223,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 50,
-                image: 'ðŸ ‹ï¸  Targets: Biceps (constant tension)'
+                image: '&#127947;&#65039; Targets: Biceps (constant tension)'
             },
             'Zottman Curls': {
                 equipment: 'Dumbbells',
@@ -1231,7 +1231,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 20,
-                image: 'ðŸ ‹ï¸  Targets: Biceps, Forearms'
+                image: '&#127947;&#65039; Targets: Biceps, Forearms'
             },
             'Incline Dumbbell Curls': {
                 equipment: 'Dumbbells, Incline Bench',
@@ -1239,7 +1239,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 20,
-                image: 'ðŸ ‹ï¸  Targets: Biceps (stretch emphasis)'
+                image: '&#127947;&#65039; Targets: Biceps (stretch emphasis)'
             },
             'Dumbbell Shrugs': {
                 equipment: 'Dumbbells',
@@ -1247,7 +1247,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 45,
-                image: 'ðŸ ‹ï¸  Targets: Traps, Upper Back'
+                image: '&#127947;&#65039; Targets: Traps, Upper Back'
             },
             'Pull-Ups': {
                 equipment: 'Pull-Up Bar',
@@ -1255,7 +1255,7 @@
                 sets: 3,
                 reps: 8,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Biceps, Upper Back'
+                image: '&#127947;&#65039; Targets: Lats, Biceps, Upper Back'
             },
             'Chin-Ups': {
                 equipment: 'Pull-Up Bar',
@@ -1263,7 +1263,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Biceps, Forearms'
+                image: '&#127947;&#65039; Targets: Lats, Biceps, Forearms'
             },
             'Assisted Pull-Ups': {
                 equipment: 'Resistance Band or Machine',
@@ -1271,7 +1271,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Biceps (progression exercise)'
+                image: '&#127947;&#65039; Targets: Lats, Biceps (progression exercise)'
             },
             'Negative Pull-Ups': {
                 equipment: 'Pull-Up Bar',
@@ -1279,7 +1279,7 @@
                 sets: 3,
                 reps: 5,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Back (eccentric strength)'
+                image: '&#127947;&#65039; Targets: Lats, Back (eccentric strength)'
             },
             'Wide-Grip Pull-Ups': {
                 equipment: 'Pull-Up Bar',
@@ -1287,7 +1287,7 @@
                 sets: 3,
                 reps: 6,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Upper Back'
+                image: '&#127947;&#65039; Targets: Lats, Upper Back'
             },
             'Barbell Bent-Over Row': {
                 equipment: 'Barbell',
@@ -1295,7 +1295,7 @@
                 sets: 4,
                 reps: 10,
                 weight: 95,
-                image: 'ðŸ ‹ï¸  Targets: Mid Back, Lats, Biceps'
+                image: '&#127947;&#65039; Targets: Mid Back, Lats, Biceps'
             },
             'Pendlay Row': {
                 equipment: 'Barbell',
@@ -1303,7 +1303,7 @@
                 sets: 4,
                 reps: 8,
                 weight: 85,
-                image: 'ðŸ ‹ï¸  Targets: Back, Power, Explosiveness'
+                image: '&#127947;&#65039; Targets: Back, Power, Explosiveness'
             },
             'T-Bar Row': {
                 equipment: 'Barbell, V-Handle',
@@ -1311,7 +1311,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 70,
-                image: 'ðŸ ‹ï¸  Targets: Mid Back, Lats, Thickness'
+                image: '&#127947;&#65039; Targets: Mid Back, Lats, Thickness'
             },
             'Inverted Row': {
                 equipment: 'Bar/Smith Machine',
@@ -1319,7 +1319,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 0,
-                image: 'ðŸ ‹ï¸  Targets: Back, Biceps, Core'
+                image: '&#127947;&#65039; Targets: Back, Biceps, Core'
             },
             'Lat Pulldown': {
                 equipment: 'Cable Machine',
@@ -1327,7 +1327,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 80,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Back Width'
+                image: '&#127947;&#65039; Targets: Lats, Back Width'
             },
             'Close-Grip Lat Pulldown': {
                 equipment: 'Cable Machine, V-Handle',
@@ -1335,7 +1335,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 80,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Mid Back, Thickness'
+                image: '&#127947;&#65039; Targets: Lats, Mid Back, Thickness'
             },
             'Straight-Arm Pulldown': {
                 equipment: 'Cable Machine',
@@ -1343,7 +1343,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 40,
-                image: 'ðŸ ‹ï¸  Targets: Lats (isolation)'
+                image: '&#127947;&#65039; Targets: Lats (isolation)'
             },
             'Face Pulls': {
                 equipment: 'Cable Machine, Rope',
@@ -1351,7 +1351,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Rear Delts, Upper Back, Posture'
+                image: '&#127947;&#65039; Targets: Rear Delts, Upper Back, Posture'
             },
             'Seated Cable Row': {
                 equipment: 'Cable Machine',
@@ -1359,7 +1359,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 90,
-                image: 'ðŸ ‹ï¸  Targets: Mid Back, Lats, Biceps'
+                image: '&#127947;&#65039; Targets: Mid Back, Lats, Biceps'
             },
             'Barbell Shrugs': {
                 equipment: 'Barbell',
@@ -1367,7 +1367,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 135,
-                image: 'ðŸ ‹ï¸  Targets: Traps, Upper Back'
+                image: '&#127947;&#65039; Targets: Traps, Upper Back'
             },
             'Meadows Row': {
                 equipment: 'Barbell',
@@ -1375,7 +1375,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 60,
-                image: 'ðŸ ‹ï¸  Targets: Lats, Back Thickness'
+                image: '&#127947;&#65039; Targets: Lats, Back Thickness'
             },
 
             // Shoulder & Tricep Exercises
@@ -1385,7 +1385,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 30,
-                image: 'ðŸ’ª Targets: Shoulders, Triceps'
+                image: '&#128170; Targets: Shoulders, Triceps'
             },
             'Dumbbell Lateral Raises': {
                 equipment: 'Dumbbells',
@@ -1393,7 +1393,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 15,
-                image: 'ðŸ’ª Targets: Side Delts'
+                image: '&#128170; Targets: Side Delts'
             },
             'Dumbbell Front Raises': {
                 equipment: 'Dumbbells',
@@ -1401,7 +1401,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 15,
-                image: 'ðŸ’ª Targets: Front Delts'
+                image: '&#128170; Targets: Front Delts'
             },
             'Bent-Over Rear Delt Raises': {
                 equipment: 'Dumbbells',
@@ -1409,7 +1409,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 12,
-                image: 'ðŸ’ª Targets: Rear Delts, Upper Back'
+                image: '&#128170; Targets: Rear Delts, Upper Back'
             },
             'Overhead Tricep Extension': {
                 equipment: 'Dumbbell',
@@ -1417,7 +1417,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 25,
-                image: 'ðŸ’ª Targets: Triceps'
+                image: '&#128170; Targets: Triceps'
             },
             'Dumbbell Tricep Kickbacks': {
                 equipment: 'Dumbbells',
@@ -1425,7 +1425,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 15,
-                image: 'ðŸ’ª Targets: Triceps'
+                image: '&#128170; Targets: Triceps'
             },
             'Close-Grip Bench Press': {
                 equipment: 'Barbell, Bench',
@@ -1433,7 +1433,7 @@
                 sets: 4,
                 reps: 10,
                 weight: 95,
-                image: 'ðŸ’ª Targets: Triceps, Chest'
+                image: '&#128170; Targets: Triceps, Chest'
             },
             'Skull Crushers': {
                 equipment: 'EZ Bar or Dumbbells, Bench',
@@ -1441,7 +1441,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 40,
-                image: 'ðŸ’ª Targets: Triceps (long head)'
+                image: '&#128170; Targets: Triceps (long head)'
             },
             'Tricep Dips': {
                 equipment: 'Parallel Bars or Bench',
@@ -1449,7 +1449,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Triceps, Chest, Shoulders'
+                image: '&#128170; Targets: Triceps, Chest, Shoulders'
             },
             'Cable Tricep Pushdown': {
                 equipment: 'Cable Machine, Rope or Bar',
@@ -1457,7 +1457,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 50,
-                image: 'ðŸ’ª Targets: Triceps (isolation)'
+                image: '&#128170; Targets: Triceps (isolation)'
             },
             'Overhead Cable Extension': {
                 equipment: 'Cable Machine, Rope',
@@ -1465,7 +1465,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 30,
-                image: 'ðŸ’ª Targets: Triceps (long head)'
+                image: '&#128170; Targets: Triceps (long head)'
             },
             'Bench Dips': {
                 equipment: 'Bench',
@@ -1473,7 +1473,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 0,
-                image: 'ðŸ’ª Targets: Triceps (bodyweight)'
+                image: '&#128170; Targets: Triceps (bodyweight)'
             },
 
             // Core/Abs Exercises
@@ -1483,7 +1483,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 15,
-                image: 'ðŸ”¥ Targets: Obliques, Core'
+                image: '&#128293; Targets: Obliques, Core'
             },
             'Dumbbell Side Bends': {
                 equipment: 'Dumbbell',
@@ -1491,7 +1491,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 25,
-                image: 'ðŸ”¥ Targets: Obliques'
+                image: '&#128293; Targets: Obliques'
             },
             'Plank': {
                 equipment: 'Bodyweight',
@@ -1499,7 +1499,7 @@
                 sets: 3,
                 reps: 60,
                 weight: 0,
-                image: 'ðŸ”¥ Targets: Core, Shoulders (time in seconds)'
+                image: '&#128293; Targets: Core, Shoulders (time in seconds)'
             },
             'Mountain Climbers': {
                 equipment: 'Bodyweight',
@@ -1507,7 +1507,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 0,
-                image: 'ðŸ”¥ Targets: Core, Cardio'
+                image: '&#128293; Targets: Core, Cardio'
             },
             'Bicycle Crunches': {
                 equipment: 'Bodyweight',
@@ -1515,7 +1515,7 @@
                 sets: 3,
                 reps: 20,
                 weight: 0,
-                image: 'ðŸ”¥ Targets: Abs, Obliques'
+                image: '&#128293; Targets: Abs, Obliques'
             },
 
             // Kettlebell Exercises (30lb)
@@ -1525,7 +1525,7 @@
                 sets: 3,
                 reps: 15,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Glutes, Hamstrings, Core, Cardio'
+                image: '&#127947;&#65039; Targets: Glutes, Hamstrings, Core, Cardio'
             },
             'Kettlebell Goblet Squat': {
                 equipment: 'Kettlebell (30lb)',
@@ -1533,7 +1533,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Quads, Glutes, Core'
+                image: '&#127947;&#65039; Targets: Quads, Glutes, Core'
             },
             'Kettlebell Turkish Get-Up': {
                 equipment: 'Kettlebell (30lb)',
@@ -1541,7 +1541,7 @@
                 sets: 3,
                 reps: 5,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Full Body, Core, Stability'
+                image: '&#127947;&#65039; Targets: Full Body, Core, Stability'
             },
             'Kettlebell Halos': {
                 equipment: 'Kettlebell (30lb)',
@@ -1549,7 +1549,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Shoulders, Core'
+                image: '&#127947;&#65039; Targets: Shoulders, Core'
             },
             'Kettlebell Single-Arm Row': {
                 equipment: 'Kettlebell (30lb)',
@@ -1557,7 +1557,7 @@
                 sets: 3,
                 reps: 12,
                 weight: 30,
-                image: 'ðŸ ‹ï¸  Targets: Back, Biceps'
+                image: '&#127947;&#65039; Targets: Back, Biceps'
             },
             'Kettlebell Overhead Press': {
                 equipment: 'Kettlebell (30lb)',
@@ -1565,7 +1565,7 @@
                 sets: 3,
                 reps: 10,
                 weight: 30,
-                image: 'ðŸ’ª Targets: Shoulders, Core'
+                image: '&#128170; Targets: Shoulders, Core'
             },
 
             // Cardio Exercises
@@ -1575,7 +1575,7 @@
                 sets: 1,
                 reps: 20,
                 weight: 0,
-                image: 'ðŸš´ Targets: Cardiovascular, Quads, Glutes (time in minutes)'
+                image: '&#128692; Targets: Cardiovascular, Quads, Glutes (time in minutes)'
             },
             'Rowing Machine': {
                 equipment: 'Rowing Machine',
@@ -1583,7 +1583,7 @@
                 sets: 1,
                 reps: 15,
                 weight: 0,
-                image: 'ðŸš£ Targets: Full Body Cardio, Back, Legs (time in minutes)'
+                image: '&#128695; Targets: Full Body Cardio, Back, Legs (time in minutes)'
             },
             'Interval Sprints - Bike': {
                 equipment: 'Recumbent Bike',
@@ -1591,7 +1591,7 @@
                 sets: 8,
                 reps: 1,
                 weight: 0,
-                image: 'ðŸš´ Targets: HIIT Cardio, Fat Burning (intervals)'
+                image: '&#128692; Targets: HIIT Cardio, Fat Burning (intervals)'
             },
             'Interval Sprints - Rowing': {
                 equipment: 'Rowing Machine',
@@ -1599,42 +1599,42 @@
                 sets: 8,
                 reps: 1,
                 weight: 0,
-                image: 'ðŸš£ Targets: HIIT Full Body, Conditioning (intervals)'
+                image: '&#128695; Targets: HIIT Full Body, Conditioning (intervals)'
             }
         };
 
         // Predefined Workout Programs
         const workoutPrograms = {
             leg: {
-                name: 'ðŸ¦µ Leg Day',
+                name: '&#129461; Leg Day',
                 exercises: ['Dumbbell Goblet Squat', 'Dumbbell Romanian Deadlift', 'Dumbbell Lunges', 'Dumbbell Calf Raises']
             },
             chest: {
-                name: 'ðŸ’ª Chest Day',
+                name: '&#128170; Chest Day',
                 exercises: ['Incline Dumbbell Press', 'Flat Dumbbell Press', 'Incline Dumbbell Flyes', 'Dumbbell Pullover', 'Push-Up']
             },
             back: {
-                name: 'ðŸ ‹ï¸  Back & Biceps',
+                name: '&#127947;&#65039; Back & Biceps',
                 exercises: ['Dumbbell Bent-Over Row', 'Single-Arm Dumbbell Row', 'Dumbbell Shrugs', 'Dumbbell Bicep Curls', 'Hammer Curls']
             },
             shoulders: {
-                name: 'ðŸ’ª Shoulders & Triceps',
+                name: '&#128170; Shoulders & Triceps',
                 exercises: ['Dumbbell Shoulder Press', 'Dumbbell Lateral Raises', 'Dumbbell Front Raises', 'Bent-Over Rear Delt Raises', 'Overhead Tricep Extension', 'Dumbbell Tricep Kickbacks']
             },
             abs: {
-                name: 'ðŸ”¥ Core/Abs Blast',
+                name: '&#128293; Core/Abs Blast',
                 exercises: ['Dumbbell Russian Twists', 'Dumbbell Side Bends', 'Plank', 'Mountain Climbers', 'Bicycle Crunches']
             },
             kettlebell: {
-                name: 'ðŸ ‹ï¸  Kettlebell Circuit',
+                name: '&#127947;&#65039; Kettlebell Circuit',
                 exercises: ['Kettlebell Swings', 'Kettlebell Goblet Squat', 'Kettlebell Single-Arm Row', 'Kettlebell Overhead Press', 'Kettlebell Halos']
             },
             cardio: {
-                name: 'ðŸš´ Cardio Day',
+                name: '&#128692; Cardio Day',
                 exercises: ['Recumbent Bike', 'Rowing Machine', 'Interval Sprints - Bike', 'Interval Sprints - Rowing']
             },
             fullbody: {
-                name: 'ðŸŽ¯ Full Body Power',
+                name: '&#127919; Full Body Power',
                 exercises: ['Dumbbell Goblet Squat', 'Incline Dumbbell Press', 'Dumbbell Bent-Over Row', 'Dumbbell Shoulder Press', 'Dumbbell Romanian Deadlift', 'Plank']
             }
         };
@@ -1701,7 +1701,7 @@
             const name = document.getElementById('newExerciseName').value.trim();
             const equipment = document.getElementById('newExerciseEquipment').value.trim();
             const instructions = document.getElementById('newExerciseInstructions').value.trim();
-            const image = document.getElementById('newExerciseImage').value.trim() || 'ðŸ’ª Custom Exercise';
+            const image = document.getElementById('newExerciseImage').value.trim() || '&#128170; Custom Exercise';
             const weight = parseInt(document.getElementById('newExerciseWeight').value) || 25;
             const sets = parseInt(document.getElementById('newExerciseSets').value) || 3;
             const reps = parseInt(document.getElementById('newExerciseReps').value) || 12;
@@ -1728,7 +1728,7 @@
             
             saveCustomExerciseToDB(name, exerciseData);
             closeAddExerciseModal();
-            alert(`âœ… Exercise "${name}" added successfully!\n\nYou can now use it in your workouts!`);
+            alert(`&#9989; Exercise "${name}" added successfully!\n\nYou can now use it in your workouts!`);
             
             if (document.getElementById('customExerciseSelect')) {
                 loadCustomWorkout();
@@ -1748,14 +1748,14 @@
             
             const separator = document.createElement('option');
             separator.disabled = true;
-            separator.textContent = 'â”€â”€â”€ My Custom Workouts â”€â”€â”€';
+            separator.textContent = '--- My Custom Workouts ---';
             separator.setAttribute('data-custom', 'true');
             dropdown.appendChild(separator);
             
             customWorkoutNames.forEach(name => {
                 const option = document.createElement('option');
                 option.value = 'saved_' + name;
-                option.textContent = 'â­  ' + name;
+                option.textContent = '&#11088; ' + name;
                 option.setAttribute('data-custom', 'true');
                 dropdown.appendChild(option);
             });
@@ -1831,7 +1831,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Weight (lbs)</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="weight-${idx}" value="${ex.weight}" onchange="updateWorkoutValue(${idx}, 'weight', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1840,7 +1840,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Sets</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="sets-${idx}" value="${ex.sets}" onchange="updateWorkoutValue(${idx}, 'sets', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1849,7 +1849,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Reps</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="reps-${idx}" value="${ex.reps}" onchange="updateWorkoutValue(${idx}, 'reps', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1857,7 +1857,7 @@
                             </div>
                             
                             <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                                ðŸ“– View Instructions
+                                &#128214; View Instructions
                             </button>
                         </div>
                     `).join('')}
@@ -1890,7 +1890,7 @@
             
             container.innerHTML = `
                 <div class="info-box">
-                    <p><strong>â­  ${workoutName}</strong></p>
+                    <p><strong>&#11088; ${workoutName}</strong></p>
                     <p>Your saved custom workout. Adjust as needed!</p>
                 </div>
                 <div style="margin-bottom: 20px;">
@@ -1905,7 +1905,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Weight (lbs)</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="weight-${idx}" value="${ex.weight}" onchange="updateWorkoutValue(${idx}, 'weight', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1914,7 +1914,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Sets</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="sets-${idx}" value="${ex.sets}" onchange="updateWorkoutValue(${idx}, 'sets', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1923,7 +1923,7 @@
                                 <div class="control-item">
                                     <div class="control-label">Reps</div>
                                     <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">âˆ’</button>
+                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
                                         <input type="number" id="reps-${idx}" value="${ex.reps}" onchange="updateWorkoutValue(${idx}, 'reps', this.value)" class="control-input">
                                         <button onclick="adjustValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
                                     </div>
@@ -1931,7 +1931,7 @@
                             </div>
                             
                             <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                                ðŸ“– View Instructions
+                                &#128214; View Instructions
                             </button>
                         </div>
                     `).join('')}
@@ -1998,7 +1998,7 @@
                             ${customWorkoutNames.map(name => `<option value="${name}">${name}</option>`).join('')}
                         </select>
                         <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px;">
-                            ðŸ—‘ï¸  Delete Selected Workout
+                            &#128465;&#65039; Delete Selected Workout
                         </button>
                     </div>
                 ` : ''}
@@ -2013,7 +2013,7 @@
                         </select>
                         <button class="add-exercise-btn" onclick="addCustomExercise()">+ Add Exercise</button>
                         <button class="btn btn-secondary" onclick="openAddExerciseModal()" style="margin-top: 10px; width: 100%;">
-                            âž• Create New Exercise
+                            &#10133; Create New Exercise
                         </button>
                     </div>
                 </div>
@@ -2024,7 +2024,7 @@
                     <label style="font-weight: 600; margin-bottom: 8px; display: block;">Save This Custom Workout</label>
                     <input type="text" id="customWorkoutName" placeholder="Enter workout name (e.g., 'My Workout')" style="width: 100%; padding: 12px; border: 2px solid #003d5c; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
                     <button class="btn" onclick="saveCustomWorkout()" style="width: 100%;">
-                        ðŸ’¾ Save Custom Workout
+                        &#128190; Save Custom Workout
                     </button>
                 </div>
             `;
@@ -2103,7 +2103,7 @@
             localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
             loadCustomWorkoutsIntoDropdown();
             
-            alert(`âœ… Custom workout "${workoutName}" saved successfully!\n\nYou can now find it in the main workout dropdown!`);
+            alert(`&#9989; Custom workout "${workoutName}" saved successfully!\n\nYou can now find it in the main workout dropdown!`);
             nameInput.value = '';
         }
 
@@ -2148,7 +2148,7 @@
                         <div class="control-item">
                             <div class="control-label">Weight (lbs)</div>
                             <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn">âˆ’</button>
+                                <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
                                 <input type="number" id="custom-weight-${idx}" value="${ex.weight}" onchange="updateCustomExerciseValue(${idx}, 'weight', this.value)" class="control-input">
                                 <button onclick="adjustCustomValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
                             </div>
@@ -2157,7 +2157,7 @@
                         <div class="control-item">
                             <div class="control-label">Sets</div>
                             <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn">âˆ’</button>
+                                <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
                                 <input type="number" id="custom-sets-${idx}" value="${ex.sets}" onchange="updateCustomExerciseValue(${idx}, 'sets', this.value)" class="control-input">
                                 <button onclick="adjustCustomValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
                             </div>
@@ -2166,7 +2166,7 @@
                         <div class="control-item">
                             <div class="control-label">Reps</div>
                             <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn">âˆ’</button>
+                                <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
                                 <input type="number" id="custom-reps-${idx}" value="${ex.reps}" onchange="updateCustomExerciseValue(${idx}, 'reps', this.value)" class="control-input">
                                 <button onclick="adjustCustomValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
                             </div>
@@ -2174,7 +2174,7 @@
                     </div>
                     
                     <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                        ðŸ“– View Instructions
+                        &#128214; View Instructions
                     </button>
                 </div>
             `).join('');
@@ -2248,7 +2248,7 @@
                 text-align: center;
                 max-width: 90%;
             `;
-            reminder.innerHTML = 'âŒš Start your Apple Watch workout now!';
+            reminder.innerHTML = '&#8986; Start your Apple Watch workout now!';
             document.body.appendChild(reminder);
             
             setTimeout(() => {
@@ -2273,7 +2273,7 @@
                     `Set ${currentSetNumber}/${exercise.sets}`;
             } else {
                 document.getElementById('exerciseProgress').textContent = 
-                    `Round ${currentRound} â€¢ Exercise ${currentExerciseIndex + 1}/${currentWorkout.length}`;
+                    `Round ${currentRound} &bull; Exercise ${currentExerciseIndex + 1}/${currentWorkout.length}`;
                 document.getElementById('setProgress').textContent = 
                     `Set ${currentRound}/${exercise.sets}`;
             }
@@ -2379,7 +2379,8 @@
             pauseTimer();
             
             const workoutType = document.getElementById('workoutType').value;
-            const programName = workoutType === 'custom' ? 'Custom Workout' : workoutPrograms[workoutType].name;
+            const program = workoutPrograms[workoutType];
+            const programName = program ? program.name : 'Custom Workout';
 
             const totalVolume = completedSets.reduce((sum, ex, idx) => {
                 const completedCount = ex.completed.filter(s => s).length;
@@ -2408,7 +2409,7 @@
             const completedCount = completedSets.reduce((sum, ex) => sum + ex.completed.filter(s => s).length, 0);
             const percentage = Math.round((completedCount / totalSets) * 100);
 
-            alert(`ðŸŽ‰ Workout ${percentage === 100 ? 'Completed' : 'Saved'}!\n\nCompleted: ${completedCount}/${totalSets} sets (${percentage}%)\nTotal Volume: ${totalVolume} lbs\nDuration: ${formatTime(timerSeconds)}\n\nGreat work! Keep crushing it! ðŸ’ª`);
+            alert(`&#127881; Workout ${percentage === 100 ? 'Completed' : 'Saved'}!\n\nCompleted: ${completedCount}/${totalSets} sets (${percentage}%)\nTotal Volume: ${totalVolume} lbs\nDuration: ${formatTime(timerSeconds)}\n\nGreat work! Keep crushing it! &#128170;`);
 
             resetWorkoutState();
         }
@@ -2459,7 +2460,7 @@
                     <p style="line-height: 1.6; margin-top: 10px;">${exercise.instructions}</p>
                 </div>
                 <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <strong>Suggested:</strong> ${exercise.sets} sets Ã— ${exercise.reps} reps @ ${exercise.weight} lbs
+                    <strong>Suggested:</strong> ${exercise.sets} sets &times; ${exercise.reps} reps @ ${exercise.weight} lbs
                 </div>
             `;
 
@@ -2477,7 +2478,7 @@
             if (workoutHistory.length === 0) {
                 container.innerHTML = `
                     <div class="recommendation-card">
-                        <h3>ðŸŽ¯ Welcome to Your Fitness Journey!</h3>
+                        <h3>&#127919; Welcome to Your Fitness Journey!</h3>
                         <p><strong>Today's Recommendation: Full Body Power</strong></p>
                         <p>Start with a well-rounded full body workout to establish your baseline strength. This workout includes compound movements that hit all major muscle groups.</p>
                         <p style="margin-top: 15px;"><strong>Why this workout?</strong> It's perfect for beginners and helps you learn proper form on key exercises while building foundational strength.</p>
@@ -2485,10 +2486,10 @@
                     </div>
                     <div class="info-box">
                         <p><strong>Workout Tips:</strong></p>
-                        <p>â€¢ Start with suggested weights and adjust as needed</p>
-                        <p>â€¢ Focus on proper form over heavy weight</p>
-                        <p>â€¢ Rest 60-90 seconds between sets</p>
-                        <p>â€¢ Stay hydrated throughout your workout</p>
+                        <p>&bull; Start with suggested weights and adjust as needed</p>
+                        <p>&bull; Focus on proper form over heavy weight</p>
+                        <p>&bull; Rest 60-90 seconds between sets</p>
+                        <p>&bull; Stay hydrated throughout your workout</p>
                     </div>
                 `;
                 return;
@@ -2507,7 +2508,7 @@
                     <p><strong>Recommended: ${recommendation.workout}</strong></p>
                     <p>${recommendation.reason}</p>
                     <p style="margin-top: 10px;"><strong>Focus:</strong> ${recommendation.focus}</p>
-                    ${daysSince > 3 ? `<p style="margin-top: 10px; color: #fff3cd; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">âš ï¸  It's been ${daysSince} days since your last workout. Let's get back on track!</p>` : ''}
+                    ${daysSince > 3 ? `<p style="margin-top: 10px; color: #fff3cd; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">&#9888;&#65039; It's been ${daysSince} days since your last workout. Let's get back on track!</p>` : ''}
                     <button class="btn" onclick="selectRecommendedWorkout('${recommendation.type}')" style="margin-top: 15px;">Start This Workout</button>
                 </div>
                 <div class="info-box">
@@ -2521,7 +2522,7 @@
         function getSmartRecommendation(recentTypes, daysSince) {
             if (daysSince > 5) {
                 return {
-                    title: 'ðŸ”¥ Welcome Back!',
+                    title: '&#128293; Welcome Back!',
                     workout: 'Full Body Power or Cardio Day',
                     type: 'fullbody',
                     reason: 'After a break, ease back in with a full body workout or cardio to rebuild conditioning.',
@@ -2539,7 +2540,7 @@
 
             if (!hasLeg) {
                 return {
-                    title: 'ðŸ¦µ Time to Train Legs!',
+                    title: '&#129461; Time to Train Legs!',
                     workout: 'Leg Day',
                     type: 'leg',
                     reason: 'You haven\'t trained legs recently. Lower body strength is crucial for overall fitness and metabolism.',
@@ -2549,7 +2550,7 @@
 
             if (!hasBack && !hasChest) {
                 return {
-                    title: 'ðŸ’ª Upper Body Push Day',
+                    title: '&#128170; Upper Body Push Day',
                     workout: 'Chest Day',
                     type: 'chest',
                     reason: 'Build upper body pushing strength with chest and tricep focused exercises.',
@@ -2559,7 +2560,7 @@
 
             if (!hasBack) {
                 return {
-                    title: 'ðŸ ‹ï¸  Pull Day - Back Focus',
+                    title: '&#127947;&#65039; Pull Day - Back Focus',
                     workout: 'Back & Biceps',
                     type: 'back',
                     reason: 'Balance your training with a pulling day. Strong back muscles improve posture and overall strength.',
@@ -2569,7 +2570,7 @@
 
             if (!hasShoulder) {
                 return {
-                    title: 'ðŸ’ª Shoulder Development',
+                    title: '&#128170; Shoulder Development',
                     workout: 'Shoulders & Triceps',
                     type: 'shoulders',
                     reason: 'Well-developed shoulders create a strong upper body foundation and improve functional strength.',
@@ -2579,7 +2580,7 @@
 
             if (!hasCardio && (hasLeg || hasChest || hasBack)) {
                 return {
-                    title: 'ðŸš´ Cardio & Recovery',
+                    title: '&#128692; Cardio & Recovery',
                     workout: 'Cardio Day',
                     type: 'cardio',
                     reason: 'You\'ve been lifting hard! Time for cardio to boost heart health, burn fat, and aid recovery.',
@@ -2589,7 +2590,7 @@
 
             if (!hasKettlebell) {
                 return {
-                    title: 'ðŸ ‹ï¸  Kettlebell Circuit',
+                    title: '&#127947;&#65039; Kettlebell Circuit',
                     workout: 'Kettlebell Circuit',
                     type: 'kettlebell',
                     reason: 'Mix things up with kettlebell training! Great for explosive power, core strength, and conditioning.',
@@ -2599,7 +2600,7 @@
 
             if (!hasAbs) {
                 return {
-                    title: 'ðŸ”¥ Core Strength',
+                    title: '&#128293; Core Strength',
                     workout: 'Core/Abs Blast',
                     type: 'abs',
                     reason: 'A strong core is the foundation for all other lifts and protects your back.',
@@ -2608,7 +2609,7 @@
             }
 
             return {
-                title: 'ðŸŽ¯ Balanced Training',
+                title: '&#127919; Balanced Training',
                 workout: 'Full Body Power',
                 type: 'fullbody',
                 reason: 'Hit all major muscle groups with compound movements for balanced development.',
@@ -2814,3 +2815,4 @@
     </script>
 </body>
 </html>
+```
