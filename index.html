@@ -1774,6 +1774,59 @@
             if (section === 'history') updateHistory();
         }
 
+        function generateExerciseCardHTML(ex, idx, isCustom = false) {
+            const idPrefix = isCustom ? 'custom-' : '';
+            const onchangeFunc = isCustom ? 'updateCustomExerciseValue' : 'updateWorkoutValue';
+            const adjustFunc = isCustom ? 'adjustCustomValue' : 'adjustValue';
+            const imageUrl = getExerciseImageUrl(ex.name);
+
+            return `
+                <div class="exercise-card">
+                    <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #001f3f;">
+                        ${ex.name}
+                    </div>
+                    <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment}</div>
+                    
+                    <div class="exercise-image" style="max-height: 150px; min-height: 150px; margin: 10px auto;">
+                        <img src="${imageUrl}" alt="${ex.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=exercise-image-fallback>Image not available</div>'">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-item">
+                            <div class="control-label">Weight (lbs)</div>
+                            <div class="control-buttons">
+                                <button onclick="${adjustFunc}(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
+                                <input type="number" id="${idPrefix}weight-${idx}" value="${ex.weight}" onchange="${onchangeFunc}(${idx}, 'weight', this.value)" class="control-input">
+                                <button onclick="${adjustFunc}(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">Sets</div>
+                            <div class="control-buttons">
+                                <button onclick="${adjustFunc}(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
+                                <input type="number" id="${idPrefix}sets-${idx}" value="${ex.sets}" onchange="${onchangeFunc}(${idx}, 'sets', this.value)" class="control-input">
+                                <button onclick="${adjustFunc}(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">Reps</div>
+                            <div class="control-buttons">
+                                <button onclick="${adjustFunc}(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
+                                <input type="number" id="${idPrefix}reps-${idx}" value="${ex.reps}" onchange="${onchangeFunc}(${idx}, 'reps', this.value)" class="control-input">
+                                <button onclick="${adjustFunc}(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+                        &#128214; View Instructions
+                    </button>
+                </div>
+            `;
+        }
+
         // Load Workout
         function loadWorkout() {
             const type = document.getElementById('workoutType').value;
@@ -1820,47 +1873,7 @@
                     <p>Customize your weights, sets, and reps below. Your changes will be saved!</p>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    ${currentWorkout.map((ex, idx) => `
-                        <div class="exercise-card">
-                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #001f3f;">
-                                ${ex.name}
-                            </div>
-                            <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment}</div>
-                            
-                            <div class="control-group">
-                                <div class="control-item">
-                                    <div class="control-label">Weight (lbs)</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="weight-${idx}" value="${ex.weight}" onchange="updateWorkoutValue(${idx}, 'weight', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-item">
-                                    <div class="control-label">Sets</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="sets-${idx}" value="${ex.sets}" onchange="updateWorkoutValue(${idx}, 'sets', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-item">
-                                    <div class="control-label">Reps</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="reps-${idx}" value="${ex.reps}" onchange="updateWorkoutValue(${idx}, 'reps', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                                &#128214; View Instructions
-                            </button>
-                        </div>
-                    `).join('')}
+                    ${currentWorkout.map((ex, idx) => generateExerciseCardHTML(ex, idx)).join('')}
                 </div>
             `;
 
@@ -1894,47 +1907,7 @@
                     <p>Your saved custom workout. Adjust as needed!</p>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    ${currentWorkout.map((ex, idx) => `
-                        <div class="exercise-card">
-                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #001f3f;">
-                                ${ex.name}
-                            </div>
-                            <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment}</div>
-                            
-                            <div class="control-group">
-                                <div class="control-item">
-                                    <div class="control-label">Weight (lbs)</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="weight-${idx}" value="${ex.weight}" onchange="updateWorkoutValue(${idx}, 'weight', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-item">
-                                    <div class="control-label">Sets</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="sets-${idx}" value="${ex.sets}" onchange="updateWorkoutValue(${idx}, 'sets', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-item">
-                                    <div class="control-label">Reps</div>
-                                    <div class="control-buttons">
-                                        <button onclick="adjustValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
-                                        <input type="number" id="reps-${idx}" value="${ex.reps}" onchange="updateWorkoutValue(${idx}, 'reps', this.value)" class="control-input">
-                                        <button onclick="adjustValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                                &#128214; View Instructions
-                            </button>
-                        </div>
-                    `).join('')}
+                    ${currentWorkout.map((ex, idx) => generateExerciseCardHTML(ex, idx)).join('')}
                 </div>
             `;
 
@@ -2142,40 +2115,7 @@
                         <div class="exercise-name">${ex.name}</div>
                         <button class="delete-btn" onclick="removeCustomExercise(${idx})">Remove</button>
                     </div>
-                    <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment}</div>
-                    
-                    <div class="control-group">
-                        <div class="control-item">
-                            <div class="control-label">Weight (lbs)</div>
-                            <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn">&minus;</button>
-                                <input type="number" id="custom-weight-${idx}" value="${ex.weight}" onchange="updateCustomExerciseValue(${idx}, 'weight', this.value)" class="control-input">
-                                <button onclick="adjustCustomValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
-                            </div>
-                        </div>
-                        
-                        <div class="control-item">
-                            <div class="control-label">Sets</div>
-                            <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn">&minus;</button>
-                                <input type="number" id="custom-sets-${idx}" value="${ex.sets}" onchange="updateCustomExerciseValue(${idx}, 'sets', this.value)" class="control-input">
-                                <button onclick="adjustCustomValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
-                            </div>
-                        </div>
-                        
-                        <div class="control-item">
-                            <div class="control-label">Reps</div>
-                            <div class="control-buttons">
-                                <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn">&minus;</button>
-                                <input type="number" id="custom-reps-${idx}" value="${ex.reps}" onchange="updateCustomExerciseValue(${idx}, 'reps', this.value)" class="control-input">
-                                <button onclick="adjustCustomValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
-                        &#128214; View Instructions
-                    </button>
+                    ${generateExerciseCardHTML(ex, idx, true)}
                 </div>
             `).join('');
 
@@ -2440,8 +2380,6 @@
 
             modalName.textContent = name;
             
-            
-            // Build the image URL using free exercise database
             const imageUrl = getExerciseImageUrl(name);
             const imageHtml = `
                 <div class="exercise-image" style="margin: 15px auto;" id="modal-img">
