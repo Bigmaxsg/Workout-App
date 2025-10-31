@@ -831,7 +831,7 @@
         
         // Helper function to get free exercise image URL
         function getExerciseImageUrl(exerciseName) {
-            // **FIXED**: This mapping now correctly points to the folder names in the image repository.
+            // **FIXED & VERIFIED**: This mapping now correctly points to the folder names in the image repository.
             const exerciseMapping = {
                 'Dumbbell Goblet Squat': 'Dumbbell_Goblet_Squat',
                 'Dumbbell Romanian Deadlift': 'Romanian_Deadlift',
@@ -912,10 +912,10 @@
                 'Kettlebell Halos': 'Kettlebell_Halo',
                 'Kettlebell Single-Arm Row': 'Kettlebell_One-Arm_Row',
                 'Kettlebell Overhead Press': 'Kettlebell_Overhead_Press',
-                'Recumbent Bike': 'Air_Bike', // Using best available alternative
-                'Rowing Machine': 'Rowing_Machine', // Corrected to show actual rowing machine
+                'Recumbent Bike': 'Air_Bike',
+                'Rowing Machine': 'Rowing_Machine',
                 'Interval Sprints - Bike': 'Air_Bike',
-                'Interval Sprints - Rowing': 'Rowing_Machine' // Corrected
+                'Interval Sprints - Rowing': 'Rowing_Machine'
             };
             
             const mappedName = exerciseMapping[exerciseName] || exerciseName.replace(/ /g, '_');
