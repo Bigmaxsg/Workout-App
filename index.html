@@ -2938,7 +2938,7 @@
  body: JSON.stringify({
  contents: [{
  parts: [{
- text: 'You are a fitness coach. You have dumbbells, 30lb kettlebell, incline bench, recumbent bike, and rowing machine. Create a workout based on this request: ' + msg
+ text: 'You are a fitness coach. You have dumbbells, 30lb kettlebell, incline bench, recumbent bike, and rowing machine. Create a workout based on this request: ' + msg + '\n\nFormat your response as JSON with this structure: {"title": "Workout Name", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number}]}'
  }]
  }]
  })
@@ -2953,18 +2953,116 @@
  }
  
  let result = 'Error getting response';
+ let aiWorkout = null;
  if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
  result = data.candidates[0].content.parts[0].text;
+ // Try to parse the workout from the response
+ aiWorkout = parseAIWorkout(result);
  } else if (data.error) {
   console.error('API Error Response:', data);
   result = `API Error: ${data.error.message || 'Unknown error'}. Please check your key and use the "Change API Key" button to fix it.`;
  }
  
- addMsg(result, 'bot');
+ if (aiWorkout) {
+  addMsg(result, 'bot');
+  addMsg('Would you like me to create this workout in your app?', 'bot');
+  
+  // Add a button to create the workout
+  const msgContainer = document.getElementById('messages');
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.display = 'flex';
+  buttonContainer.style.gap = '10px';
+  buttonContainer.style.marginTop = '10px';
+  buttonContainer.style.justifyContent = 'center';
+  
+  const createBtn = document.createElement('button');
+  createBtn.textContent = '✓ Create Workout';
+  createBtn.className = 'btn btn-success';
+  createBtn.style.width = 'auto';
+  createBtn.style.padding = '10px 20px';
+  createBtn.style.marginTop = '0';
+  createBtn.onclick = () => createWorkoutFromAI(aiWorkout);
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '✕ Cancel';
+  cancelBtn.className = 'btn btn-secondary';
+  cancelBtn.style.width = 'auto';
+  cancelBtn.style.padding = '10px 20px';
+  cancelBtn.style.marginTop = '0';
+  cancelBtn.onclick = () => buttonContainer.remove();
+  
+  buttonContainer.appendChild(createBtn);
+  buttonContainer.appendChild(cancelBtn);
+  msgContainer.appendChild(buttonContainer);
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+ } else {
+  addMsg(result, 'bot');
+ }
  } catch (e) {
   console.error('Network or other error:', e);
   addMsg(`Error: ${e.message}. Make sure your API key is valid and you are connected to the internet.`, 'bot');
  }
+ }
+ 
+ function parseAIWorkout(text) {
+ try {
+  // Try to extract JSON from the response
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return null;
+  
+  const jsonStr = jsonMatch[0];
+  const workout = JSON.parse(jsonStr);
+  
+  // Validate that it has the required fields
+  if (workout.title && Array.isArray(workout.exercises)) {
+   return workout;
+  }
+  return null;
+ } catch (e) {
+  console.error('Failed to parse AI workout:', e);
+  return null;
+ }
+ }
+ 
+ function createWorkoutFromAI(aiWorkout) {
+ // Create exercises array for the workout
+ const exercises = aiWorkout.exercises.map(ex => ({
+  name: ex.name || 'Exercise',
+  sets: parseInt(ex.sets) || 3,
+  reps: parseInt(ex.reps) || 10,
+  weight: parseInt(ex.weight) || 0,
+  duration: 0
+ }));
+ 
+ // Calculate volume
+ let volume = 0;
+ exercises.forEach(ex => {
+  volume += (ex.sets * ex.reps * ex.weight);
+ });
+ 
+ // Create workout object
+ const newWorkout = {
+  date: new Date().toISOString(),
+  type: aiWorkout.title || 'AI Suggested Workout',
+  duration: 0, // User can update this
+  volume: volume,
+  exercises: exercises
+ };
+ 
+ // Add to history
+ workoutHistory.unshift(newWorkout);
+ localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+ 
+ // Add confirmation message
+ addMsg(`✓ Workout "${aiWorkout.title}" has been created and saved to your history!`, 'bot');
+ 
+ // Update UI
+ updateHistory();
+ updateProgress();
+ updateRecommendation();
+ 
+ // Switch to history view to show the new workout
+ showSection('progress');
  }
  
  window.addEventListener('load', function() {
