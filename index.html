@@ -636,7 +636,7 @@
  <div id="chat-box" style="display: none;">
  <div style="background: #e8dcc4; border: 2px solid #8b7355; border-radius: 10px; padding: 15px; height: 400px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;" id="messages"></div>
  <div style="display: flex; gap: 10px;">
- <input type="text" id="userMessage" placeholder="e.g., 30 minute leg workout" style="flex: 1;">
+ <input type="text" id="userMessage" placeholder="e.g., 30 minute leg workout" style="flex: 1; padding: 12px; border: 2px solid #8b7355; border-radius: 8px; font-size: 16px; background: white; color: #333;">
  <button class="btn" onclick="sendMessage()">Send</button>
  </div>
  </div>
@@ -2895,11 +2895,23 @@
  })
  });
  
+ if (!response.ok) {
+ addMsg('API Error: ' + response.statusText + ' - Check your API key is valid.', 'bot');
+ return;
+ }
+ 
  const data = await response.json();
- const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Error getting response';
+ 
+ let result = 'Error getting response';
+ if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+ result = data.candidates[0].content.parts[0].text;
+ } else if (data.error) {
+ result = 'API Error: ' + (data.error.message || 'Unknown error');
+ }
+ 
  addMsg(result, 'bot');
  } catch (e) {
- addMsg('Error: ' + e.message, 'bot');
+ addMsg('Error: ' + e.message + '. Make sure your API key is valid.', 'bot');
  }
  }
  
