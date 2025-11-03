@@ -108,6 +108,7 @@
  border-radius: 10px;
  font-size: 16px;
  transition: border 0.3s;
+ font-family: inherit;
  }
 
  select:focus, input:focus, textarea:focus {
@@ -474,6 +475,18 @@
  cursor: pointer;
  color: #6c757d;
  }
+ 
+ /* AI Chat Input Box Styling */
+ #userMessage {
+ flex: 1;
+ border: 2px solid #8b7355;
+ border-radius: 8px;
+ background-color: white !important; /* Force white background */
+ color: #333 !important; /* Force dark text color */
+ resize: vertical; /* Allow user to resize it */
+ line-height: 1.5;
+ }
+
 
  /* IMPROVED MOBILE LAYOUT FOR CONTROLS */
  .control-group {
@@ -637,10 +650,10 @@
   <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
   <button class="btn btn-secondary" onclick="resetApiKey()" style="width: auto; padding: 8px 12px; font-size: 12px; margin-top: 0;">Change API Key</button>
   </div>
- <div style="background: #e8dcc4; border: 2px solid #8b7355; border-radius: 10px; padding: 15px; height: 400px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;" id="messages"></div>
- <div style="display: flex; gap: 10px;">
- <input type="text" id="userMessage" placeholder="e.g., 30 minute leg workout" style="flex: 1; padding: 12px; border: 2px solid #8b7355; border-radius: 8px; font-size: 16px; background: white; color: #333;">
- <button class="btn" onclick="sendMessage()">Send</button>
+ <div style="background: #e8dcc4; border: 2px solid #8b7355; border-radius: 10px; padding: 15px; height: 350px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;" id="messages"></div>
+ <div style="display: flex; gap: 10px; align-items: center;">
+  <textarea id="userMessage" placeholder="e.g., a 30 minute leg workout focusing on quads..." rows="3"></textarea>
+  <button class="btn" onclick="sendMessage()">Send</button>
  </div>
  </div>
  </div>
@@ -2852,7 +2865,9 @@
  if (key) {
  document.getElementById('api-setup').style.display = 'none';
  document.getElementById('chat-box').style.display = 'block';
- addMsg('Hi! I am your AI Workout Coach. Tell me what you want to do today!', 'bot');
+ if (document.getElementById('messages').children.length === 0) {
+  addMsg('Hi! I am your AI Workout Coach. Tell me what you want to do today!', 'bot');
+ }
  }
  }
  
@@ -2861,6 +2876,7 @@
   localStorage.removeItem('geminiKey');
   document.getElementById('api-setup').style.display = 'block';
   document.getElementById('chat-box').style.display = 'none';
+  document.getElementById('messages').innerHTML = ''; // Clear chat history on key change
   }
  }
  
@@ -2930,6 +2946,14 @@
  if (localStorage.getItem('geminiKey')) {
  initAI();
  }
+
+ // Add Enter-to-Send functionality
+ document.getElementById('userMessage').addEventListener('keydown', function(event) {
+ if (event.key === 'Enter' && !event.shiftKey) {
+ event.preventDefault(); // Prevent new line on Enter
+ sendMessage();
+ }
+ });
  });
 
  </script>
