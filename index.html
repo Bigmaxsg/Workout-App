@@ -3025,44 +3025,36 @@
  }
  
  function createWorkoutFromAI(aiWorkout) {
- // Create exercises array for the workout
+ // Create exercises array for the custom workout
  const exercises = aiWorkout.exercises.map(ex => ({
   name: ex.name || 'Exercise',
   sets: parseInt(ex.sets) || 3,
   reps: parseInt(ex.reps) || 10,
-  weight: parseInt(ex.weight) || 0,
-  duration: 0
+  weight: parseInt(ex.weight) || 0
  }));
  
- // Calculate volume
- let volume = 0;
- exercises.forEach(ex => {
-  volume += (ex.sets * ex.reps * ex.weight);
- });
+ // Get or create custom workouts list
+ const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
  
- // Create workout object
- const newWorkout = {
-  date: new Date().toISOString(),
-  type: aiWorkout.title || 'AI Suggested Workout',
-  duration: 0, // User can update this
-  volume: volume,
-  exercises: exercises
- };
+ // Create a unique name for the AI workout (add timestamp if duplicate)
+ let workoutName = aiWorkout.title || 'AI Suggested Workout';
+ let counter = 1;
+ const originalName = workoutName;
+ while (savedCustomWorkouts[workoutName]) {
+  workoutName = `${originalName} (${counter})`;
+  counter++;
+ }
  
- // Add to history
- workoutHistory.unshift(newWorkout);
- localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+ // Add the workout to custom workouts
+ savedCustomWorkouts[workoutName] = exercises;
+ localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
  
  // Add confirmation message
- addMsg(`✓ Workout "${aiWorkout.title}" has been created and saved to your history!`, 'bot');
+ addMsg(`✓ Workout "${workoutName}" has been added to your custom workouts!`, 'bot');
+ addMsg(`You can now select it from the "Custom Workout" dropdown in the main app to perform it!`, 'bot');
  
- // Update UI
- updateHistory();
- updateProgress();
- updateRecommendation();
- 
- // Switch to history view to show the new workout
- showSection('progress');
+ // Update the custom workouts dropdown
+ loadCustomWorkoutsIntoDropdown();
  }
  
  window.addEventListener('load', function() {
