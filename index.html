@@ -634,6 +634,9 @@
  </div>
  
  <div id="chat-box" style="display: none;">
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+  <button class="btn btn-secondary" onclick="resetApiKey()" style="width: auto; padding: 8px 12px; font-size: 12px; margin-top: 0;">Change API Key</button>
+  </div>
  <div style="background: #e8dcc4; border: 2px solid #8b7355; border-radius: 10px; padding: 15px; height: 400px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;" id="messages"></div>
  <div style="display: flex; gap: 10px;">
  <input type="text" id="userMessage" placeholder="e.g., 30 minute leg workout" style="flex: 1; padding: 12px; border: 2px solid #8b7355; border-radius: 8px; font-size: 16px; background: white; color: #333;">
@@ -2853,6 +2856,14 @@
  }
  }
  
+ function resetApiKey() {
+  if (confirm('Are you sure you want to change your API key?')) {
+  localStorage.removeItem('geminiKey');
+  document.getElementById('api-setup').style.display = 'block';
+  document.getElementById('chat-box').style.display = 'none';
+  }
+ }
+ 
  function addMsg(text, role) {
  const msg = document.createElement('div');
  msg.style.padding = '10px';
@@ -2896,7 +2907,7 @@
  });
  
  if (!response.ok) {
- addMsg('API Error: ' + response.statusText + ' - Check your API key is valid.', 'bot');
+ addMsg(`API Error: ${response.statusText} - Please check that your API key is correct and enabled. Use the "Change API Key" button to enter a new one.`, 'bot');
  return;
  }
  
@@ -2906,12 +2917,12 @@
  if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
  result = data.candidates[0].content.parts[0].text;
  } else if (data.error) {
- result = 'API Error: ' + (data.error.message || 'Unknown error');
+ result = `API Error: ${data.error.message || 'Unknown error'}. Please check your key and use the "Change API Key" button to fix it.`;
  }
  
  addMsg(result, 'bot');
  } catch (e) {
- addMsg('Error: ' + e.message + '. Make sure your API key is valid.', 'bot');
+ addMsg(`Error: ${e.message}. Make sure your API key is valid and you are connected to the internet.`, 'bot');
  }
  }
  
