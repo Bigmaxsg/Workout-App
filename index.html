@@ -2059,15 +2059,39 @@
  return;
  }
  
- currentWorkout = savedWorkout.map(ex => ({
- ...exerciseDatabase[ex.name],
+ // Load custom exercises from localStorage in case they're not in runtime database
+ const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+ 
+ currentWorkout = savedWorkout.map(ex => {
+ // Check if exercise exists in database, if not check customExercises
+ const dbExercise = exerciseDatabase[ex.name] || customExercises[ex.name];
+ 
+ // If still not found, create a minimal exercise object
+ if (!dbExercise) {
+ return {
+ name: ex.name,
+ equipment: ex.equipment || 'Various',
+ instructions: ex.instructions || 'Perform as described',
+ image: 'Custom Exercise',
+ weight: ex.weight || 0,
+ sets: ex.sets || 3,
+ reps: ex.reps || 10,
+ completed: false,
+ setsCompleted: 0
+ };
+ }
+ 
+ // Exercise found, merge database data with saved workout data
+ return {
+ ...dbExercise,
  name: ex.name,
  weight: ex.weight,
  sets: ex.sets,
  reps: ex.reps,
  completed: false,
  setsCompleted: 0
- }));
+ };
+ });
  
  const container = document.getElementById('workoutContainer');
  
@@ -2082,7 +2106,7 @@
  <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #001f3f;">
  ${ex.name}
  </div>
- <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment}</div>
+ <div style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${ex.equipment || 'Various'}</div>
  
  <div class="control-group">
  <div class="control-item">
@@ -2227,15 +2251,39 @@
  
  if (!savedWorkout) return;
  
- currentWorkout = savedWorkout.map(ex => ({
- ...exerciseDatabase[ex.name],
+ // Load custom exercises from localStorage in case they're not in runtime database
+ const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+ 
+ currentWorkout = savedWorkout.map(ex => {
+ // Check if exercise exists in database, if not check customExercises
+ const dbExercise = exerciseDatabase[ex.name] || customExercises[ex.name];
+ 
+ // If still not found, create a minimal exercise object
+ if (!dbExercise) {
+ return {
+ name: ex.name,
+ equipment: ex.equipment || 'Various',
+ instructions: ex.instructions || 'Perform as described',
+ image: 'Custom Exercise',
+ weight: ex.weight || 0,
+ sets: ex.sets || 3,
+ reps: ex.reps || 10,
+ completed: false,
+ setsCompleted: 0
+ };
+ }
+ 
+ // Exercise found, merge database data with saved workout data
+ return {
+ ...dbExercise,
  name: ex.name,
  weight: ex.weight,
  sets: ex.sets,
  reps: ex.reps,
  completed: false,
  setsCompleted: 0
- }));
+ };
+ });
  
  renderCustomWorkout();
  }
