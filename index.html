@@ -1931,6 +1931,7 @@
  let hiitCurrentExerciseIndex = 0;
  let hiitIsPaused = false;
  let hiitWorkoutParams = { workTime: 30, restTime: 15, totalRounds: 4 };
+ let audioCtx; // For HIIT sounds
 
  // Initialize
  updateRecommendation();
@@ -4041,128 +4042,153 @@ function handleIncomingWorkout() {
   }
 }
 
-// HIIT Workout Functions (uses existing global variables)
+// HIIT Workout Functions
+
+function playHiitSound(type) {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.error("Web Audio API is not supported in this browser");
+      return;
+    }
+  }
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  let frequency = 440; // Default beep
+  let duration = 0.1;
+
+  if (type === 'start') {
+    frequency = 880; // Higher pitch for start
+    duration = 0.2;
+  } else if (type === 'rest') {
+    frequency = 330; // Lower pitch for rest
+    duration = 0.3;
+  }
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + duration);
+}
 
 function startHiitWorkout() {
-  const select = document.getElementById('customSelect');
-  const workoutName = select.value;
+  if (currentWorkout.length === 0) {
+    alert("No exercises loaded for HIIT workout. Please select or create a HIIT workout first.");
+    return;
+  }
   
-  if (!workoutName) {
-    alert('Please select a workout first!');
-    return;
+  // Initialize Audio on user action
+  if (!audioCtx) {
+     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 
-  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
-  const workout = savedCustomWorkouts[workoutName];
-
-  if (!workout || workout.workoutType !== 'hiit') {
-    alert('This is not a HIIT workout. Please select a valid HIIT workout.');
-    return;
-  }
-
-  hiitExercises = workout.exercises.map(ex => ex.name);
-  hiitWorkTime = workout.workTime || 30;
-  hiitRestTime = workout.restTime || 15;
-  hiitTotalRounds = workout.rounds || 4;
-  hiitCurrentRound = 1;
-  hiitCurrentExerciseIndex = 0;
-  hiitIsWork = true;
-  hiitIsPaused = false;
-
-  // Hide main content, show HIIT mode
+  document.getElementById('workoutSetup').style.display = 'none';
   document.getElementById('guidedWorkoutMode').style.display = 'none';
   document.getElementById('hiitWorkoutMode').style.display = 'block';
   document.getElementById('hiitCountdownScreen').style.display = 'block';
   document.getElementById('hiitActiveScreen').style.display = 'none';
-
-  // Start countdown
-  startHiitCountdown();
-}
-
-function startHiitCountdown() {
+  document.getElementById('hiitPauseResumeBtn').textContent = 'Pause';
+  
+  hiitCurrentMode = 'countdown';
+  hiitIsPaused = false;
+  hiitCurrentRound = 1;
+  hiitCurrentExerciseIndex = 0;
+  
   let countdown = 5;
   document.getElementById('hiitCountdownDisplay').textContent = countdown;
-
-  const countdownInterval = setInterval(() => {
+  playHiitSound('beep');
+  
+  hiitTimerInterval = setInterval(() => {
     countdown--;
-    document.getElementById('hiitCountdownDisplay').textContent = countdown;
-    
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
+    if (countdown > 0) {
+      document.getElementById('hiitCountdownDisplay').textContent = countdown;
+      playHiitSound('beep');
+    } else {
+      clearInterval(hiitTimerInterval);
       document.getElementById('hiitCountdownScreen').style.display = 'none';
       document.getElementById('hiitActiveScreen').style.display = 'block';
-      startHiitRound();
+      runHiitInterval();
     }
   }, 1000);
 }
 
-function startHiitRound() {
-  hiitTimeRemaining = hiitIsWork ? hiitWorkTime : hiitRestTime;
+function runHiitInterval() {
+  if (hiitTimerInterval) clearInterval(hiitTimerInterval);
+
+  if (hiitCurrentMode === 'work') {
+    playHiitSound('start');
+  } else {
+    playHiitSound('rest');
+  }
+
   updateHiitDisplay();
-  startHiitTimer();
-}
-
-function startHiitTimer() {
-  if (hiitTimer) clearInterval(hiitTimer);
   
-  hiitStartTime = Date.now();
-  hiitTimer = setInterval(() => {
-    if (!hiitIsPaused) {
-      hiitTimeRemaining--;
-      updateHiitDisplay();
+  hiitTimerInterval = setInterval(() => {
+    if (hiitIsPaused) return;
 
-      if (hiitTimeRemaining <= 0) {
-        clearInterval(hiitTimer);
-        nextHiitPhase();
+    hiitTimeRemaining--;
+    document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
+
+    if (hiitTimeRemaining <= 0) {
+      clearInterval(hiitTimerInterval);
+      
+      // Move to the next phase
+      if (hiitCurrentMode === 'work') {
+        hiitCurrentMode = 'rest';
+        hiitTimeRemaining = hiitWorkoutParams.restTime;
+        hiitCurrentExerciseIndex++; // Advance exercise index after work is done
+      } else {
+        hiitCurrentMode = 'work';
+        hiitTimeRemaining = hiitWorkoutParams.workTime;
+        if (hiitCurrentExerciseIndex >= currentWorkout.length) {
+          hiitCurrentExerciseIndex = 0;
+          hiitCurrentRound++;
+        }
+      }
+
+      if (hiitCurrentRound > hiitWorkoutParams.totalRounds) {
+        completeHiitWorkout();
+      } else {
+        runHiitInterval();
       }
     }
   }, 1000);
 }
 
 function updateHiitDisplay() {
-  document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
-  
   const modeDisplay = document.getElementById('hiitModeDisplay');
-  if (hiitIsWork) {
+  const timerDisplay = document.getElementById('hiitTimerDisplay');
+  const exerciseNameEl = document.getElementById('hiitExerciseName');
+  const nextExerciseNameEl = document.getElementById('hiitNextExerciseName');
+  const roundDisplay = document.getElementById('hiitRoundDisplay');
+
+  roundDisplay.textContent = `Round ${hiitCurrentRound} of ${hiitWorkoutParams.totalRounds}`;
+
+  if (hiitCurrentMode === 'work') {
     modeDisplay.textContent = 'WORK!';
     modeDisplay.classList.remove('rest');
     modeDisplay.classList.add('work');
-  } else {
+    exerciseNameEl.textContent = currentWorkout[hiitCurrentExerciseIndex].name;
+    nextExerciseNameEl.textContent = `Next Up: Rest`;
+  } else { // 'rest'
     modeDisplay.textContent = 'REST';
     modeDisplay.classList.remove('work');
     modeDisplay.classList.add('rest');
+    exerciseNameEl.textContent = "Rest";
+    const nextIndex = hiitCurrentExerciseIndex >= currentWorkout.length ? 0 : hiitCurrentExerciseIndex;
+    nextExerciseNameEl.textContent = `Next Up: ${currentWorkout[nextIndex].name}`;
   }
 
-  const exerciseName = hiitExercises[hiitCurrentExerciseIndex] || 'Rest';
-  document.getElementById('hiitExerciseName').textContent = exerciseName;
-
-  const nextExerciseIndex = (hiitCurrentExerciseIndex + 1) % hiitExercises.length;
-  const nextExercise = hiitIsWork ? 'Rest' : hiitExercises[nextExerciseIndex];
-  document.getElementById('hiitNextExerciseName').textContent = `Next Up: ${nextExercise}`;
-
-  document.getElementById('hiitRoundDisplay').textContent = `Round ${hiitCurrentRound} of ${hiitTotalRounds}`;
-}
-
-function nextHiitPhase() {
-  if (hiitIsWork) {
-    hiitIsWork = false;
-    startHiitRound();
-  } else {
-    hiitIsWork = true;
-    hiitCurrentExerciseIndex++;
-
-    if (hiitCurrentExerciseIndex >= hiitExercises.length) {
-      hiitCurrentExerciseIndex = 0;
-      hiitCurrentRound++;
-
-      if (hiitCurrentRound > hiitTotalRounds) {
-        completeHiitWorkout();
-        return;
-      }
-    }
-
-    startHiitRound();
-  }
+  timerDisplay.textContent = hiitTimeRemaining;
 }
 
 function pauseResumeHiit() {
@@ -4171,42 +4197,46 @@ function pauseResumeHiit() {
   btn.textContent = hiitIsPaused ? 'Resume' : 'Pause';
 }
 
-function endHiitWorkout() {
-  if (confirm('Are you sure you want to end this workout?')) {
-    clearInterval(hiitTimer);
-    document.getElementById('hiitWorkoutMode').style.display = 'none';
-    document.getElementById('guidedWorkoutMode').style.display = 'block';
+function endHiitWorkout(isCompleted = false) {
+  clearInterval(hiitTimerInterval);
+  
+  const workoutTypeSelect = document.getElementById('workoutType');
+  const programName = workoutTypeSelect.options[workoutTypeSelect.selectedIndex].textContent.trim();
+
+  if (isCompleted || confirm('Are you sure you want to end this workout early?')) {
+    const totalDuration = (hiitCurrentRound - 1) * currentWorkout.length * (hiitWorkoutParams.workTime + hiitWorkoutParams.restTime) + (hiitCurrentExerciseIndex * (hiitWorkoutParams.workTime + hiitWorkoutParams.restTime)) + (hiitCurrentMode === 'rest' ? hiitWorkoutParams.workTime : hiitWorkoutParams.workTime - hiitTimeRemaining);
     
-    // Save the workout
     const workout = {
-      type: 'hiit',
-      date: new Date().toLocaleDateString(),
-      rounds: hiitCurrentRound,
-      exercises: hiitExercises.length,
-      duration: Math.floor((hiitCurrentRound * hiitExercises.length * (hiitWorkTime + hiitRestTime)) / 60)
+      date: new Date().toISOString(),
+      type: `${programName} (HIIT)`,
+      exercises: currentWorkout.map(ex => ({name: ex.name})),
+      duration: totalDuration,
+      volume: 0 // HIIT workouts don't typically track volume in lbs
     };
+
+    workoutHistory.unshift(workout);
+    localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
     
-    const history = JSON.parse(localStorage.getItem('workoutHistory')) || [];
-    history.push(workout);
-    localStorage.setItem('workoutHistory', JSON.stringify(history));
-    
-    alert('Workout completed! Great job!');
+    alert(isCompleted ? 'Workout Complete! Great job!' : 'Workout saved to history.');
+    resetWorkoutState();
   }
 }
 
 function completeHiitWorkout() {
-  clearInterval(hiitTimer);
-  document.getElementById('hiitModeDisplay').textContent = 'WORKOUT COMPLETE!';
+  playHiitSound('start');
+  playHiitSound('start');
+  document.getElementById('hiitModeDisplay').textContent = 'COMPLETE!';
   document.getElementById('hiitTimerDisplay').textContent = '✓';
-  
-  const btn = document.getElementById('hiitPauseResumeBtn');
-  btn.style.display = 'none';
-  
+  document.getElementById('hiitExerciseName').textContent = "Workout Finished";
+  document.getElementById('hiitNextExerciseName').textContent = "";
+  document.getElementById('hiitPauseResumeBtn').style.display = 'none';
+
   setTimeout(() => {
-    endHiitWorkout();
-  }, 3000);
+    endHiitWorkout(true);
+  }, 2000);
 }
 
  </script>
 </body>
 </html>
+```
