@@ -578,6 +578,52 @@
  border: 2px solid #003d5c;
  border-radius: 6px;
  }
+ 
+ /* HIIT specific styling */
+ #hiitCountdownScreen {
+  text-align: center;
+  color: #d4af37;
+ }
+ #hiitCountdownDisplay {
+  font-size: 120px;
+  font-weight: bold;
+ }
+ #hiitActiveScreen {
+  text-align: center;
+ }
+ #hiitTimerDisplay {
+  font-size: 100px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #d4af37;
+ }
+ #hiitModeDisplay {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 10px;
+ }
+ #hiitModeDisplay.work {
+  color: #28a745;
+ }
+ #hiitModeDisplay.rest {
+  color: #007bff;
+ }
+ #hiitExerciseName {
+  font-size: 24px;
+  color: #f5f5dc;
+  font-weight: bold;
+ }
+ #hiitNextExerciseName {
+  font-size: 16px;
+  color: #f5f5dc;
+  opacity: 0.8;
+ }
+ #hiitRoundDisplay {
+  margin-top: 15px;
+  font-size: 18px;
+  color: #f5f5dc;
+ }
+
 
  @media (max-width: 600px) {
  .stats-grid {
@@ -715,7 +761,8 @@
  <label>Select Workout Type</label>
  <select id="workoutType" onchange="loadWorkout()">
  <option value="">-- Choose a Workout --</option>
- <option value="custom"> Create Custom Workout</option>
+ <option value="custom"> Create Custom Strength Workout</option>
+ <option value="custom_hiit"> Create Custom HIIT Workout</option>
  <option value="leg"> Leg Day</option>
  <option value="chest"> Chest Day</option>
  <option value="back"> Back & Biceps</option>
@@ -734,13 +781,16 @@
  <p><strong>Choose Your Workout Style:</strong></p>
  <p><strong>Traditional:</strong> Complete all sets of one exercise before moving to the next.</p>
  <p><strong>Circuit:</strong> Do one set of each exercise, then repeat for all rounds.</p>
- <p style="margin-top: 10px; font-size: 13px;"><strong> Apple Watch Tip:</strong> Manually start a "Traditional Strength Training" workout on your Watch when you begin!</p>
+ <p><strong>HIIT:</strong> Perform exercises for timed work/rest intervals.</p>
  </div>
  <button class="btn" onclick="startGuidedWorkout('traditional')" style="margin-bottom: 10px;">
  Start Traditional Style
  </button>
- <button class="btn btn-success" onclick="startGuidedWorkout('circuit')">
+ <button class="btn btn-success" onclick="startGuidedWorkout('circuit')" style="margin-bottom: 10px;">
  Start Circuit Style
+ </button>
+  <button class="btn btn-danger" onclick="startHiitWorkout()">
+ Start HIIT Style
  </button>
  </div>
  </div>
@@ -799,6 +849,26 @@
  <div id="workoutProgressList"></div>
  </div>
  </div>
+ 
+ <!-- HIIT Workout Mode -->
+ <div id="hiitWorkoutMode" style="display:none; background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%); padding: 20px; border-radius: 12px;">
+  <div id="hiitCountdownScreen">
+    <h2 style="color: #f5f5dc;">Get Ready!</h2>
+    <div id="hiitCountdownDisplay">5</div>
+  </div>
+  <div id="hiitActiveScreen" style="display: none;">
+    <div id="hiitModeDisplay">WORK!</div>
+    <div id="hiitTimerDisplay">30</div>
+    <h3 id="hiitExerciseName">Jumping Jacks</h3>
+    <p id="hiitNextExerciseName">Next Up: Rest</p>
+    <div id="hiitRoundDisplay">Round 1 of 4</div>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()">Pause</button>
+      <button class="btn btn-danger" onclick="endHiitWorkout()">End Workout</button>
+    </div>
+  </div>
+</div>
+
  </div>
 
  <!-- Exercises Section -->
@@ -1853,6 +1923,15 @@
  let restInterval = null;
  let restTimeRemaining = 0;
 
+ // HIIT State
+ let hiitTimerInterval = null;
+ let hiitTimeRemaining = 0;
+ let hiitCurrentMode = 'work'; // 'work', 'rest', 'countdown'
+ let hiitCurrentRound = 1;
+ let hiitCurrentExerciseIndex = 0;
+ let hiitIsPaused = false;
+ let hiitWorkoutParams = { workTime: 30, restTime: 15, totalRounds: 4 };
+
  // Initialize
  updateRecommendation();
  updateProgress();
@@ -2036,6 +2115,11 @@
  return;
  }
 
+ if (type === 'custom_hiit') {
+    loadCustomHiitWorkout();
+    return;
+  }
+
  if (type === 'custom') {
  loadCustomWorkout();
  return;
@@ -2126,6 +2210,40 @@
  alert('Workout not found!');
  return;
  }
+
+  // Check if it's a HIIT workout
+  if (savedWorkout.workoutType === 'hiit') {
+    currentWorkout = savedWorkout.exercises.map(ex => ({
+        name: ex.name,
+        ...(exerciseDatabase[ex.name] || {})
+    }));
+    hiitWorkoutParams = {
+        workTime: savedWorkout.workTime,
+        restTime: savedWorkout.restTime,
+        totalRounds: savedWorkout.rounds
+    };
+
+    const container = document.getElementById('workoutContainer');
+    container.innerHTML = `
+      <div class="info-box">
+        <p><strong>${workoutName} (HIIT)</strong></p>
+        <p>Work: ${hiitWorkoutParams.workTime}s | Rest: ${hiitWorkoutParams.restTime}s | Rounds: ${hiitWorkoutParams.totalRounds}</p>
+      </div>
+      <div style="margin-bottom: 20px;">
+        ${currentWorkout.map((ex, idx) => `
+          <div class="exercise-card">
+            <div class="exercise-name">${ex.name}</div>
+            <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment || 'Bodyweight'}</div>
+             <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+                View Instructions
+             </button>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    document.getElementById('workoutModeSelection').style.display = 'block';
+    return;
+  }
  
  // Load custom exercises from localStorage in case they're not in runtime database
  const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
@@ -2238,7 +2356,7 @@
  
  function saveWorkoutPreferences() {
  const type = document.getElementById('workoutType').value;
- if (!type || type === 'custom') return;
+ if (!type || type === 'custom' || type === 'custom_hiit') return;
  
  const savedPrefs = JSON.parse(localStorage.getItem('workoutPreferences')) || {};
  const workoutPrefs = {};
@@ -2258,23 +2376,28 @@
  const container = document.getElementById('workoutContainer');
  const exercises = Object.keys(exerciseDatabase).sort();
  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
- const customWorkoutNames = Object.keys(savedCustomWorkouts);
+ const customWorkoutNames = Object.keys(savedCustomWorkouts).filter(name => !savedCustomWorkouts[name].workoutType);
+
  
  container.innerHTML = `
  <div class="info-box">
- <p><strong>Custom Workout Builder:</strong> Build your own workout, or load a saved custom workout.</p>
+ <p><strong>Custom Strength Workout Builder:</strong> Build your own routine or load a saved one.</p>
  </div>
  
  ${customWorkoutNames.length > 0 ? `
  <div style="margin-bottom: 20px;">
  <label style="font-weight: 600; margin-bottom: 8px; display: block;">Load Saved Custom Workout</label>
- <select id="savedCustomSelect" onchange="loadSavedCustomWorkout()" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px; margin-bottom: 10px;">
- <option value="">-- Select a saved workout --</option>
- ${customWorkoutNames.map(name => `<option value="${name}">${name}</option>`).join('')}
- </select>
- <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px;">
- Delete Selected Workout
- </button>
+ <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+    <select id="savedCustomSelect" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px;">
+    <option value="">-- Select a saved workout --</option>
+    ${customWorkoutNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+    </select>
+    <button class="btn" onclick="loadSavedCustomWorkout()" style="width: auto; margin-top: 0; padding: 12px;">Load</button>
+ </div>
+ <div style="display: flex; gap: 10px;">
+    <button class="btn btn-success" onclick="shareCustomWorkout()" style="width: 100%; padding: 10px; margin-top: 0;">Share Selected</button>
+    <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px;">Delete Selected</button>
+ </div>
  </div>
  ` : ''}
  
@@ -2294,7 +2417,7 @@
  
  <div id="saveCustomWorkoutSection" style="display: none; margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 10px;">
  <label style="font-weight: 600; margin-bottom: 8px; display: block;">Save This Custom Workout</label>
- <input type="text" id="customWorkoutName" placeholder="Enter workout name (e.g., 'My Workout')" style="width: 100%; padding: 12px; border: 2px solid #003d5c; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
+ <input type="text" id="customWorkoutName" placeholder="Enter workout name (e.g., 'My Strength Workout')" style="width: 100%; padding: 12px; border: 2px solid #003d5c; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
  <button class="btn" onclick="saveCustomWorkout()" style="width: 100%;">
  Save Custom Workout
  </button>
@@ -2305,6 +2428,72 @@
  document.getElementById('workoutModeSelection').style.display = 'none';
  }
  
+ function loadCustomHiitWorkout() {
+  const container = document.getElementById('workoutContainer');
+  const exercises = Object.keys(exerciseDatabase).sort();
+  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+  const customHiitNames = Object.keys(savedCustomWorkouts).filter(name => savedCustomWorkouts[name].workoutType === 'hiit');
+  
+  container.innerHTML = `
+    <div class="info-box">
+      <p><strong>Custom HIIT Workout Builder:</strong> Define your intervals, add bodyweight exercises, and save your routine.</p>
+    </div>
+
+    ${customHiitNames.length > 0 ? `
+    <div style="margin-bottom: 20px;">
+      <label style="font-weight: 600; margin-bottom: 8px; display: block;">Load Saved HIIT Workout</label>
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <select id="savedCustomSelect" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px;">
+          <option value="">-- Select a saved HIIT workout --</option>
+          ${customHiitNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+        </select>
+        <button class="btn" onclick="loadSavedCustomWorkout()" style="width: auto; margin-top: 0; padding: 12px;">Load</button>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-success" onclick="shareCustomWorkout()" style="width: 100%; padding: 10px; margin-top: 0;">Share Selected</button>
+        <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px;">Delete Selected</button>
+      </div>
+    </div>` : ''}
+
+    <div id="hiitParameterSetup" style="background: #e8dcc4; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Work (sec)</label>
+                <input type="number" id="hiitWorkTime" value="30">
+            </div>
+            <div class="form-group">
+                <label>Rest (sec)</label>
+                <input type="number" id="hiitRestTime" value="15">
+            </div>
+            <div class="form-group">
+                <label>Rounds</label>
+                <input type="number" id="hiitTotalRounds" value="4">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+      <label>Choose Exercise</label>
+      <select id="customExerciseSelect">
+        <option value="">-- Select Exercise --</option>
+        ${exercises.map(ex => `<option value="${ex}">${ex}</option>`).join('')}
+      </select>
+      <button class="add-exercise-btn" onclick="addCustomExercise()">+ Add Exercise</button>
+    </div>
+
+    <div id="customExercisesList"></div>
+
+    <div id="saveCustomWorkoutSection" style="display: none; margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 10px;">
+      <label style="font-weight: 600; margin-bottom: 8px; display: block;">Save This HIIT Workout</label>
+      <input type="text" id="customWorkoutName" placeholder="Enter workout name (e.g., 'My HIIT Blast')" style="width: 100%; padding: 12px; border: 2px solid #003d5c; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
+      <button class="btn" onclick="saveCustomWorkout('hiit')" style="width: 100%;">Save HIIT Workout</button>
+    </div>
+  `;
+  
+  currentWorkout = [];
+  document.getElementById('workoutModeSelection').style.display = 'none';
+}
+
  function loadSavedCustomWorkout() {
  const select = document.getElementById('savedCustomSelect');
  const workoutName = select.value;
@@ -2316,6 +2505,16 @@
  
  if (!savedWorkout) return;
  
+ // Handle HIIT workouts
+ if (savedWorkout.workoutType === 'hiit') {
+    document.getElementById('hiitWorkTime').value = savedWorkout.workTime;
+    document.getElementById('hiitRestTime').value = savedWorkout.restTime;
+    document.getElementById('hiitTotalRounds').value = savedWorkout.rounds;
+    currentWorkout = savedWorkout.exercises.map(ex => ({ name: ex.name, ...exerciseDatabase[ex.name] }));
+    renderCustomWorkout('hiit');
+    return;
+  }
+
  // Load custom exercises from localStorage in case they're not in runtime database
  const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
  
@@ -2371,10 +2570,12 @@
  localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
  
  loadCustomWorkoutsIntoDropdown();
- loadCustomWorkout();
+ const type = document.getElementById('workoutType').value;
+ if (type === 'custom') loadCustomWorkout();
+ if (type === 'custom_hiit') loadCustomHiitWorkout();
  }
  
- function saveCustomWorkout() {
+ function saveCustomWorkout(type = 'strength') {
  const nameInput = document.getElementById('customWorkoutName');
  const workoutName = nameInput.value.trim();
  
@@ -2389,12 +2590,23 @@
  }
  
  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
- savedCustomWorkouts[workoutName] = currentWorkout.map(ex => ({
- name: ex.name,
- weight: ex.weight,
- sets: ex.sets,
- reps: ex.reps
- }));
+
+ if (type === 'hiit') {
+    savedCustomWorkouts[workoutName] = {
+        workoutType: 'hiit',
+        workTime: parseInt(document.getElementById('hiitWorkTime').value) || 30,
+        restTime: parseInt(document.getElementById('hiitRestTime').value) || 15,
+        rounds: parseInt(document.getElementById('hiitTotalRounds').value) || 4,
+        exercises: currentWorkout.map(ex => ({ name: ex.name }))
+    };
+ } else {
+    savedCustomWorkouts[workoutName] = currentWorkout.map(ex => ({
+        name: ex.name,
+        weight: ex.weight,
+        sets: ex.sets,
+        reps: ex.reps
+    }));
+ }
  
  localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
  loadCustomWorkoutsIntoDropdown();
@@ -2406,6 +2618,7 @@
  function addCustomExercise() {
  const select = document.getElementById('customExerciseSelect');
  const exerciseName = select.value;
+ const workoutType = document.getElementById('workoutType').value;
  
  if (!exerciseName) {
  alert('Please select an exercise first!');
@@ -2419,10 +2632,10 @@
  });
 
  select.value = '';
- renderCustomWorkout();
+ renderCustomWorkout(workoutType === 'custom_hiit' ? 'hiit' : 'strength');
  }
 
- function renderCustomWorkout() {
+ function renderCustomWorkout(type = 'strength') {
  const list = document.getElementById('customExercisesList');
  
  if (currentWorkout.length === 0) {
@@ -2432,48 +2645,61 @@
  return;
  }
 
- list.innerHTML = currentWorkout.map((ex, idx) => `
- <div class="exercise-card">
- <div class="exercise-header">
- <div class="exercise-name">${ex.name}</div>
- <button class="delete-btn" onclick="removeCustomExercise(${idx})">Remove</button>
- </div>
- <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment}</div>
- 
- <div class="control-group">
- <div class="control-item">
- <div class="control-label">Weight (lbs)</div>
- <div class="control-buttons">
- <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn">-</button>
- <input type="number" id="custom-weight-${idx}" value="${ex.weight}" onchange="updateCustomExerciseValue(${idx}, 'weight', this.value)" class="control-input">
- <button onclick="adjustCustomValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
- </div>
- </div>
- 
- <div class="control-item">
- <div class="control-label">Sets</div>
- <div class="control-buttons">
- <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn">-</button>
- <input type="number" id="custom-sets-${idx}" value="${ex.sets}" onchange="updateCustomExerciseValue(${idx}, 'sets', this.value)" class="control-input">
- <button onclick="adjustCustomValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
- </div>
- </div>
- 
- <div class="control-item">
- <div class="control-label">Reps</div>
- <div class="control-buttons">
- <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn">-</button>
- <input type="number" id="custom-reps-${idx}" value="${ex.reps}" onchange="updateCustomExerciseValue(${idx}, 'reps', this.value)" class="control-input">
- <button onclick="adjustCustomValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
- </div>
- </div>
- </div>
- 
- <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
- View Instructions
- </button>
- </div>
- `).join('');
+ if (type === 'hiit') {
+    list.innerHTML = currentWorkout.map((ex, idx) => `
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">${ex.name}</div>
+          <button class="delete-btn" onclick="removeCustomExercise(${idx})">Remove</button>
+        </div>
+        <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment || 'Bodyweight'}</div>
+      </div>
+    `).join('');
+  } else {
+    list.innerHTML = currentWorkout.map((ex, idx) => `
+    <div class="exercise-card">
+    <div class="exercise-header">
+    <div class="exercise-name">${ex.name}</div>
+    <button class="delete-btn" onclick="removeCustomExercise(${idx})">Remove</button>
+    </div>
+    <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment}</div>
+    
+    <div class="control-group">
+    <div class="control-item">
+    <div class="control-label">Weight (lbs)</div>
+    <div class="control-buttons">
+    <button onclick="adjustCustomValue(${idx}, 'weight', -5)" class="adjust-btn">-</button>
+    <input type="number" id="custom-weight-${idx}" value="${ex.weight}" onchange="updateCustomExerciseValue(${idx}, 'weight', this.value)" class="control-input">
+    <button onclick="adjustCustomValue(${idx}, 'weight', 5)" class="adjust-btn plus">+</button>
+    </div>
+    </div>
+    
+    <div class="control-item">
+    <div class="control-label">Sets</div>
+    <div class="control-buttons">
+    <button onclick="adjustCustomValue(${idx}, 'sets', -1)" class="adjust-btn">-</button>
+    <input type="number" id="custom-sets-${idx}" value="${ex.sets}" onchange="updateCustomExerciseValue(${idx}, 'sets', this.value)" class="control-input">
+    <button onclick="adjustCustomValue(${idx}, 'sets', 1)" class="adjust-btn plus">+</button>
+    </div>
+    </div>
+    
+    <div class="control-item">
+    <div class="control-label">Reps</div>
+    <div class="control-buttons">
+    <button onclick="adjustCustomValue(${idx}, 'reps', -1)" class="adjust-btn">-</button>
+    <input type="number" id="custom-reps-${idx}" value="${ex.reps}" onchange="updateCustomExerciseValue(${idx}, 'reps', this.value)" class="control-input">
+    <button onclick="adjustCustomValue(${idx}, 'reps', 1)" class="adjust-btn plus">+</button>
+    </div>
+    </div>
+    </div>
+    
+    <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+    View Instructions
+    </button>
+    </div>
+    `).join('');
+ }
+
 
  currentWorkout.forEach(ex => ex.setsCompleted = 0);
  
@@ -2502,7 +2728,8 @@
 
  function removeCustomExercise(idx) {
  currentWorkout.splice(idx, 1);
- renderCustomWorkout();
+ const type = document.getElementById('workoutType').value;
+ renderCustomWorkout(type === 'custom_hiit' ? 'hiit' : 'strength');
  }
 
  // Guided Workout Functions
@@ -2722,6 +2949,7 @@
  guidedMode = false;
  document.getElementById('workoutSetup').style.display = 'block';
  document.getElementById('guidedWorkoutMode').style.display = 'none';
+ document.getElementById('hiitWorkoutMode').style.display = 'none';
  document.getElementById('workoutType').value = '';
  document.getElementById('workoutContainer').innerHTML = '';
  document.getElementById('workoutModeSelection').style.display = 'none';
@@ -3283,7 +3511,7 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  <strong>Exercises:</strong> ${w.exercises.map(e => e.name).join(', ')}
  </div>
  <div style="margin-top: 10px; font-size: 14px; color: #6c757d;">
- <strong>Volume:</strong> ${w.volume} lbs | <strong>Duration:</strong> ${formatTime(w.duration)}
+ ${w.volume ? `<strong>Volume:</strong> ${w.volume} lbs |` : ''} <strong>Duration:</strong> ${formatTime(w.duration)}
  </div>
  <button class="delete-btn" onclick="deleteWorkout(${idx})" style="margin-top: 10px;">Delete</button>
  </div>
@@ -3412,17 +3640,21 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  const key = localStorage.getItem('geminiKey');
  if (!key) { alert('API key not set'); return; }
 
- const instruction_prompt = `You are a helpful AI fitness coach integrated into a workout app. Your primary goal is to assist the user. Analyze the user's request and respond in one of two ways:
+ const instruction_prompt = `You are a helpful AI fitness coach integrated into a workout app. Your primary goal is to assist the user. Analyze the user's request and respond in one of three ways:
 
-1. If the user wants to create a workout routine (e.g., "give me a leg workout", "create a 30 minute cardio session"):
+1. If the user wants to create a standard strength workout (e.g., "give me a leg workout", "create a 30 minute dumbbell routine"):
 Respond with a JSON object for the workout plan. The JSON must have this EXACT structure:
 {"title": "Workout Name", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "equipment": "e.g., Dumbbells", "description": "Detailed 2-3 sentence description of proper form"}]}
 
-2. If the user wants to add, fix, or update the details for a SINGLE exercise (e.g., "add instructions for farmers walk", "what's the equipment for a dumbbell squat?", "update the description for bench press"):
+2. If the user wants to create a High-Intensity Interval Training (HIIT) workout (e.g., "give me a 20 minute HIIT workout", "bodyweight HIIT routine"):
+Respond with a JSON object specifically for a HIIT workout. The JSON must have this EXACT structure:
+{"title": "Workout Name", "workoutType": "hiit", "workTime": number, "restTime": number, "rounds": number, "exercises": [{"name": "Exercise Name", "description": "How to do the exercise. Assume bodyweight unless specified."}]}
+
+3. If the user wants to add, fix, or update the details for a SINGLE exercise (e.g., "add instructions for farmers walk", "what's the equipment for a dumbbell squat?"):
 Respond with a JSON object to update the app's database. The JSON must have this EXACT structure:
 {"action": "update_exercise", "exerciseName": "Name Of The Exercise", "details": {"description": "Detailed instructions on how to perform the exercise.", "equipment": "The equipment needed."}}
 
-ONLY respond with one of the two valid JSON formats. Do not add any other text or explanation outside of the JSON.
+ONLY respond with one of the three valid JSON formats. Do not add any other text or explanation outside of the JSON.
 
 User's request: ${msg}`;
  
@@ -3464,39 +3696,7 @@ User's request: ${msg}`;
     if (aiResponse.action === 'update_exercise') {
       updateExerciseFromAI(aiResponse);
     } else if (aiResponse.title && aiResponse.exercises) {
-      // It's a workout creation request
-      addMsg('Here is the workout I generated for you:', 'bot');
-      const workoutDetails = aiResponse.exercises.map(ex => `- ${ex.name}: ${ex.sets}x${ex.reps} @ ${ex.weight} lbs`).join('\n');
-      addMsg(workoutDetails, 'bot');
-      addMsg('Would you like me to save this workout in your app?', 'bot');
-      
-      const msgContainer = document.getElementById('messages');
-      const buttonContainer = document.createElement('div');
-      buttonContainer.style.display = 'flex';
-      buttonContainer.style.gap = '10px';
-      buttonContainer.style.marginTop = '10px';
-      buttonContainer.style.justifyContent = 'center';
-
-      const createBtn = document.createElement('button');
-      createBtn.textContent = '✓ Create Workout';
-      createBtn.className = 'btn btn-success';
-      createBtn.style.width = 'auto';
-      createBtn.style.padding = '10px 20px';
-      createBtn.style.marginTop = '0';
-      createBtn.onclick = () => { createWorkoutFromAI(aiResponse); buttonContainer.remove(); };
-      
-      const cancelBtn = document.createElement('button');
-      cancelBtn.textContent = '✗ No Thanks';
-      cancelBtn.className = 'btn btn-secondary';
-      cancelBtn.style.width = 'auto';
-      cancelBtn.style.padding = '10px 20px';
-      cancelBtn.style.marginTop = '0';
-      cancelBtn.onclick = () => buttonContainer.remove();
-      
-      buttonContainer.appendChild(createBtn);
-      buttonContainer.appendChild(cancelBtn);
-      msgContainer.appendChild(buttonContainer);
-      msgContainer.scrollTop = msgContainer.scrollHeight;
+      handleWorkoutCreation(aiResponse);
     } else {
       // The JSON is not in a recognized format
       addMsg(resultText, 'bot');
@@ -3512,6 +3712,48 @@ User's request: ${msg}`;
   addMsg(`Error: ${e.message}. Make sure you are connected to the internet.`, 'bot');
  }
  }
+
+ function handleWorkoutCreation(aiWorkout) {
+  let workoutDetails;
+  if(aiWorkout.workoutType === 'hiit') {
+    workoutDetails = `Work: ${aiWorkout.workTime}s, Rest: ${aiWorkout.restTime}s, Rounds: ${aiWorkout.rounds}\n` +
+      aiWorkout.exercises.map(ex => `- ${ex.name}`).join('\n');
+  } else {
+    workoutDetails = aiWorkout.exercises.map(ex => `- ${ex.name}: ${ex.sets}x${ex.reps} @ ${ex.weight} lbs`).join('\n');
+  }
+
+  addMsg('Here is the workout I generated for you:', 'bot');
+  addMsg(workoutDetails, 'bot');
+  addMsg('Would you like me to save this workout in your app?', 'bot');
+  
+  const msgContainer = document.getElementById('messages');
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.display = 'flex';
+  buttonContainer.style.gap = '10px';
+  buttonContainer.style.marginTop = '10px';
+  buttonContainer.style.justifyContent = 'center';
+
+  const createBtn = document.createElement('button');
+  createBtn.textContent = '✓ Save Workout';
+  createBtn.className = 'btn btn-success';
+  createBtn.style.width = 'auto';
+  createBtn.style.padding = '10px 20px';
+  createBtn.style.marginTop = '0';
+  createBtn.onclick = () => { createWorkoutFromAI(aiWorkout); buttonContainer.remove(); };
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '✗ No Thanks';
+  cancelBtn.className = 'btn btn-secondary';
+  cancelBtn.style.width = 'auto';
+  cancelBtn.style.padding = '10px 20px';
+  cancelBtn.style.marginTop = '0';
+  cancelBtn.onclick = () => buttonContainer.remove();
+  
+  buttonContainer.appendChild(createBtn);
+  buttonContainer.appendChild(cancelBtn);
+  msgContainer.appendChild(buttonContainer);
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+}
 
  function updateExerciseFromAI(data) {
   const { exerciseName, details } = data;
@@ -3544,48 +3786,58 @@ User's request: ${msg}`;
 }
  
  function createWorkoutFromAI(aiWorkout) {
- const workoutPlanExercises = aiWorkout.exercises.map(ex => ({
-  name: ex.name,
-  sets: parseInt(ex.sets) || 3,
-  reps: parseInt(ex.reps) || 10,
-  weight: parseInt(ex.weight) || 0
- }));
- 
- aiWorkout.exercises.forEach(ex => {
-  if (!exerciseDatabase[ex.name]) {
-   const newExerciseData = {
-    equipment: ex.equipment || 'Various',
-    instructions: ex.description || 'No specific instructions provided by AI.',
-    sets: parseInt(ex.sets) || 3,
-    reps: parseInt(ex.reps) || 10,
-    weight: parseInt(ex.weight) || 0,
-    image: 'AI Generated Exercise'
-   };
-   saveCustomExerciseToDB(ex.name, newExerciseData);
+  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+  let workoutName = aiWorkout.title || (aiWorkout.workoutType === 'hiit' ? 'AI HIIT Workout' : 'AI Strength Workout');
+  let counter = 1;
+  const originalName = workoutName;
+  while (savedCustomWorkouts[workoutName]) {
+    workoutName = `${originalName} (${counter})`;
+    counter++;
   }
-  if (ex.description) {
-   exerciseDescriptions[ex.name] = ex.description;
-  }
- });
- localStorage.setItem('exerciseDescriptions', JSON.stringify(exerciseDescriptions));
 
- const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
- 
- let workoutName = aiWorkout.title || 'AI Suggested Workout';
- let counter = 1;
- const originalName = workoutName;
- while (savedCustomWorkouts[workoutName]) {
-  workoutName = `${originalName} (${counter})`;
-  counter++;
- }
- 
- savedCustomWorkouts[workoutName] = workoutPlanExercises;
- localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
- 
- addMsg(`✓ Workout "${workoutName}" has been saved! You can now find it in the "Workout" tab.`, 'bot');
- 
- loadCustomWorkoutsIntoDropdown();
- renderExerciseList();
+  if (aiWorkout.workoutType === 'hiit') {
+    // Save as a HIIT workout
+    savedCustomWorkouts[workoutName] = {
+      workoutType: 'hiit',
+      workTime: aiWorkout.workTime || 30,
+      restTime: aiWorkout.restTime || 15,
+      rounds: aiWorkout.rounds || 4,
+      exercises: aiWorkout.exercises.map(ex => ({ name: ex.name }))
+    };
+  } else {
+    // Save as a strength workout
+    savedCustomWorkouts[workoutName] = aiWorkout.exercises.map(ex => ({
+      name: ex.name,
+      sets: parseInt(ex.sets) || 3,
+      reps: parseInt(ex.reps) || 10,
+      weight: parseInt(ex.weight) || 0
+    }));
+  }
+  
+  // Add any new exercises from the workout to the database
+  aiWorkout.exercises.forEach(ex => {
+    if (!exerciseDatabase[ex.name]) {
+      const newExerciseData = {
+        equipment: ex.equipment || 'Bodyweight',
+        instructions: ex.description || 'No specific instructions provided by AI.',
+        sets: parseInt(ex.sets) || 3,
+        reps: parseInt(ex.reps) || 10,
+        weight: parseInt(ex.weight) || 0,
+        image: 'AI Generated Exercise'
+      };
+      saveCustomExerciseToDB(ex.name, newExerciseData);
+    }
+    if (ex.description) {
+      exerciseDescriptions[ex.name] = ex.description;
+    }
+  });
+  localStorage.setItem('exerciseDescriptions', JSON.stringify(exerciseDescriptions));
+
+  localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+  addMsg(`✓ Workout "${workoutName}" has been saved! You can now find it in the "Workout" tab.`, 'bot');
+  
+  loadCustomWorkoutsIntoDropdown();
+  renderExerciseList();
  }
 
  // New functions for the Exercises Tab
@@ -3703,6 +3955,7 @@ User's request: ${msg}`;
  if (localStorage.getItem('geminiKey')) {
  initAI();
  }
+ handleIncomingWorkout();
 
  document.getElementById('userMessage').addEventListener('keydown', function(event) {
  if (event.key === 'Enter' && !event.shiftKey) {
@@ -3711,7 +3964,84 @@ User's request: ${msg}`;
  }
  });
  });
+ 
+ async function shareCustomWorkout() {
+  const select = document.getElementById('savedCustomSelect');
+  const workoutName = select.value;
+  if (!workoutName) {
+    alert('Please select a custom workout from the dropdown to share.');
+    return;
+  }
+
+  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+  const workoutData = savedCustomWorkouts[workoutName];
+
+  const shareObject = {
+    title: workoutName,
+    data: workoutData
+  };
+
+  try {
+    const jsonString = JSON.stringify(shareObject);
+    const encodedData = btoa(jsonString); // Base64 encode the data
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?workout=${encodedData}`;
+
+    if (navigator.share) {
+      await navigator.share({
+        title: 'Check out my workout!',
+        text: `Here is a workout I made in the Workout Tracker Pro app: ${workoutName}`,
+        url: shareUrl
+      });
+    } else {
+      // Fallback for desktop browsers
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Workout link copied to clipboard! Share it with your friends.');
+    }
+  } catch (error) {
+    console.error('Sharing failed:', error);
+    alert('Could not share workout. Your browser might not support it.');
+  }
+}
+
+function handleIncomingWorkout() {
+  const params = new URLSearchParams(window.location.search);
+  const workoutData = params.get('workout');
+
+  if (workoutData) {
+    try {
+      const decodedString = atob(workoutData); // Decode Base64
+      const sharedWorkout = JSON.parse(decodedString);
+
+      if (sharedWorkout.title && sharedWorkout.data) {
+        if (confirm(`Do you want to add the shared workout "${sharedWorkout.title}" to your custom workouts?`)) {
+          const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+          
+          let newName = sharedWorkout.title;
+          let counter = 1;
+          while (savedCustomWorkouts[newName]) {
+            newName = `${sharedWorkout.title} (Imported ${counter})`;
+            counter++;
+          }
+
+          savedCustomWorkouts[newName] = sharedWorkout.data;
+          localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+          
+          alert(`Workout "${newName}" added successfully!`);
+          loadCustomWorkoutsIntoDropdown();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse shared workout data:', error);
+      alert('The shared workout link appears to be invalid or corrupted.');
+    } finally {
+      // Clean the URL to prevent re-importing on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+}
 
  </script>
 </body>
 </html>
+```
