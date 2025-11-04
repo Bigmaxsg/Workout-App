@@ -1,3 +1,18 @@
+You've found an excellent and subtle bug. You are absolutely correct; the previous code had a logical flaw that prevented any custom exercise from being edited or deleted after the page was refreshed.
+
+Here's why it was happening:
+
+1.  When the app first loads, it takes all the exercises from `localStorage` (your custom ones) and merges them into the main `exerciseDatabase`.
+2.  Later, when you go to the "Exercises" tab, the code checks if an exercise is "custom" by seeing if it exists in the `localStorage` object.
+3.  The problem is that the code was not correctly differentiating between the *original* built-in exercises and the ones that were added later. It was treating every exercise as built-in after a page refresh.
+
+I have implemented a more robust solution. The app will now create a "snapshot" of the original, built-in exercises when it first starts. Any exercise that is not in that original snapshot is now correctly identified as a "custom" exercise, meaning you will always have the ability to **Edit** and **Delete** it.
+
+This fixes the issue with "Dumbbell Farmer's Walk" and will correctly handle any other exercises you or the AI add in the future.
+
+Here is the corrected code:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1826,6 +1841,9 @@
  exercises: ['Dumbbell Goblet Squat', 'Incline Dumbbell Press', 'Dumbbell Bent-Over Row', 'Dumbbell Shoulder Press', 'Dumbbell Romanian Deadlift', 'Plank']
  }
  };
+ 
+ // Take a snapshot of the original, built-in exercises. Any exercise not in this list is "custom".
+ const builtInExerciseNames = Object.keys(exerciseDatabase);
 
  // App State
  let currentWorkout = [];
@@ -3583,9 +3601,9 @@ User's request: ${msg}`;
  function renderExerciseList() {
   const container = document.getElementById('exerciseListContainer');
   const searchTerm = document.getElementById('exerciseSearch').value.toLowerCase();
-  const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
-
-  const allExerciseNames = [...new Set([...Object.keys(exerciseDatabase), ...Object.keys(customExercises)])].sort();
+  
+  // Important: We get ALL keys from the live database first
+  const allExerciseNames = Object.keys(exerciseDatabase).sort();
   
   const filteredExercises = allExerciseNames.filter(name => name.toLowerCase().includes(searchTerm));
 
@@ -3595,8 +3613,10 @@ User's request: ${msg}`;
   }
 
   container.innerHTML = filteredExercises.map(name => {
-    const exercise = exerciseDatabase[name] || customExercises[name];
-    const isCustom = customExercises.hasOwnProperty(name);
+    const exercise = exerciseDatabase[name];
+    // The new, robust way to check if an exercise is custom
+    const isCustom = !builtInExerciseNames.includes(name); 
+    
     return `
       <div class="history-item">
         <div class="history-header">
