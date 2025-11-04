@@ -2648,22 +2648,41 @@
  }
 
  function showExerciseInfo(name) {
- const exercise = exerciseDatabase[name];
+ // First check if exercise is in current workout (has full saved data)
+ let exercise = currentWorkout.find(ex => ex.name === name);
+ 
+ // If not in current workout, check database
+ if (!exercise) {
+ exercise = exerciseDatabase[name];
+ }
+ 
  const modal = document.getElementById('exerciseModal');
  const modalName = document.getElementById('modalExerciseName');
  const modalContent = document.getElementById('modalExerciseContent');
 
- // If exercise not in database, show error or use minimal info
- if (!exercise) {
  modalName.textContent = name;
+
+ // Check if we have meaningful data
+ const hasValidData = exercise && exercise.instructions && 
+                      exercise.instructions !== 'Perform as described' && 
+                      exercise.instructions !== 'Perform the exercise as described';
+
+ // If no valid exercise data, show helpful fallback
+ if (!exercise || !hasValidData) {
+ const youtubeSearchLink = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' tutorial');
  modalContent.innerHTML = `
- <div style="padding: 20px; text-align: center;">
- <p style="color: #d4af37; font-size: 18px; margin-bottom: 15px;">⚠️ Exercise Details Not Available</p>
- <p>This exercise doesn't have detailed information in the database yet.</p>
- <p style="margin-top: 15px;">You can still perform this exercise following standard form guidelines.</p>
+ <div style="padding: 20px;">
+ ${exercise && exercise.equipment ? `<div style="margin-bottom: 15px;"><strong>Equipment:</strong> ${exercise.equipment}</div>` : ''}
+ <p style="color: #d4af37; font-size: 16px; margin-bottom: 15px; text-align: center;">💡 Detailed Instructions</p>
+ <p style="line-height: 1.6;">This exercise doesn't have detailed form instructions saved yet. You can still perform this exercise following standard form guidelines, or watch video tutorials for proper technique.</p>
+ ${exercise && (exercise.sets || exercise.reps || exercise.weight) ? `
+ <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+ <strong>Suggested:</strong> ${exercise.sets || 3} sets, ${exercise.reps || 10} reps @ ${exercise.weight || 0} lbs
+ </div>
+ ` : ''}
  <div style="margin-top: 20px;">
- <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(name + ' tutorial')}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none;">
- 🎥 Search for Video Tutorial on YouTube
+ <a href="${youtubeSearchLink}" target="_blank" rel="noopener noreferrer" class="btn" style="display: block; text-align: center; text-decoration: none; cursor: pointer; background: #d4af37; color: #001f3f; padding: 12px; border-radius: 8px; font-weight: bold;">
+ 🎥 Watch Video Tutorial on YouTube
  </a>
  </div>
  </div>
@@ -2671,9 +2690,8 @@
  modal.classList.add('active');
  return;
  }
-
- modalName.textContent = name;
  
+ // We have valid exercise data, show full details
  
  // Build the image URL using free exercise database
  const imageUrl = getExerciseImageUrl(name);
@@ -2684,11 +2702,11 @@
  onerror="this.parentElement.innerHTML='<div class=exercise-image-fallback>${exercise.image}<br><small>Image not available</small></div>'">
  </div>
  `;
- const youtubeLink = youtubeVideoLinks[name] || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name);
+ const youtubeLink = youtubeVideoLinks[name] || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' tutorial');
  
  modalContent.innerHTML = `
  <div style="margin-bottom: 15px;">
- <strong>Equipment:</strong> ${exercise.equipment}
+ <strong>Equipment:</strong> ${exercise.equipment || 'Various'}
  </div>
  ${imageHtml}
  <div style="margin-top: 15px;">
@@ -2696,11 +2714,11 @@
  <p style="line-height: 1.6; margin-top: 10px;">${exercise.instructions}</p>
  </div>
  <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
- <strong>Suggested:</strong> ${exercise.sets} sets ${exercise.reps} reps @ ${exercise.weight} lbs
+ <strong>Suggested:</strong> ${exercise.sets || 3} sets, ${exercise.reps || 10} reps @ ${exercise.weight || 0} lbs
  </div>
  <div style="margin-top: 15px;">
- <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
- ðŸŽ¥ Watch Video Tutorial on YouTube
+ <a href="${youtubeLink}" target="_blank" rel="noopener noreferrer" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0; cursor: pointer;">
+ 🎥 Watch Video Tutorial on YouTube
  </a>
  </div>
  `;
@@ -2806,8 +2824,11 @@ Create a workout that:
 2. Provides good variety from recent workouts
 3. Matches their typical duration and volume
 4. Includes new exercises to prevent boredom
+5. IMPORTANT: Each exercise MUST include a detailed "description" field with 2-3 sentences explaining proper form and technique
 
-Format your response as JSON with this structure: {"title": "Workout Name", "description": "Why this workout helps your progress", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "description": "How to perform"}]}`;
+Format your response as JSON with this structure: {"title": "Workout Name", "description": "Why this workout helps your progress", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "equipment": "equipment type", "description": "Detailed 2-3 sentence description of how to perform with proper form"}]}
+
+Make sure EVERY exercise has a complete description field. Do not leave any description fields empty or generic.`;
 
  const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=' + key, {
  method: 'POST',
