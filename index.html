@@ -4089,24 +4089,32 @@ function playHiitSound(type) {
 }
 
 function startHiitWorkout() {
-  // Get the selected workout
-  const select = document.getElementById('customSelect');
+  // Try multiple possible selector IDs
+  let select = document.getElementById('customSelect') || 
+               document.getElementById('workoutType') ||
+               document.querySelector('select[id*="Select"]');
+  
   if (!select) {
-    alert('Workout selector not found. Please select a HIIT workout first.');
+    alert('Workout selector not found. Please make sure you have a HIIT workout loaded.');
     return;
   }
 
-  const workoutName = select.value;
+  let workoutName = select.value;
   if (!workoutName) {
     alert('Please select a HIIT workout first!');
     return;
+  }
+
+  // If it's a saved workout reference, extract the name
+  if (workoutName.startsWith('saved_')) {
+    workoutName = workoutName.substring(6);
   }
 
   const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
   const workout = savedCustomWorkouts[workoutName];
 
   if (!workout) {
-    alert('Workout not found!');
+    alert('Workout not found in saved workouts!');
     return;
   }
 
