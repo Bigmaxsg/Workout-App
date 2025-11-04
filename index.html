@@ -1,3 +1,10 @@
+You are absolutely right. The addition of the "Exercises" tab has made the navigation bar too crowded for smaller screens, causing the "History" tab to be cut off. This is a classic responsive design issue.
+
+I can fix this by modifying the navigation bar's behavior on smaller screens. Instead of trying to shrink all the tabs to fit—which makes them unreadable—I will make the tab bar horizontally scrollable. This is a common and user-friendly solution on mobile devices that allows you to have any number of tabs while keeping them fully visible and tappable.
+
+Here is the corrected code that implements this scrolling behavior for the navigation bar:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,18 +57,25 @@
  display: flex;
  background: #d9c7a5;
  border-bottom: 2px solid #8b7355;
+ overflow-x: auto; /* Allows horizontal scrolling */
+ -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
  }
 
+ .nav::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for a cleaner look */
+}
+
  .nav-btn {
- flex: 1;
- padding: 15px;
- background: none;
- border: none;
- cursor: pointer;
- font-size: 14px;
- font-weight: 600;
- color: #3e3024;
- transition: all 0.3s;
+  /* flex: 1; */ /* Removed to allow natural width */
+  padding: 15px 14px; /* Adjusted padding */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3e3024;
+  transition: all 0.3s;
+  white-space: nowrap; /* Prevents text from wrapping */
  }
 
  .nav-btn.active {
