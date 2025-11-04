@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
  <meta charset="UTF-8">
@@ -11,695 +12,694 @@
  box-sizing: border-box;
  }
 
- body {
- font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
- background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
- min-height: 100vh;
- padding: 10px;
- }
-
- .container {
- max-width: 800px;
- margin: 0 auto;
- background: #f5f5dc;
- border-radius: 20px;
- box-shadow: 0 20px 60px rgba(0,0,0,0.5);
- overflow: hidden;
- border: 3px solid #8b7355;
- }
-
- .header {
- background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
- color: #d4af37;
- padding: 20px;
- text-align: center;
- border-bottom: 3px solid #d4af37;
- }
-
- .header h1 {
- font-size: 28px;
- margin-bottom: 5px;
- }
-
- .header p {
- opacity: 0.9;
- font-size: 14px;
- }
-
- .nav {
- display: flex;
- background: #d9c7a5;
- border-bottom: 2px solid #8b7355;
- overflow-x: auto; /* Allows horizontal scrolling */
- -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
- }
-
- .nav::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for a cleaner look */
+body {
+font-family: -apple-system, BlinkMacSystemFont, ‘Segoe UI’, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+min-height: 100vh;
+padding: 10px;
 }
 
- .nav-btn {
-  /* flex: 1; */ /* Removed to allow natural width */
-  padding: 15px 14px; /* Adjusted padding */
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: #3e3024;
-  transition: all 0.3s;
-  white-space: nowrap; /* Prevents text from wrapping */
- }
-
- .nav-btn.active {
- background: #f5f5dc;
- color: #001f3f;
- border-bottom: 3px solid #d4af37;
- }
-
- .content {
- padding: 20px;
- min-height: 400px;
- }
-
- .section {
- display: none;
- }
-
- .section.active {
- display: block;
- animation: fadeIn 0.3s;
- }
-
- @keyframes fadeIn {
- from { opacity: 0; transform: translateY(10px); }
- to { opacity: 1; transform: translateY(0); }
- }
-
- .form-group {
- margin-bottom: 20px;
- }
-
- label {
- display: block;
- margin-bottom: 8px;
- font-weight: 600;
- color: #333;
- font-size: 14px;
- }
-
- select, input, textarea {
- width: 100%;
- padding: 12px;
- border: 2px solid #e9ecef;
- border-radius: 10px;
- font-size: 16px;
- transition: border 0.3s;
- font-family: inherit;
- }
-
- select:focus, input:focus, textarea:focus {
- outline: none;
- border-color: #003d5c;
- }
-
- .btn {
- padding: 14px 28px;
- background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
- color: #d4af37;
- border: none;
- border-radius: 10px;
- font-size: 16px;
- font-weight: 600;
- cursor: pointer;
- transition: transform 0.2s, box-shadow 0.2s;
- width: 100%;
- margin-top: 10px;
- }
-
- .btn:hover {
- transform: translateY(-2px);
- box-shadow: 0 10px 20px rgba(0, 31, 63, 0.4);
- }
-
- .btn:active {
- transform: translateY(0);
- }
-
- .btn-secondary {
- background: #8b7355;
- color: #f5f5dc;
- }
-
- .btn-success {
- background: linear-gradient(135deg, #4a6741 0%, #5d8055 100%);
- color: #f5f5dc;
- }
-
- .btn-danger {
- background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
- color: #f5f5dc;
- }
-
- .exercise-card {
- background: #e8dcc4;
- border-radius: 12px;
- padding: 15px;
- margin-bottom: 15px;
- border-left: 4px solid #003d5c;
- }
-
- .exercise-header {
- display: flex;
- justify-content: space-between;
- align-items: center;
- margin-bottom: 10px;
- }
-
- .exercise-name {
- font-weight: 700;
- font-size: 16px;
- color: #333;
- }
-
- .exercise-details {
- display: grid;
- grid-template-columns: repeat(3, 1fr);
- gap: 10px;
- margin-top: 10px;
- }
-
- .detail-input {
- display: flex;
- flex-direction: column;
- }
-
- .detail-input label {
- font-size: 12px;
- margin-bottom: 5px;
- color: #6c757d;
- }
-
- .detail-input input {
- padding: 8px;
- font-size: 14px;
- }
-
- .exercise-image {
- width: 100%;
- max-width: 400px;
- min-height: 250px;
- background: #e9ecef;
- border-radius: 10px;
- display: flex;
- align-items: center;
- justify-content: center;
- margin: 15px auto;
- overflow: hidden;
- position: relative;
- border: 2px solid #003d5c;
- }
- 
- .exercise-image img {
- width: 100%;
- height: 100%;
- object-fit: contain;
- background: white;
- }
- 
- .exercise-image-fallback {
- color: #6c757d;
- font-size: 14px;
- text-align: center;
- padding: 20px;
- }
- 
- .image-loading {
- color: #003d5c;
- font-size: 16px;
- font-weight: 600;
- }
-
- .recommendation-card {
- background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
- color: #f5f5dc;
- border-radius: 12px;
- padding: 20px;
- margin-bottom: 20px;
- border: 2px solid #d4af37;
- }
-
- .recommendation-card h3 {
- margin-bottom: 10px;
- font-size: 20px;
- }
-
- .recommendation-card p {
- margin-bottom: 8px;
- line-height: 1.6;
- }
-
- .workout-history {
- margin-top: 20px;
- }
-
- .history-item {
- background: #e8dcc4;
- border-radius: 10px;
- padding: 15px;
- margin-bottom: 15px;
- border-left: 4px solid #003d5c;
- }
-
- .history-header {
- display: flex;
- justify-content: space-between;
- margin-bottom: 10px;
- }
-
- .history-date {
- font-weight: 600;
- color: #333;
- }
-
- .history-type {
- color: #003d5c;
- font-weight: 600;
- }
-
- .history-exercises {
- font-size: 14px;
- color: #6c757d;
- }
-
- .stats-grid {
- display: grid;
- grid-template-columns: repeat(2, 1fr);
- gap: 15px;
- margin-bottom: 20px;
- }
-
- .stat-card {
- background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
- color: #d4af37;
- border-radius: 12px;
- padding: 20px;
- text-align: center;
- border: 2px solid #8b7355;
- }
-
- .stat-number {
- font-size: 32px;
- font-weight: 700;
- margin-bottom: 5px;
- color: #d4af37;
- }
-
- .stat-label {
- font-size: 14px;
- opacity: 0.9;
- color: #f5f5dc;
- }
-
- .progress-chart {
- background: #e8dcc4;
- border-radius: 12px;
- padding: 20px;
- margin-top: 20px;
- min-height: 200px;
- border: 2px solid #8b7355;
- }
-
- .chart-title {
- font-weight: 600;
- margin-bottom: 15px;
- color: #333;
- }
-
- .chart-bar {
- display: flex;
- align-items: center;
- margin-bottom: 15px;
- }
-
- .chart-label {
- width: 120px;
- font-size: 14px;
- color: #6c757d;
- }
-
- .chart-fill {
- flex: 1;
- height: 30px;
- background: linear-gradient(90deg, #001f3f 0%, #003d5c 100%);
- border-radius: 5px;
- position: relative;
- }
-
- .chart-value {
- position: absolute;
- right: 10px;
- top: 50%;
- transform: translateY(-50%);
- color: #d4af37;
- font-weight: 600;
- font-size: 14px;
- }
-
- .info-box {
- background: #d9c7a5;
- border-left: 4px solid #003d5c;
- padding: 15px;
- border-radius: 8px;
- margin-bottom: 20px;
- }
-
- .info-box p {
- color: #3e3024;
- line-height: 1.6;
- font-size: 14px;
- }
-
- .delete-btn {
- background: #8b0000;
- color: #f5f5dc;
- border: none;
- padding: 6px 12px;
- border-radius: 6px;
- cursor: pointer;
- font-size: 12px;
- }
-
- .add-exercise-btn {
- background: #4a6741;
- color: #f5f5dc;
- border: none;
- padding: 10px 20px;
- border-radius: 8px;
- cursor: pointer;
- font-size: 14px;
- font-weight: 600;
- margin-top: 10px;
- }
- 
- .edit-btn {
-  background: #003d5c;
-  color: #d4af37;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
- }
-
- .workout-timer {
- background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
- color: #d4af37;
- border-radius: 12px;
- padding: 20px;
- text-align: center;
- margin-bottom: 20px;
- border: 2px solid #d4af37;
- }
-
- .timer-display {
- font-size: 48px;
- font-weight: 700;
- margin: 10px 0;
- }
-
- .timer-controls {
- display: flex;
- gap: 10px;
- justify-content: center;
- margin-top: 15px;
- }
-
- .timer-btn {
- padding: 10px 20px;
- background: rgba(245, 245, 220, 0.2);
- border: 2px solid #d4af37;
- color: #d4af37;
- border-radius: 8px;
- cursor: pointer;
- font-weight: 600;
- }
-
- .modal {
- display: none;
- position: fixed;
- top: 0;
- left: 0;
- right: 0;
- bottom: 0;
- background: rgba(0,0,0,0.5);
- z-index: 1000;
- align-items: center;
- justify-content: center;
- padding: 20px;
- }
-
- .modal.active {
- display: flex;
- }
-
- .modal-content {
- background: white;
- border-radius: 16px;
- padding: 20px;
- max-width: 500px;
- width: 100%;
- max-height: 80vh;
- overflow-y: auto;
- }
-
- .modal-header {
- display: flex;
- justify-content: space-between;
- align-items: center;
- margin-bottom: 20px;
- }
-
- .modal-title {
- font-size: 20px;
- font-weight: 700;
- }
-
- .modal-close {
- background: none;
- border: none;
- font-size: 28px;
- cursor: pointer;
- color: #6c757d;
- }
- 
- /* AI Chat Input Box Styling */
- #userMessage {
- flex: 1;
- border: 2px solid #8b7355;
- border-radius: 8px;
- background-color: white !important; /* Force white background */
- color: #333 !important; /* Force dark text color */
- resize: vertical; /* Allow user to resize it */
- line-height: 1.5;
- }
-
- .chat-input-container {
-  display: flex;
-  gap: 10px;
-  align-items: center;
- }
-
- .chat-input-container .btn {
-  margin-top: 0;
-  flex-shrink: 0;
- }
-
-
- /* IMPROVED MOBILE LAYOUT FOR CONTROLS */
- .control-group {
- display: grid;
- grid-template-columns: repeat(3, 1fr);
- gap: 8px;
- margin-top: 15px;
- }
-
- .control-item {
- display: flex;
- flex-direction: column;
- align-items: center;
- min-width: 0;
- }
-
- .control-label {
- font-size: 11px;
- color: #6c757d;
- margin-bottom: 5px;
- font-weight: 600;
- text-align: center;
- white-space: nowrap;
- }
-
- .control-buttons {
- display: flex;
- align-items: center;
- justify-content: center;
- gap: 3px;
- width: 100%;
- }
-
- .adjust-btn {
- background: #8b7355;
- color: #f5f5dc;
- border: none;
- width: 28px;
- height: 28px;
- border-radius: 6px;
- font-size: 16px;
- cursor: pointer;
- display: flex;
- align-items: center;
- justify-content: center;
- flex-shrink: 0;
- }
-
- .adjust-btn.plus {
- background: #003d5c;
- color: #d4af37;
- }
-
- .control-input {
- width: 100%;
- max-width: 55px;
- text-align: center;
- font-size: 14px;
- font-weight: bold;
- padding: 6px 2px;
- border: 2px solid #003d5c;
- border-radius: 6px;
- }
- 
- /* HIIT specific styling */
- #hiitCountdownScreen {
-  text-align: center;
-  color: #d4af37;
- }
- #hiitCountdownDisplay {
-  font-size: 120px;
-  font-weight: bold;
- }
- #hiitActiveScreen {
-  text-align: center;
- }
- #hiitTimerDisplay {
-  font-size: 100px;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #d4af37;
- }
- #hiitModeDisplay {
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 10px;
- }
- #hiitModeDisplay.work {
-  color: #28a745;
- }
- #hiitModeDisplay.rest {
-  color: #007bff;
- }
- #hiitExerciseName {
-  font-size: 24px;
-  color: #f5f5dc;
-  font-weight: bold;
- }
- #hiitNextExerciseName {
-  font-size: 16px;
-  color: #f5f5dc;
-  opacity: 0.8;
- }
- #hiitRoundDisplay {
-  margin-top: 15px;
-  font-size: 18px;
-  color: #f5f5dc;
- }
-
-
- @media (max-width: 600px) {
- .stats-grid {
- grid-template-columns: 1fr;
- }
-
- .nav-btn {
- font-size: 12px;
- padding: 12px 8px;
- }
-
- .exercise-card {
- padding: 12px;
- }
-
- /* Mobile layout for AI chat input */
- .chat-input-container {
-  flex-direction: column;
-  align-items: stretch;
- }
-
- .chat-input-container .btn {
-  width: 100%;
-  margin-top: 10px;
- }
-
- .control-group {
- gap: 4px;
- }
-
- .control-label {
- font-size: 10px;
- }
-
- .control-buttons {
- gap: 2px;
- }
-
- .control-input {
- max-width: 45px;
- font-size: 13px;
- padding: 5px 1px;
- }
-
- .adjust-btn {
- width: 26px;
- height: 26px;
- font-size: 14px;
- }
-
- .timer-display {
- font-size: 36px;
- }
- }
-
- @media (max-width: 400px) {
- .exercise-card {
- padding: 10px;
- }
-
- .control-group {
- gap: 3px;
- }
-
- .control-input {
- max-width: 40px;
- font-size: 12px;
- }
-
- .adjust-btn {
- width: 24px;
- height: 24px;
- font-size: 13px;
- }
- }
- </style>
+.container {
+max-width: 800px;
+margin: 0 auto;
+background: #f5f5dc;
+border-radius: 20px;
+box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+overflow: hidden;
+border: 3px solid #8b7355;
+}
+
+.header {
+background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+color: #d4af37;
+padding: 20px;
+text-align: center;
+border-bottom: 3px solid #d4af37;
+}
+
+.header h1 {
+font-size: 28px;
+margin-bottom: 5px;
+}
+
+.header p {
+opacity: 0.9;
+font-size: 14px;
+}
+
+.nav {
+display: flex;
+background: #d9c7a5;
+border-bottom: 2px solid #8b7355;
+overflow-x: auto; /* Allows horizontal scrolling */
+-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.nav::-webkit-scrollbar {
+display: none; /* Hide scrollbar for a cleaner look */
+}
+
+.nav-btn {
+/* flex: 1; */ /* Removed to allow natural width */
+padding: 15px 14px; /* Adjusted padding */
+background: none;
+border: none;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+color: #3e3024;
+transition: all 0.3s;
+white-space: nowrap; /* Prevents text from wrapping */
+}
+
+.nav-btn.active {
+background: #f5f5dc;
+color: #001f3f;
+border-bottom: 3px solid #d4af37;
+}
+
+.content {
+padding: 20px;
+min-height: 400px;
+}
+
+.section {
+display: none;
+}
+
+.section.active {
+display: block;
+animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+margin-bottom: 20px;
+}
+
+label {
+display: block;
+margin-bottom: 8px;
+font-weight: 600;
+color: #333;
+font-size: 14px;
+}
+
+select, input, textarea {
+width: 100%;
+padding: 12px;
+border: 2px solid #e9ecef;
+border-radius: 10px;
+font-size: 16px;
+transition: border 0.3s;
+font-family: inherit;
+}
+
+select:focus, input:focus, textarea:focus {
+outline: none;
+border-color: #003d5c;
+}
+
+.btn {
+padding: 14px 28px;
+background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+color: #d4af37;
+border: none;
+border-radius: 10px;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: transform 0.2s, box-shadow 0.2s;
+width: 100%;
+margin-top: 10px;
+}
+
+.btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 20px rgba(0, 31, 63, 0.4);
+}
+
+.btn:active {
+transform: translateY(0);
+}
+
+.btn-secondary {
+background: #8b7355;
+color: #f5f5dc;
+}
+
+.btn-success {
+background: linear-gradient(135deg, #4a6741 0%, #5d8055 100%);
+color: #f5f5dc;
+}
+
+.btn-danger {
+background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+color: #f5f5dc;
+}
+
+.exercise-card {
+background: #e8dcc4;
+border-radius: 12px;
+padding: 15px;
+margin-bottom: 15px;
+border-left: 4px solid #003d5c;
+}
+
+.exercise-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
+
+.exercise-name {
+font-weight: 700;
+font-size: 16px;
+color: #333;
+}
+
+.exercise-details {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+margin-top: 10px;
+}
+
+.detail-input {
+display: flex;
+flex-direction: column;
+}
+
+.detail-input label {
+font-size: 12px;
+margin-bottom: 5px;
+color: #6c757d;
+}
+
+.detail-input input {
+padding: 8px;
+font-size: 14px;
+}
+
+.exercise-image {
+width: 100%;
+max-width: 400px;
+min-height: 250px;
+background: #e9ecef;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 15px auto;
+overflow: hidden;
+position: relative;
+border: 2px solid #003d5c;
+}
+
+.exercise-image img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+background: white;
+}
+
+.exercise-image-fallback {
+color: #6c757d;
+font-size: 14px;
+text-align: center;
+padding: 20px;
+}
+
+.image-loading {
+color: #003d5c;
+font-size: 16px;
+font-weight: 600;
+}
+
+.recommendation-card {
+background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
+color: #f5f5dc;
+border-radius: 12px;
+padding: 20px;
+margin-bottom: 20px;
+border: 2px solid #d4af37;
+}
+
+.recommendation-card h3 {
+margin-bottom: 10px;
+font-size: 20px;
+}
+
+.recommendation-card p {
+margin-bottom: 8px;
+line-height: 1.6;
+}
+
+.workout-history {
+margin-top: 20px;
+}
+
+.history-item {
+background: #e8dcc4;
+border-radius: 10px;
+padding: 15px;
+margin-bottom: 15px;
+border-left: 4px solid #003d5c;
+}
+
+.history-header {
+display: flex;
+justify-content: space-between;
+margin-bottom: 10px;
+}
+
+.history-date {
+font-weight: 600;
+color: #333;
+}
+
+.history-type {
+color: #003d5c;
+font-weight: 600;
+}
+
+.history-exercises {
+font-size: 14px;
+color: #6c757d;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.stat-card {
+background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
+color: #d4af37;
+border-radius: 12px;
+padding: 20px;
+text-align: center;
+border: 2px solid #8b7355;
+}
+
+.stat-number {
+font-size: 32px;
+font-weight: 700;
+margin-bottom: 5px;
+color: #d4af37;
+}
+
+.stat-label {
+font-size: 14px;
+opacity: 0.9;
+color: #f5f5dc;
+}
+
+.progress-chart {
+background: #e8dcc4;
+border-radius: 12px;
+padding: 20px;
+margin-top: 20px;
+min-height: 200px;
+border: 2px solid #8b7355;
+}
+
+.chart-title {
+font-weight: 600;
+margin-bottom: 15px;
+color: #333;
+}
+
+.chart-bar {
+display: flex;
+align-items: center;
+margin-bottom: 15px;
+}
+
+.chart-label {
+width: 120px;
+font-size: 14px;
+color: #6c757d;
+}
+
+.chart-fill {
+flex: 1;
+height: 30px;
+background: linear-gradient(90deg, #001f3f 0%, #003d5c 100%);
+border-radius: 5px;
+position: relative;
+}
+
+.chart-value {
+position: absolute;
+right: 10px;
+top: 50%;
+transform: translateY(-50%);
+color: #d4af37;
+font-weight: 600;
+font-size: 14px;
+}
+
+.info-box {
+background: #d9c7a5;
+border-left: 4px solid #003d5c;
+padding: 15px;
+border-radius: 8px;
+margin-bottom: 20px;
+}
+
+.info-box p {
+color: #3e3024;
+line-height: 1.6;
+font-size: 14px;
+}
+
+.delete-btn {
+background: #8b0000;
+color: #f5f5dc;
+border: none;
+padding: 6px 12px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 12px;
+}
+
+.add-exercise-btn {
+background: #4a6741;
+color: #f5f5dc;
+border: none;
+padding: 10px 20px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+margin-top: 10px;
+}
+
+.edit-btn {
+background: #003d5c;
+color: #d4af37;
+border: none;
+padding: 6px 12px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 12px;
+}
+
+.workout-timer {
+background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
+color: #d4af37;
+border-radius: 12px;
+padding: 20px;
+text-align: center;
+margin-bottom: 20px;
+border: 2px solid #d4af37;
+}
+
+.timer-display {
+font-size: 48px;
+font-weight: 700;
+margin: 10px 0;
+}
+
+.timer-controls {
+display: flex;
+gap: 10px;
+justify-content: center;
+margin-top: 15px;
+}
+
+.timer-btn {
+padding: 10px 20px;
+background: rgba(245, 245, 220, 0.2);
+border: 2px solid #d4af37;
+color: #d4af37;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+}
+
+.modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.5);
+z-index: 1000;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+
+.modal.active {
+display: flex;
+}
+
+.modal-content {
+background: white;
+border-radius: 16px;
+padding: 20px;
+max-width: 500px;
+width: 100%;
+max-height: 80vh;
+overflow-y: auto;
+}
+
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.modal-title {
+font-size: 20px;
+font-weight: 700;
+}
+
+.modal-close {
+background: none;
+border: none;
+font-size: 28px;
+cursor: pointer;
+color: #6c757d;
+}
+
+/* AI Chat Input Box Styling */
+#userMessage {
+flex: 1;
+border: 2px solid #8b7355;
+border-radius: 8px;
+background-color: white !important; /* Force white background */
+color: #333 !important; /* Force dark text color */
+resize: vertical; /* Allow user to resize it */
+line-height: 1.5;
+}
+
+.chat-input-container {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+
+.chat-input-container .btn {
+margin-top: 0;
+flex-shrink: 0;
+}
+
+/* IMPROVED MOBILE LAYOUT FOR CONTROLS */
+.control-group {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 8px;
+margin-top: 15px;
+}
+
+.control-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+min-width: 0;
+}
+
+.control-label {
+font-size: 11px;
+color: #6c757d;
+margin-bottom: 5px;
+font-weight: 600;
+text-align: center;
+white-space: nowrap;
+}
+
+.control-buttons {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 3px;
+width: 100%;
+}
+
+.adjust-btn {
+background: #8b7355;
+color: #f5f5dc;
+border: none;
+width: 28px;
+height: 28px;
+border-radius: 6px;
+font-size: 16px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+
+.adjust-btn.plus {
+background: #003d5c;
+color: #d4af37;
+}
+
+.control-input {
+width: 100%;
+max-width: 55px;
+text-align: center;
+font-size: 14px;
+font-weight: bold;
+padding: 6px 2px;
+border: 2px solid #003d5c;
+border-radius: 6px;
+}
+
+/* HIIT specific styling */
+#hiitCountdownScreen {
+text-align: center;
+color: #d4af37;
+}
+#hiitCountdownDisplay {
+font-size: 120px;
+font-weight: bold;
+}
+#hiitActiveScreen {
+text-align: center;
+}
+#hiitTimerDisplay {
+font-size: 100px;
+font-weight: bold;
+margin: 10px 0;
+color: #d4af37;
+}
+#hiitModeDisplay {
+font-size: 32px;
+font-weight: 600;
+margin-bottom: 10px;
+}
+#hiitModeDisplay.work {
+color: #28a745;
+}
+#hiitModeDisplay.rest {
+color: #007bff;
+}
+#hiitExerciseName {
+font-size: 24px;
+color: #f5f5dc;
+font-weight: bold;
+}
+#hiitNextExerciseName {
+font-size: 16px;
+color: #f5f5dc;
+opacity: 0.8;
+}
+#hiitRoundDisplay {
+margin-top: 15px;
+font-size: 18px;
+color: #f5f5dc;
+}
+
+@media (max-width: 600px) {
+.stats-grid {
+grid-template-columns: 1fr;
+}
+
+.nav-btn {
+font-size: 12px;
+padding: 12px 8px;
+}
+
+.exercise-card {
+padding: 12px;
+}
+
+/* Mobile layout for AI chat input */
+.chat-input-container {
+flex-direction: column;
+align-items: stretch;
+}
+
+.chat-input-container .btn {
+width: 100%;
+margin-top: 10px;
+}
+
+.control-group {
+gap: 4px;
+}
+
+.control-label {
+font-size: 10px;
+}
+
+.control-buttons {
+gap: 2px;
+}
+
+.control-input {
+max-width: 45px;
+font-size: 13px;
+padding: 5px 1px;
+}
+
+.adjust-btn {
+width: 26px;
+height: 26px;
+font-size: 14px;
+}
+
+.timer-display {
+font-size: 36px;
+}
+}
+
+@media (max-width: 400px) {
+.exercise-card {
+padding: 10px;
+}
+
+.control-group {
+gap: 3px;
+}
+
+.control-input {
+max-width: 40px;
+font-size: 12px;
+}
+
+.adjust-btn {
+width: 24px;
+height: 24px;
+font-size: 13px;
+}
+}
+</style>
+
 </head>
 <body>
  <div class="container">
@@ -722,7 +722,7 @@
  <div id="ai-coach" class="section">
  <h2>AI Workout Coach</h2>
  <p>Get custom workouts or update exercise details. Just ask!</p>
- 
+
  <div id="api-setup" style="background: #fff3cd; border: 2px solid #ffc107; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
  <h3 style="color: #856404;">Setup Required (First Time Only)</h3>
  <p style="color: #856404;">Get your free API key from: <a href="https://ai.google.dev" target="_blank">https://ai.google.dev</a></p>
@@ -731,7 +731,7 @@
  </div>
  <button class="btn" onclick="saveApiKey()">Save API Key</button>
  </div>
- 
+
  <div id="chat-box" style="display: none;">
   <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
   <button class="btn btn-secondary" onclick="resetApiKey()" style="width: auto; padding: 8px 12px; font-size: 12px; margin-top: 0;">Change API Key</button>
@@ -745,6 +745,7 @@
  </div>
 
  <!-- Workout Section -->
+
  <div id="workout" class="section active">
  <div class="workout-timer">
  <h3>Workout Timer</h3>
@@ -796,15 +797,16 @@
  </div>
 
  <!-- Guided Workout Mode -->
+
  <div id="guidedWorkoutMode" style="display:none;">
  <div class="recommendation-card" id="currentExerciseCard">
  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
  <h3 id="exerciseProgress">Exercise 1 of 5</h3>
  <div id="setProgress" style="font-size: 18px; font-weight: bold;">Set 1/3</div>
  </div>
- 
+
  <h2 id="currentExerciseName" style="font-size: 24px; margin-bottom: 10px;">Dumbbell Squats</h2>
- 
+
  <div style="background: rgba(245,245,220,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
  <div style="display: flex; justify-content: space-around; text-align: center;">
  <div>
@@ -844,13 +846,15 @@
  </div>
 
  <!-- Progress Overview -->
+
  <div class="progress-chart" style="margin-top: 20px;">
  <h3 class="chart-title">Workout Progress</h3>
  <div id="workoutProgressList"></div>
  </div>
  </div>
- 
+
  <!-- HIIT Workout Mode -->
+
  <div id="hiitWorkoutMode" style="display:none; background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%); padding: 20px; border-radius: 12px;">
   <div id="hiitCountdownScreen">
     <h2 style="color: #f5f5dc;">Get Ready!</h2>
@@ -872,6 +876,7 @@
  </div>
 
  <!-- Exercises Section -->
+
  <div id="exercises" class="section">
   <h2>Exercise Library</h2>
   <div class="form-group">
@@ -882,12 +887,14 @@
  </div>
 
  <!-- Recommendation Section -->
+
  <div id="recommend" class="section">
  <h2 style="margin-bottom: 20px;">Today's Recommendation</h2>
  <div id="recommendationContainer"></div>
  </div>
 
  <!-- Progress Section -->
+
  <div id="progress" class="section">
  <h2 style="margin-bottom: 20px;">Your Progress</h2>
  <div class="stats-grid">
@@ -921,6 +928,7 @@
  </div>
 
  <!-- History Section -->
+
  <div id="history" class="section">
  <h2 style="margin-bottom: 20px;">Workout History</h2>
  <div class="info-box">
@@ -932,6 +940,7 @@
  </div>
 
  <!-- Exercise Info Modal -->
+
  <div id="exerciseModal" class="modal">
  <div class="modal-content">
  <div class="modal-header">
@@ -943,6 +952,7 @@
  </div>
 
  <!-- Add/Edit Custom Exercise Modal -->
+
  <div id="addExerciseModal" class="modal">
  <div class="modal-content">
  <div class="modal-header">
@@ -1931,7 +1941,6 @@
  let hiitCurrentExerciseIndex = 0;
  let hiitIsPaused = false;
  let hiitWorkoutParams = { workTime: 30, restTime: 15, totalRounds: 4 };
- let audioCtx; // For HIIT sounds
 
  // Initialize
  updateRecommendation();
@@ -4042,14 +4051,13 @@ function handleIncomingWorkout() {
   }
 }
 
-// HIIT Workout Functions
-
+// ===== HIIT WORKOUT FUNCTIONS =====
 function playHiitSound(type) {
   if (!audioCtx) {
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
-      console.error("Web Audio API is not supported in this browser");
+      console.error("Web Audio API is not supported");
       return;
     }
   }
@@ -4057,14 +4065,14 @@ function playHiitSound(type) {
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
   
-  let frequency = 440; // Default beep
+  let frequency = 440;
   let duration = 0.1;
 
   if (type === 'start') {
-    frequency = 880; // Higher pitch for start
+    frequency = 880;
     duration = 0.2;
   } else if (type === 'rest') {
-    frequency = 330; // Lower pitch for rest
+    frequency = 330;
     duration = 0.3;
   }
 
@@ -4081,32 +4089,62 @@ function playHiitSound(type) {
 }
 
 function startHiitWorkout() {
-  if (currentWorkout.length === 0) {
-    alert("No exercises loaded for HIIT workout. Please select or create a HIIT workout first.");
+  // Get the selected workout
+  const select = document.getElementById('customSelect');
+  if (!select) {
+    alert('Workout selector not found. Please select a HIIT workout first.');
     return;
   }
-  
-  // Initialize Audio on user action
-  if (!audioCtx) {
-     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const workoutName = select.value;
+  if (!workoutName) {
+    alert('Please select a HIIT workout first!');
+    return;
   }
 
+  const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+  const workout = savedCustomWorkouts[workoutName];
+
+  if (!workout) {
+    alert('Workout not found!');
+    return;
+  }
+
+  if (workout.workoutType !== 'hiit') {
+    alert('This is not a HIIT workout. Please select a valid HIIT workout.');
+    return;
+  }
+
+  // Initialize HIIT parameters
+  hiitWorkoutParams.exercises = workout.exercises.map(ex => ex.name);
+  hiitWorkoutParams.workTime = workout.workTime || 30;
+  hiitWorkoutParams.restTime = workout.restTime || 15;
+  hiitWorkoutParams.totalRounds = workout.rounds || 4;
+  
+  hiitCurrentRound = 1;
+  hiitCurrentExerciseIndex = 0;
+  hiitCurrentMode = 'work';
+  hiitTimeRemaining = hiitWorkoutParams.workTime;
+  hiitIsPaused = false;
+
+  // Hide workout setup, show HIIT mode
   document.getElementById('workoutSetup').style.display = 'none';
   document.getElementById('guidedWorkoutMode').style.display = 'none';
   document.getElementById('hiitWorkoutMode').style.display = 'block';
   document.getElementById('hiitCountdownScreen').style.display = 'block';
   document.getElementById('hiitActiveScreen').style.display = 'none';
   document.getElementById('hiitPauseResumeBtn').textContent = 'Pause';
-  
-  hiitCurrentMode = 'countdown';
-  hiitIsPaused = false;
-  hiitCurrentRound = 1;
-  hiitCurrentExerciseIndex = 0;
-  
+  document.getElementById('hiitPauseResumeBtn').style.display = 'block';
+
+  // Start countdown
+  startHiitCountdown();
+}
+
+function startHiitCountdown() {
   let countdown = 5;
   document.getElementById('hiitCountdownDisplay').textContent = countdown;
   playHiitSound('beep');
-  
+
   hiitTimerInterval = setInterval(() => {
     countdown--;
     if (countdown > 0) {
@@ -4116,6 +4154,7 @@ function startHiitWorkout() {
       clearInterval(hiitTimerInterval);
       document.getElementById('hiitCountdownScreen').style.display = 'none';
       document.getElementById('hiitActiveScreen').style.display = 'block';
+      hiitTimeRemaining = hiitWorkoutParams.workTime;
       runHiitInterval();
     }
   }, 1000);
@@ -4124,14 +4163,14 @@ function startHiitWorkout() {
 function runHiitInterval() {
   if (hiitTimerInterval) clearInterval(hiitTimerInterval);
 
+  updateHiitDisplay();
+  
   if (hiitCurrentMode === 'work') {
     playHiitSound('start');
   } else {
     playHiitSound('rest');
   }
 
-  updateHiitDisplay();
-  
   hiitTimerInterval = setInterval(() => {
     if (hiitIsPaused) return;
 
@@ -4140,33 +4179,35 @@ function runHiitInterval() {
 
     if (hiitTimeRemaining <= 0) {
       clearInterval(hiitTimerInterval);
-      
-      // Move to the next phase
-      if (hiitCurrentMode === 'work') {
-        hiitCurrentMode = 'rest';
-        hiitTimeRemaining = hiitWorkoutParams.restTime;
-        hiitCurrentExerciseIndex++; // Advance exercise index after work is done
-      } else {
-        hiitCurrentMode = 'work';
-        hiitTimeRemaining = hiitWorkoutParams.workTime;
-        if (hiitCurrentExerciseIndex >= currentWorkout.length) {
-          hiitCurrentExerciseIndex = 0;
-          hiitCurrentRound++;
-        }
-      }
-
-      if (hiitCurrentRound > hiitWorkoutParams.totalRounds) {
-        completeHiitWorkout();
-      } else {
-        runHiitInterval();
-      }
+      nextHiitPhase();
     }
   }, 1000);
 }
 
+function nextHiitPhase() {
+  if (hiitCurrentMode === 'work') {
+    hiitCurrentMode = 'rest';
+    hiitCurrentExerciseIndex++;
+    hiitTimeRemaining = hiitWorkoutParams.restTime;
+  } else {
+    hiitCurrentMode = 'work';
+    hiitTimeRemaining = hiitWorkoutParams.workTime;
+
+    if (hiitCurrentExerciseIndex >= hiitWorkoutParams.exercises.length) {
+      hiitCurrentExerciseIndex = 0;
+      hiitCurrentRound++;
+    }
+  }
+
+  if (hiitCurrentRound > hiitWorkoutParams.totalRounds) {
+    completeHiitWorkout();
+  } else {
+    runHiitInterval();
+  }
+}
+
 function updateHiitDisplay() {
   const modeDisplay = document.getElementById('hiitModeDisplay');
-  const timerDisplay = document.getElementById('hiitTimerDisplay');
   const exerciseNameEl = document.getElementById('hiitExerciseName');
   const nextExerciseNameEl = document.getElementById('hiitNextExerciseName');
   const roundDisplay = document.getElementById('hiitRoundDisplay');
@@ -4177,18 +4218,20 @@ function updateHiitDisplay() {
     modeDisplay.textContent = 'WORK!';
     modeDisplay.classList.remove('rest');
     modeDisplay.classList.add('work');
-    exerciseNameEl.textContent = currentWorkout[hiitCurrentExerciseIndex].name;
-    nextExerciseNameEl.textContent = `Next Up: Rest`;
-  } else { // 'rest'
+    const exerciseName = hiitWorkoutParams.exercises[hiitCurrentExerciseIndex] || 'Exercise';
+    exerciseNameEl.textContent = exerciseName;
+    nextExerciseNameEl.textContent = 'Next Up: Rest';
+  } else {
     modeDisplay.textContent = 'REST';
     modeDisplay.classList.remove('work');
     modeDisplay.classList.add('rest');
-    exerciseNameEl.textContent = "Rest";
-    const nextIndex = hiitCurrentExerciseIndex >= currentWorkout.length ? 0 : hiitCurrentExerciseIndex;
-    nextExerciseNameEl.textContent = `Next Up: ${currentWorkout[nextIndex].name}`;
+    exerciseNameEl.textContent = 'Rest';
+    const nextIndex = hiitCurrentExerciseIndex >= hiitWorkoutParams.exercises.length ? 0 : hiitCurrentExerciseIndex;
+    const nextExercise = hiitWorkoutParams.exercises[nextIndex] || 'Complete';
+    nextExerciseNameEl.textContent = `Next Up: ${nextExercise}`;
   }
 
-  timerDisplay.textContent = hiitTimeRemaining;
+  document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
 }
 
 function pauseResumeHiit() {
@@ -4197,46 +4240,58 @@ function pauseResumeHiit() {
   btn.textContent = hiitIsPaused ? 'Resume' : 'Pause';
 }
 
-function endHiitWorkout(isCompleted = false) {
+function endHiitWorkout() {
+  if (!confirm('Are you sure you want to end this workout?')) {
+    return;
+  }
+
   clearInterval(hiitTimerInterval);
   
-  const workoutTypeSelect = document.getElementById('workoutType');
-  const programName = workoutTypeSelect.options[workoutTypeSelect.selectedIndex].textContent.trim();
+  const workout = {
+    date: new Date().toISOString(),
+    type: 'HIIT Workout',
+    exercises: hiitWorkoutParams.exercises,
+    rounds: hiitCurrentRound - 1,
+    volume: 0
+  };
 
-  if (isCompleted || confirm('Are you sure you want to end this workout early?')) {
-    const totalDuration = (hiitCurrentRound - 1) * currentWorkout.length * (hiitWorkoutParams.workTime + hiitWorkoutParams.restTime) + (hiitCurrentExerciseIndex * (hiitWorkoutParams.workTime + hiitWorkoutParams.restTime)) + (hiitCurrentMode === 'rest' ? hiitWorkoutParams.workTime : hiitWorkoutParams.workTime - hiitTimeRemaining);
-    
+  workoutHistory.unshift(workout);
+  localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+
+  alert('Workout saved! Great work!');
+  resetWorkoutState();
+}
+
+function completeHiitWorkout() {
+  clearInterval(hiitTimerInterval);
+  playHiitSound('start');
+  playHiitSound('start');
+  
+  document.getElementById('hiitModeDisplay').textContent = 'COMPLETE!';
+  document.getElementById('hiitTimerDisplay').textContent = '✓';
+  document.getElementById('hiitExerciseName').textContent = 'Workout Finished';
+  document.getElementById('hiitNextExerciseName').textContent = '';
+  document.getElementById('hiitPauseResumeBtn').style.display = 'none';
+
+  setTimeout(() => {
     const workout = {
       date: new Date().toISOString(),
-      type: `${programName} (HIIT)`,
-      exercises: currentWorkout.map(ex => ({name: ex.name})),
-      duration: totalDuration,
-      volume: 0 // HIIT workouts don't typically track volume in lbs
+      type: 'HIIT Workout',
+      exercises: hiitWorkoutParams.exercises,
+      rounds: hiitWorkoutParams.totalRounds,
+      volume: 0
     };
 
     workoutHistory.unshift(workout);
     localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
-    
-    alert(isCompleted ? 'Workout Complete! Great job!' : 'Workout saved to history.');
+
+    alert('Workout Complete! Excellent work! 💪');
     resetWorkoutState();
-  }
-}
-
-function completeHiitWorkout() {
-  playHiitSound('start');
-  playHiitSound('start');
-  document.getElementById('hiitModeDisplay').textContent = 'COMPLETE!';
-  document.getElementById('hiitTimerDisplay').textContent = '✓';
-  document.getElementById('hiitExerciseName').textContent = "Workout Finished";
-  document.getElementById('hiitNextExerciseName').textContent = "";
-  document.getElementById('hiitPauseResumeBtn').style.display = 'none';
-
-  setTimeout(() => {
-    endHiitWorkout(true);
-  }, 2000);
+  }, 1500);
 }
 
  </script>
+
 </body>
 </html>
 ```
