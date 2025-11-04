@@ -868,6 +868,10 @@
  <label>Target Muscles/Description</label>
  <input type="text" id="newExerciseImage" placeholder="e.g., Targets: Chest, Shoulders">
  </div>
+ <div class="form-group">
+ <label>YouTube Video Link (optional)</label>
+ <input type="url" id="newExerciseYouTubeLink" placeholder="e.g., https://www.youtube.com/watch?v=...">
+ </div>
  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
  <div class="form-group">
  <label>Default Weight (lbs)</label>
@@ -890,6 +894,93 @@
  <script>
  // Using FREE public domain exercise images from yuhonas/free-exercise-db
  // All images are CC-BY-SA-4.0 or public domain - free for commercial use!
+ 
+ // YouTube Shorts/Videos mapping for exercises
+ const youtubeVideoLinks = {
+ 'Dumbbell Goblet Squat': 'https://www.youtube.com/results?search_query=goblet+squat+tutorial',
+ 'Dumbbell Romanian Deadlift': 'https://www.youtube.com/results?search_query=romanian+deadlift+tutorial',
+ 'Dumbbell Lunges': 'https://www.youtube.com/results?search_query=dumbbell+lunges+tutorial',
+ 'Dumbbell Calf Raises': 'https://www.youtube.com/results?search_query=dumbbell+calf+raises+tutorial',
+ 'Bodyweight Squats': 'https://www.youtube.com/results?search_query=proper+squat+form+tutorial',
+ 'Bulgarian Split Squats': 'https://www.youtube.com/results?search_query=bulgarian+split+squat+tutorial',
+ 'Walking Lunges': 'https://www.youtube.com/results?search_query=walking+lunges+tutorial',
+ 'Step-Ups': 'https://www.youtube.com/results?search_query=step+ups+exercise+tutorial',
+ 'Goblet Squats': 'https://www.youtube.com/results?search_query=goblet+squat+tutorial',
+ 'Wall Sits': 'https://www.youtube.com/results?search_query=wall+sit+tutorial',
+ 'Jump Squats': 'https://www.youtube.com/results?search_query=jump+squats+tutorial',
+ 'Incline Dumbbell Press': 'https://www.youtube.com/results?search_query=incline+dumbbell+press+tutorial',
+ 'Flat Dumbbell Press': 'https://www.youtube.com/results?search_query=dumbbell+bench+press+tutorial',
+ 'Decline Dumbbell Press': 'https://www.youtube.com/results?search_query=decline+dumbbell+press+tutorial',
+ 'Barbell Bench Press': 'https://www.youtube.com/results?search_query=barbell+bench+press+tutorial',
+ 'Incline Barbell Bench Press': 'https://www.youtube.com/results?search_query=incline+barbell+press+tutorial',
+ 'Decline Barbell Bench Press': 'https://www.youtube.com/results?search_query=decline+barbell+press+tutorial',
+ 'Incline Dumbbell Flyes': 'https://www.youtube.com/results?search_query=incline+dumbbell+fly+tutorial',
+ 'Flat Dumbbell Flyes': 'https://www.youtube.com/results?search_query=dumbbell+fly+tutorial',
+ 'Decline Dumbbell Flyes': 'https://www.youtube.com/results?search_query=decline+dumbbell+fly+tutorial',
+ 'Dumbbell Pullover': 'https://www.youtube.com/results?search_query=dumbbell+pullover+tutorial',
+ 'Diamond Push-Ups': 'https://www.youtube.com/results?search_query=diamond+push+ups+tutorial',
+ 'Wide Push-Ups': 'https://www.youtube.com/results?search_query=wide+grip+push+ups+tutorial',
+ 'Decline Push-Ups': 'https://www.youtube.com/results?search_query=decline+push+ups+tutorial',
+ 'Incline Push-Ups': 'https://www.youtube.com/results?search_query=incline+push+ups+tutorial',
+ 'Push-Up': 'https://www.youtube.com/results?search_query=proper+push+up+form+tutorial',
+ 'Chest Dips': 'https://www.youtube.com/results?search_query=chest+dips+tutorial',
+ 'Cable Crossover': 'https://www.youtube.com/results?search_query=cable+crossover+tutorial',
+ 'Dumbbell Bent-Over Row': 'https://www.youtube.com/results?search_query=dumbbell+bent+over+row+tutorial',
+ 'Single-Arm Dumbbell Row': 'https://www.youtube.com/results?search_query=single+arm+dumbbell+row+tutorial',
+ 'Pull-Ups': 'https://www.youtube.com/results?search_query=proper+pull+up+form+tutorial',
+ 'Chin-Ups': 'https://www.youtube.com/results?search_query=chin+up+tutorial',
+ 'Assisted Pull-Ups': 'https://www.youtube.com/results?search_query=assisted+pull+ups+tutorial',
+ 'Negative Pull-Ups': 'https://www.youtube.com/results?search_query=negative+pull+ups+tutorial',
+ 'Wide-Grip Pull-Ups': 'https://www.youtube.com/results?search_query=wide+grip+pull+ups+tutorial',
+ 'Barbell Bent-Over Row': 'https://www.youtube.com/results?search_query=barbell+bent+over+row+tutorial',
+ 'Pendlay Row': 'https://www.youtube.com/results?search_query=pendlay+row+tutorial',
+ 'T-Bar Row': 'https://www.youtube.com/results?search_query=t+bar+row+tutorial',
+ 'Inverted Row': 'https://www.youtube.com/results?search_query=inverted+row+tutorial',
+ 'Lat Pulldown': 'https://www.youtube.com/results?search_query=lat+pulldown+tutorial',
+ 'Close-Grip Lat Pulldown': 'https://www.youtube.com/results?search_query=close+grip+lat+pulldown+tutorial',
+ 'Straight-Arm Pulldown': 'https://www.youtube.com/results?search_query=straight+arm+pulldown+tutorial',
+ 'Face Pulls': 'https://www.youtube.com/results?search_query=face+pulls+tutorial',
+ 'Seated Cable Row': 'https://www.youtube.com/results?search_query=seated+cable+row+tutorial',
+ 'Dumbbell Bicep Curls': 'https://www.youtube.com/results?search_query=dumbbell+bicep+curls+tutorial',
+ 'Barbell Bicep Curls': 'https://www.youtube.com/results?search_query=barbell+bicep+curls+tutorial',
+ 'Hammer Curls': 'https://www.youtube.com/results?search_query=hammer+curls+tutorial',
+ 'EZ-Bar Curls': 'https://www.youtube.com/results?search_query=ez+bar+curls+tutorial',
+ 'Preacher Curls': 'https://www.youtube.com/results?search_query=preacher+curls+tutorial',
+ 'Concentration Curls': 'https://www.youtube.com/results?search_query=concentration+curls+tutorial',
+ 'Cable Bicep Curls': 'https://www.youtube.com/results?search_query=cable+bicep+curls+tutorial',
+ 'Zottman Curls': 'https://www.youtube.com/results?search_query=zottman+curls+tutorial',
+ 'Incline Dumbbell Curls': 'https://www.youtube.com/results?search_query=incline+dumbbell+curls+tutorial',
+ 'Dumbbell Shrugs': 'https://www.youtube.com/results?search_query=dumbbell+shrugs+tutorial',
+ 'Barbell Shrugs': 'https://www.youtube.com/results?search_query=barbell+shrugs+tutorial',
+ 'Meadows Row': 'https://www.youtube.com/results?search_query=meadows+row+tutorial',
+ 'Dumbbell Shoulder Press': 'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+tutorial',
+ 'Dumbbell Lateral Raises': 'https://www.youtube.com/results?search_query=dumbbell+lateral+raises+tutorial',
+ 'Dumbbell Front Raises': 'https://www.youtube.com/results?search_query=dumbbell+front+raises+tutorial',
+ 'Bent-Over Rear Delt Raises': 'https://www.youtube.com/results?search_query=rear+delt+raises+tutorial',
+ 'Overhead Tricep Extension': 'https://www.youtube.com/results?search_query=overhead+tricep+extension+tutorial',
+ 'Dumbbell Tricep Kickbacks': 'https://www.youtube.com/results?search_query=tricep+kickbacks+tutorial',
+ 'Close-Grip Bench Press': 'https://www.youtube.com/results?search_query=close+grip+bench+press+tutorial',
+ 'Skull Crushers': 'https://www.youtube.com/results?search_query=skull+crushers+tutorial',
+ 'Tricep Dips': 'https://www.youtube.com/results?search_query=tricep+dips+tutorial',
+ 'Cable Tricep Pushdown': 'https://www.youtube.com/results?search_query=tricep+pushdown+tutorial',
+ 'Overhead Cable Extension': 'https://www.youtube.com/results?search_query=overhead+cable+extension+tutorial',
+ 'Bench Dips': 'https://www.youtube.com/results?search_query=bench+dips+tutorial',
+ 'Dumbbell Russian Twists': 'https://www.youtube.com/results?search_query=russian+twists+tutorial',
+ 'Dumbbell Side Bends': 'https://www.youtube.com/results?search_query=side+bends+tutorial',
+ 'Plank': 'https://www.youtube.com/results?search_query=proper+plank+form+tutorial',
+ 'Mountain Climbers': 'https://www.youtube.com/results?search_query=mountain+climbers+tutorial',
+ 'Bicycle Crunches': 'https://www.youtube.com/results?search_query=bicycle+crunches+tutorial',
+ 'Kettlebell Swings': 'https://www.youtube.com/results?search_query=kettlebell+swings+tutorial',
+ 'Kettlebell Goblet Squat': 'https://www.youtube.com/results?search_query=kettlebell+goblet+squat+tutorial',
+ 'Kettlebell Turkish Get-Up': 'https://www.youtube.com/results?search_query=kettlebell+turkish+get+up+tutorial',
+ 'Kettlebell Halos': 'https://www.youtube.com/results?search_query=kettlebell+halos+tutorial',
+ 'Kettlebell Single-Arm Row': 'https://www.youtube.com/results?search_query=kettlebell+single+arm+row+tutorial',
+ 'Kettlebell Overhead Press': 'https://www.youtube.com/results?search_query=kettlebell+overhead+press+tutorial',
+ 'Recumbent Bike': 'https://www.youtube.com/results?search_query=recumbent+bike+cardio+tutorial',
+ 'Rowing Machine': 'https://www.youtube.com/results?search_query=rowing+machine+tutorial',
+ 'Interval Sprints - Bike': 'https://www.youtube.com/results?search_query=hiit+interval+sprints+bike',
+ 'Interval Sprints - Rowing': 'https://www.youtube.com/results?search_query=hiit+rowing+machine+intervals'
+ };
  
  // Helper function to get free exercise image URL
  function getExerciseImageUrl(exerciseName) {
@@ -1724,12 +1815,21 @@
  updateHistory();
  loadCustomWorkoutsIntoDropdown();
  loadCustomExercises();
+ loadCustomYouTubeLinks();
  
  // Load custom exercises from localStorage
  function loadCustomExercises() {
  const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
  Object.keys(customExercises).forEach(name => {
  exerciseDatabase[name] = customExercises[name];
+ });
+ }
+ 
+ // Load custom YouTube links from localStorage
+ function loadCustomYouTubeLinks() {
+ const customLinks = JSON.parse(localStorage.getItem('customYouTubeLinks')) || {};
+ Object.keys(customLinks).forEach(name => {
+ youtubeVideoLinks[name] = customLinks[name];
  });
  }
  
@@ -1753,6 +1853,7 @@
  document.getElementById('newExerciseEquipment').value = '';
  document.getElementById('newExerciseInstructions').value = '';
  document.getElementById('newExerciseImage').value = '';
+ document.getElementById('newExerciseYouTubeLink').value = '';
  document.getElementById('newExerciseWeight').value = '25';
  document.getElementById('newExerciseSets').value = '3';
  document.getElementById('newExerciseReps').value = '12';
@@ -1764,6 +1865,7 @@
  const equipment = document.getElementById('newExerciseEquipment').value.trim();
  const instructions = document.getElementById('newExerciseInstructions').value.trim();
  const image = document.getElementById('newExerciseImage').value.trim() || ' Custom Exercise';
+ const youtubeLink = document.getElementById('newExerciseYouTubeLink').value.trim();
  const weight = parseInt(document.getElementById('newExerciseWeight').value) || 25;
  const sets = parseInt(document.getElementById('newExerciseSets').value) || 3;
  const reps = parseInt(document.getElementById('newExerciseReps').value) || 12;
@@ -1789,6 +1891,13 @@
  };
  
  saveCustomExerciseToDB(name, exerciseData);
+ 
+ // Save YouTube link if provided
+ if (youtubeLink) {
+ youtubeVideoLinks[name] = youtubeLink;
+ localStorage.setItem('customYouTubeLinks', JSON.stringify(youtubeVideoLinks));
+ }
+ 
  closeAddExerciseModal();
  alert(` Exercise "${name}" added successfully!\n\nYou can now use it in your workouts!`);
  
@@ -2511,6 +2620,8 @@
  onerror="this.parentElement.innerHTML='<div class=exercise-image-fallback>${exercise.image}<br><small>Image not available</small></div>'">
  </div>
  `;
+ const youtubeLink = youtubeVideoLinks[name] || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name);
+ 
  modalContent.innerHTML = `
  <div style="margin-bottom: 15px;">
  <strong>Equipment:</strong> ${exercise.equipment}
@@ -2522,6 +2633,11 @@
  </div>
  <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
  <strong>Suggested:</strong> ${exercise.sets} sets ${exercise.reps} reps @ ${exercise.weight} lbs
+ </div>
+ <div style="margin-top: 15px;">
+ <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
+ 🎥 Watch Video Tutorial on YouTube
+ </a>
  </div>
  `;
 
@@ -2560,8 +2676,25 @@
  const lastWorkoutDate = new Date(lastWorkout.date);
  const daysSince = Math.floor((Date.now() - lastWorkoutDate) / (1000 * 60 * 60 * 24));
  
+ // Check if we should generate a new AI recommendation (daily)
+ const lastRecommendationDate = localStorage.getItem('lastRecommendationDate');
+ const today = new Date().toDateString();
+ const shouldGenerateNewAI = lastRecommendationDate !== today && localStorage.getItem('geminiKey');
+ 
  const recentTypes = workoutHistory.slice(0, 5).map(w => w.type);
  const recommendation = getSmartRecommendation(recentTypes, daysSince);
+
+ let aiRecommendationHtml = '';
+ if (shouldGenerateNewAI) {
+ aiRecommendationHtml = `
+ <div style="margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 12px; border: 2px solid #d4af37;">
+ <p style="margin: 0; font-size: 14px;"><strong>✨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
+ <button class="btn" onclick="generateAIDailyRecommendation()" style="margin-top: 10px; font-size: 14px; padding: 10px;">
+ 🤖 Generate AI Workout
+ </button>
+ </div>
+ `;
+ }
 
  container.innerHTML = `
  <div class="recommendation-card">
@@ -2577,7 +2710,173 @@
  <p><strong>Total Volume:</strong> ${lastWorkout.volume} lbs</p>
  <p><strong>Duration:</strong> ${formatTime(lastWorkout.duration)}</p>
  </div>
+ ${aiRecommendationHtml}
  `;
+ }
+ 
+ async function generateAIDailyRecommendation() {
+ const key = localStorage.getItem('geminiKey');
+ if (!key) {
+ alert('Please set up your AI Coach API key first in the AI Coach tab!');
+ return;
+ }
+ 
+ try {
+ // Prepare workout history summary
+ const last10Workouts = workoutHistory.slice(0, 10);
+ const workoutSummary = last10Workouts.map(w => `${w.type}: ${w.volume}lbs`).join(', ');
+ const totalVolume = workoutHistory.reduce((sum, w) => sum + w.volume, 0);
+ const avgDuration = Math.round(workoutHistory.reduce((sum, w) => sum + w.duration, 0) / workoutHistory.length / 60);
+ 
+ const prompt = `Based on this user's workout history, create a personalized workout for today:
+ 
+Recent Workouts: ${workoutSummary}
+Total Volume: ${totalVolume} lbs
+Average Duration: ${avgDuration} minutes
+Total Workouts: ${workoutHistory.length}
+
+Available equipment: dumbbells, 30lb kettlebell, incline bench, recumbent bike, rowing machine
+
+Create a workout that:
+1. Focuses on weak areas or underworked muscle groups
+2. Provides good variety from recent workouts
+3. Matches their typical duration and volume
+4. Includes new exercises to prevent boredom
+
+Format your response as JSON with this structure: {"title": "Workout Name", "description": "Why this workout helps your progress", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "description": "How to perform"}]}`;
+
+ const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=' + key, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ contents: [{
+ parts: [{
+ text: prompt
+ }]
+ }]
+ })
+ });
+ 
+ const data = await response.json();
+ 
+ if (!response.ok) {
+ alert('API Error: ' + (data.error?.message || 'Unknown error'));
+ return;
+ }
+ 
+ let result = 'Error getting response';
+ let aiWorkout = null;
+ if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+ result = data.candidates[0].content.parts[0].text;
+ aiWorkout = parseAIDailyWorkout(result);
+ }
+ 
+ if (aiWorkout) {
+ displayAIDailyRecommendation(aiWorkout);
+ localStorage.setItem('lastRecommendationDate', new Date().toDateString());
+ } else {
+ alert('Could not parse AI recommendation. Please try again.');
+ }
+ } catch (e) {
+ alert('Error: ' + e.message);
+ }
+ }
+ 
+ function parseAIDailyWorkout(text) {
+ try {
+ const jsonMatch = text.match(/\{[\s\S]*\}/);
+ if (!jsonMatch) return null;
+ 
+ const jsonStr = jsonMatch[0];
+ const workout = JSON.parse(jsonStr);
+ 
+ if (workout.title && Array.isArray(workout.exercises)) {
+ return workout;
+ }
+ return null;
+ } catch (e) {
+ console.error('Failed to parse AI daily workout:', e);
+ return null;
+ }
+ }
+ 
+ function displayAIDailyRecommendation(aiWorkout) {
+ const container = document.getElementById('recommendationContainer');
+ 
+ let exercisesHtml = aiWorkout.exercises.map((ex, idx) => `
+ <div style="margin: 10px 0; padding: 10px; background: rgba(212, 175, 55, 0.2); border-radius: 8px;">
+ <strong>${idx + 1}. ${ex.name}</strong> - ${ex.sets}x${ex.reps} @ ${ex.weight}lbs
+ <div style="font-size: 13px; color: #6c757d; margin-top: 5px;">${ex.description || ''}</div>
+ </div>
+ `).join('');
+ 
+ const aiHTML = `
+ <div class="recommendation-card" style="margin-top: 20px; background: linear-gradient(135deg, #d4af37 0%, #f0d680 100%); color: #001f3f; border: 2px solid #001f3f;">
+ <h3 style="color: #001f3f;"> Today's AI Generated Workout</h3>
+ <p><strong>${aiWorkout.title}</strong></p>
+ <p style="margin: 10px 0;">${aiWorkout.description}</p>
+ <div style="background: rgba(255,255,255,0.5); border-radius: 8px; padding: 15px; margin: 15px 0;">
+ ${exercisesHtml}
+ </div>
+ <div style="display: flex; gap: 10px; margin-top: 15px;">
+ <button class="btn btn-success" onclick="createWorkoutFromAIDailyRecommendation('${aiWorkout.title}', ${JSON.stringify(aiWorkout.exercises).replace(/'/g, "&apos;")})" style="flex: 1;">
+ ✓ Add to Custom Workouts
+ </button>
+ <button class="btn btn-secondary" onclick="updateRecommendation()" style="flex: 1;">
+ ✗ View Other Option
+ </button>
+ </div>
+ </div>
+ `;
+ 
+ container.insertAdjacentHTML('beforeend', aiHTML);
+ }
+ 
+ function createWorkoutFromAIDailyRecommendation(title, exercises) {
+ const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+ 
+ let workoutName = title;
+ let counter = 1;
+ const originalName = workoutName;
+ while (savedCustomWorkouts[workoutName]) {
+ workoutName = `${originalName} (${counter})`;
+ counter++;
+ }
+ 
+ const workoutExercises = exercises.map(ex => ({
+ name: ex.name,
+ sets: parseInt(ex.sets) || 3,
+ reps: parseInt(ex.reps) || 10,
+ weight: parseInt(ex.weight) || 0,
+ equipment: ex.equipment || 'Various',
+ instructions: ex.description || 'Perform as described',
+ image: ex.description || 'Custom Exercise'
+ }));
+ 
+ // Add exercises to exercise database if they don't exist
+ workoutExercises.forEach(ex => {
+ if (!exerciseDatabase[ex.name]) {
+ exerciseDatabase[ex.name] = {
+ equipment: ex.equipment,
+ instructions: ex.instructions,
+ sets: ex.sets,
+ reps: ex.reps,
+ weight: ex.weight,
+ image: ex.image
+ };
+ 
+ const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+ customExercises[ex.name] = exerciseDatabase[ex.name];
+ localStorage.setItem('customExercises', JSON.stringify(customExercises));
+ }
+ });
+ 
+ savedCustomWorkouts[workoutName] = workoutExercises;
+ localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+ 
+ loadCustomWorkoutsIntoDropdown();
+ alert(` Workout "${workoutName}" has been added to your custom workouts!`);
+ updateRecommendation();
  }
 
  function getSmartRecommendation(recentTypes, daysSince) {
@@ -2976,7 +3275,7 @@
   buttonContainer.style.justifyContent = 'center';
   
   const createBtn = document.createElement('button');
-  createBtn.textContent = '✓ Create Workout';
+  createBtn.textContent = 'âœ“ Create Workout';
   createBtn.className = 'btn btn-success';
   createBtn.style.width = 'auto';
   createBtn.style.padding = '10px 20px';
@@ -2984,7 +3283,7 @@
   createBtn.onclick = () => createWorkoutFromAI(aiWorkout);
   
   const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '✕ Cancel';
+  cancelBtn.textContent = 'âœ• Cancel';
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.style.width = 'auto';
   cancelBtn.style.padding = '10px 20px';
@@ -3050,7 +3349,7 @@
  localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
  
  // Add confirmation message
- addMsg(`✓ Workout "${workoutName}" has been added to your custom workouts!`, 'bot');
+ addMsg(`âœ“ Workout "${workoutName}" has been added to your custom workouts!`, 'bot');
  addMsg(`You can now select it from the "Custom Workout" dropdown in the main app to perform it!`, 'bot');
  
  // Update the custom workouts dropdown
