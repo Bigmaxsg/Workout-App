@@ -1107,6 +1107,12 @@
  return `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${mappedName}/0.jpg`;
  }
 
+ function escapeHTML(str) {
+    const p = document.createElement("p");
+    p.textContent = str;
+    return p.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
  // Storage for AI-generated exercise descriptions
  let exerciseDescriptions = JSON.parse(localStorage.getItem('exerciseDescriptions')) || {};
 
@@ -1827,7 +1833,7 @@
  }
  };
  
- // Take a snapshot of the original, built-in exercises. Any exercise not in this list is "custom".
+ // THE FIX: Take a snapshot of the original, built-in exercises BEFORE loading custom ones.
  const builtInExerciseNames = Object.keys(exerciseDatabase);
 
  // App State
@@ -2101,7 +2107,7 @@
  </div>
  </div>
  
- <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+ <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
  View Instructions
  </button>
  </div>
@@ -2199,7 +2205,7 @@
  </div>
  </div>
  
- <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+ <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
  View Instructions
  </button>
  </div>
@@ -2463,7 +2469,7 @@
  </div>
  </div>
  
- <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
+ <button class="btn btn-secondary" onclick="showExerciseInfo('${escapeHTML(ex.name)}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
  View Instructions
  </button>
  </div>
@@ -2980,7 +2986,7 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  ${exercisesHtml}
  </div>
  <div style="display: flex; gap: 10px; margin-top: 15px;">
- <button class="btn btn-success" onclick="createWorkoutFromAIDailyRecommendation('${aiWorkout.title}', ${JSON.stringify(aiWorkout.exercises).replace(/'/g, "&apos;")})" style="flex: 1;">
+ <button class="btn btn-success" onclick="createWorkoutFromAIDailyRecommendation('${escapeHTML(aiWorkout.title)}', ${JSON.stringify(aiWorkout.exercises).replace(/'/g, "&apos;")})" style="flex: 1;">
  ✓ Add to Custom Workouts
  </button>
  <button class="btn btn-secondary" onclick="updateRecommendation()" style="flex: 1;">
@@ -3601,15 +3607,16 @@ User's request: ${msg}`;
     const exercise = exerciseDatabase[name];
     // The new, robust way to check if an exercise is custom
     const isCustom = !builtInExerciseNames.includes(name); 
+    const escapedName = escapeHTML(name);
     
     return `
       <div class="history-item">
         <div class="history-header">
           <div class="history-date" style="font-size: 16px;">${name}</div>
           <div style="display: flex; gap: 8px;">
-            <button class="edit-btn" onclick="showExerciseInfo('${name}')" style="background: #8b7355;">View</button>
-            ${isCustom ? `<button class="edit-btn" onclick="openAddExerciseModal(false, '${name}')">Edit</button>` : ''}
-            ${isCustom ? `<button class="delete-btn" onclick="deleteExercise('${name}')">Delete</button>` : ''}
+            <button class="edit-btn" onclick="showExerciseInfo('${escapedName}')" style="background: #8b7355;">View</button>
+            ${isCustom ? `<button class="edit-btn" onclick="openAddExerciseModal(false, '${escapedName}')">Edit</button>` : ''}
+            ${isCustom ? `<button class="delete-btn" onclick="deleteExercise('${escapedName}')">Delete</button>` : ''}
           </div>
         </div>
         <div class="history-exercises"><strong>Equipment:</strong> ${exercise.equipment}</div>
@@ -3708,4 +3715,3 @@ User's request: ${msg}`;
  </script>
 </body>
 </html>
-```
