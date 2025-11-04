@@ -1819,6 +1819,7 @@
  loadCustomWorkoutsIntoDropdown();
  loadCustomExercises();
  loadCustomYouTubeLinks();
+ loadExerciseDescriptions();
  
  // Load custom exercises from localStorage
  function loadCustomExercises() {
@@ -1833,6 +1834,14 @@
  const customLinks = JSON.parse(localStorage.getItem('customYouTubeLinks')) || {};
  Object.keys(customLinks).forEach(name => {
  youtubeVideoLinks[name] = customLinks[name];
+ });
+ }
+ 
+ // Load AI-generated exercise descriptions from localStorage
+ function loadExerciseDescriptions() {
+ const savedDescriptions = JSON.parse(localStorage.getItem('exerciseDescriptions')) || {};
+ Object.keys(savedDescriptions).forEach(name => {
+ exerciseDescriptions[name] = savedDescriptions[name];
  });
  }
  
@@ -2556,8 +2565,10 @@
  const programName = workoutType === 'custom' ? 'Custom Workout' : workoutPrograms[workoutType].name;
 
  const totalVolume = completedSets.reduce((sum, ex, idx) => {
+ if (!ex || !ex.completed) return sum;
  const completedCount = ex.completed.filter(s => s).length;
  const exercise = currentWorkout[idx];
+ if (!exercise) return sum;
  return sum + (exercise.weight * completedCount * exercise.reps);
  }, 0);
 
@@ -2567,7 +2578,7 @@
  exercises: currentWorkout.map((ex, idx) => ({
  name: ex.name,
  weight: ex.weight,
- sets: completedSets[idx].completed.filter(s => s).length,
+ sets: (completedSets[idx] && completedSets[idx].completed) ? completedSets[idx].completed.filter(s => s).length : 0,
  reps: ex.reps,
  plannedSets: ex.sets
  })),
@@ -2578,9 +2589,15 @@
  workoutHistory.unshift(workout);
  localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
- const totalSets = completedSets.reduce((sum, ex) => sum + ex.completed.length, 0);
- const completedCount = completedSets.reduce((sum, ex) => sum + ex.completed.filter(s => s).length, 0);
- const percentage = Math.round((completedCount / totalSets) * 100);
+ const totalSets = completedSets.reduce((sum, ex) => {
+ if (!ex || !ex.completed) return sum;
+ return sum + ex.completed.length;
+ }, 0);
+ const completedCount = completedSets.reduce((sum, ex) => {
+ if (!ex || !ex.completed) return sum;
+ return sum + ex.completed.filter(s => s).length;
+ }, 0);
+ const percentage = totalSets > 0 ? Math.round((completedCount / totalSets) * 100) : 0;
 
  alert(` Workout ${percentage === 100 ? 'Completed' : 'Saved'}!\n\nCompleted: ${completedCount}/${totalSets} sets (${percentage}%)\nTotal Volume: ${totalVolume} lbs\nDuration: ${formatTime(timerSeconds)}\n\nGreat work! Keep crushing it! `);
 
@@ -2616,18 +2633,22 @@
  // Check for AI-generated description
  const aiDescription = exerciseDescriptions[name];
  
- // If exercise not in database (AI-generated), create a minimal exercise object
+ // If exercise not in database (AI-generated), check localStorage for saved data
  if (!exercise) {
+ const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+ const savedExercise = customExercises[name];
+ 
+ const equipment = savedExercise ? savedExercise.equipment : 'Various';
+ const instructions = aiDescription || (savedExercise ? savedExercise.instructions : "This exercise doesn't have detailed form instructions saved yet. You can still perform this exercise following standard form guidelines, or watch video tutorials for proper technique.");
  const youtubeLink = youtubeVideoLinks[name] || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name);
- const displayInstructions = aiDescription || "This exercise doesn't have detailed form instructions saved yet. You can still perform this exercise following standard form guidelines, or watch video tutorials for proper technique.";
  
  modalContent.innerHTML = `
  <div style="margin-bottom: 15px;">
- <strong>Equipment:</strong> Various
+ <strong>Equipment:</strong> ${equipment}
  </div>
  <div style="margin-top: 15px;">
  <strong>💡 Detailed Instructions</strong>
- <p style="line-height: 1.6; margin-top: 10px;">${displayInstructions}</p>
+ <p style="line-height: 1.6; margin-top: 10px;">${instructions}</p>
  </div>
  <div style="margin-top: 15px;">
  <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
