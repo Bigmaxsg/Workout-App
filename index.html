@@ -3511,21 +3511,38 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  return;
  }
 
- container.innerHTML = workoutHistory.map((w, idx) => `
+ container.innerHTML = workoutHistory.map((w, idx) => {
+ // Handle both regular and HIIT workouts
+ let exerciseDisplay = '';
+ if (Array.isArray(w.exercises)) {
+   if (typeof w.exercises[0] === 'string') {
+     // HIIT workouts have string array
+     exerciseDisplay = w.exercises.join(', ');
+   } else if (typeof w.exercises[0] === 'object') {
+     // Regular workouts have object array
+     exerciseDisplay = w.exercises.map(e => e.name).join(', ');
+   }
+ }
+
+ let durationDisplay = formatTime(w.duration || 0);
+ 
+ return `
  <div class="history-item">
  <div class="history-header">
  <div class="history-date">${formatDate(w.date)}</div>
  <div class="history-type">${w.type}</div>
  </div>
  <div class="history-exercises">
- <strong>Exercises:</strong> ${w.exercises.map(e => e.name).join(', ')}
+ <strong>Exercises:</strong> ${exerciseDisplay}
  </div>
+ ${w.rounds ? `<div style="margin-top: 5px; font-size: 14px; color: #6c757d;"><strong>Rounds:</strong> ${w.rounds}</div>` : ''}
  <div style="margin-top: 10px; font-size: 14px; color: #6c757d;">
- ${w.volume ? `<strong>Volume:</strong> ${w.volume} lbs |` : ''} <strong>Duration:</strong> ${formatTime(w.duration)}
+ ${w.volume ? `<strong>Volume:</strong> ${w.volume} lbs |` : ''} <strong>Duration:</strong> ${durationDisplay}
  </div>
  <button class="delete-btn" onclick="deleteWorkout(${idx})" style="margin-top: 10px;">Delete</button>
  </div>
- `).join('');
+ `;
+ }).join('');
  }
 
  function deleteWorkout(idx) {
@@ -4070,17 +4087,23 @@ function playHiitSound(type) {
     const gain = ctx.createGain();
     
     let freq = 440;
-    let duration = 0.2;
+    let duration = 0.15;
     
     if (type === 'work') {
-      freq = 880;  // High pitch for work
+      freq = 880;  // High pitch for work start
       duration = 0.3;
     } else if (type === 'rest') {
-      freq = 440;  // Medium pitch for rest
+      freq = 440;  // Medium pitch for rest start
       duration = 0.3;
-    } else if (type === 'next') {
-      freq = 660;  // Mid-high pitch for next exercise
-      duration = 0.2;
+    } else if (type === 'countdown3') {
+      freq = 800;  // For 3...
+      duration = 0.15;
+    } else if (type === 'countdown2') {
+      freq = 800;  // For 2...
+      duration = 0.15;
+    } else if (type === 'countdown1') {
+      freq = 800;  // For 1...
+      duration = 0.15;
     }
     
     osc.frequency.value = freq;
@@ -4213,9 +4236,13 @@ function runHiitInterval() {
     document.getElementById('hiitTimerDisplay').textContent = hiitWorkingTime;
     console.log("Time remaining:", hiitWorkingTime);
 
-    // Play sound 3 seconds before phase ends to alert user next is coming
+    // Play beeps during final 3 seconds countdown (3, 2, 1)
     if (hiitWorkingTime === 3) {
-      playHiitSound('next');
+      playHiitSound('countdown3');  // First beep
+    } else if (hiitWorkingTime === 2) {
+      playHiitSound('countdown2');  // Second beep
+    } else if (hiitWorkingTime === 1) {
+      playHiitSound('countdown1');  // Third beep
     }
 
     if (hiitWorkingTime <= 0) {
@@ -4294,7 +4321,8 @@ function endHiitWorkout() {
     type: 'HIIT Workout',
     exercises: hiitWorkoutParams.exercises,
     rounds: hiitCurrentRound - 1,
-    volume: 0
+    volume: 0,
+    duration: timerSeconds  // Include the total duration from main timer
   };
 
   workoutHistory.unshift(workout);
@@ -4321,7 +4349,8 @@ function completeHiitWorkout() {
       type: 'HIIT Workout',
       exercises: hiitWorkoutParams.exercises,
       rounds: hiitWorkoutParams.totalRounds,
-      volume: 0
+      volume: 0,
+      duration: timerSeconds  // Include the total duration from main timer
     };
 
     workoutHistory.unshift(workout);
