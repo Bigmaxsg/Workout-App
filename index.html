@@ -1075,7 +1075,7 @@
                 
                 <!-- Share Workouts Section -->
                 <div class="info-box">
-                    <p><strong>📤 Share Custom Workouts:</strong> Share your custom workout plans with friends! They can import them directly into their app.</p>
+                    <p><strong>📤 Share Custom Workouts:</strong> Export a workout as a file that you can send to friends. They can then import it into their app!</p>
                 </div>
                 <div class="form-group">
                     <label>Select Workout to Share</label>
@@ -1083,7 +1083,23 @@
                         <option value="">-- Choose a workout --</option>
                     </select>
                 </div>
-                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Share Selected Workout</button>
+                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Create Shareable Workout File</button>
+                
+                <!-- Import Shared Workout Section -->
+                <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50;">
+                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">📥 Received a Workout from a Friend?</p>
+                    <p><strong>Import it here!</strong> If someone sent you a workout file (ends with .json), follow these steps:</p>
+                    <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                        <li>Make sure you've downloaded the file to your device</li>
+                        <li>Click the green "Import Shared Workout File" button below</li>
+                        <li>Select the workout file you received</li>
+                        <li>Review the workout details and click OK</li>
+                        <li>Done! The workout is now in your app</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;"><strong>File name looks like:</strong> workout-leg-day.json or workout-hiit-blast.json</p>
+                </div>
+                <input type="file" id="importSharedWorkout" accept=".json" style="display: none;" onchange="importSharedWorkout(event)">
+                <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">📥 Import Shared Workout File</label>
                 
                 <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
@@ -1099,7 +1115,7 @@
                     <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Tip: Export your current data first if you want to keep a copy before importing.</p>
                 </div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <label for="importFile" class="btn btn-danger">📥 Import Data from File</label>
+                <label for="importFile" class="btn btn-danger">📥 Import Data from Backup File</label>
                 
                 <!-- Clear Data Section -->
                 <div class="info-box" style="margin-top: 30px; border-left-color: #8b0000;">
@@ -4311,7 +4327,8 @@ User's request: ${msg}`;
             if (localStorage.getItem('geminiKey')) {
                 initAI();
             }
-            handleIncomingWorkout();
+            // Note: URL-based workout sharing has been replaced with file-based sharing
+            // If you receive a workout file, use Settings → Import Shared Workout
 
             document.getElementById('userMessage').addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' && !event.shiftKey) {
@@ -4801,8 +4818,8 @@ User's request: ${msg}`;
             });
         }
         
-        // Share workout from Settings tab
-        async function shareCustomWorkoutFromSettings() {
+        // Share workout from Settings tab - FILE-BASED SHARING
+        function shareCustomWorkoutFromSettings() {
             const select = document.getElementById('shareWorkoutSelect');
             const workoutName = select.value;
             
@@ -4844,30 +4861,138 @@ User's request: ${msg}`;
             const shareObject = {
                 title: workoutName,
                 workoutData: workoutData,
-                customExercisesData: customExercisesToShare
+                customExercisesData: customExercisesToShare,
+                sharedDate: new Date().toISOString(),
+                appVersion: 'Workout Tracker Pro v2.0'
             };
             
             try {
-                const jsonString = JSON.stringify(shareObject);
-                const encodedData = btoa(jsonString);
-                const baseUrl = window.location.origin + window.location.pathname;
-                const shareUrl = `${baseUrl}?workout=${encodedData}`;
+                // Create a downloadable file
+                const jsonString = JSON.stringify(shareObject, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
                 
-                if (navigator.share) {
-                    await navigator.share({
-                        title: 'Check out my workout!',
-                        text: `Here is a workout I made in the Workout Tracker Pro app: ${workoutName}`,
-                        url: shareUrl
-                    });
-                } else {
-                    // Fallback for desktop browsers
-                    await navigator.clipboard.writeText(shareUrl);
-                    alert('✅ Workout link copied to clipboard! Share it with your friends.');
-                }
+                // Clean filename (remove special characters)
+                const cleanName = workoutName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+                a.href = url;
+                a.download = `workout-${cleanName}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                const exerciseText = customExercisesToShare.length > 0 
+                    ? `\nIncludes ${customExercisesToShare.length} custom exercise(s)`
+                    : '';
+                
+                const shareMsg = `✅ Workout file created!\n\n` +
+                    `File: workout-${cleanName}.json${exerciseText}\n\n` +
+                    `📤 HOW TO SHARE:\n` +
+                    `Send this file to your friend via text, email, or AirDrop.\n\n` +
+                    `📥 INSTRUCTIONS FOR THEM:\n` +
+                    `1. Download the file\n` +
+                    `2. Open Workout Tracker app\n` +
+                    `3. Tap Settings tab (last tab)\n` +
+                    `4. Tap "Import Shared Workout File"\n` +
+                    `5. Select the workout file\n` +
+                    `6. Tap OK - Done!`;
+                
+                alert(shareMsg);
             } catch (error) {
                 console.error('Sharing failed:', error);
-                alert('Could not share workout. Your browser might not support sharing, but the link may have been copied to your clipboard.');
+                alert('❌ Could not create workout file: ' + error.message);
             }
+        }
+        
+        // Import shared workout from file
+        function importSharedWorkout(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const sharedWorkout = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure
+                    if (!sharedWorkout.title || !sharedWorkout.workoutData) {
+                        alert('❌ Invalid workout file format. Please select a valid shared workout file.');
+                        return;
+                    }
+                    
+                    // Show confirmation with details
+                    const workoutType = sharedWorkout.workoutData.workoutType === 'hiit' ? 'HIIT' : 'Strength';
+                    const exerciseCount = sharedWorkout.workoutData.exercises ? sharedWorkout.workoutData.exercises.length : 
+                                        (Array.isArray(sharedWorkout.workoutData) ? sharedWorkout.workoutData.length : 0);
+                    const customExerciseCount = sharedWorkout.customExercisesData ? sharedWorkout.customExercisesData.length : 0;
+                    const sharedDate = sharedWorkout.sharedDate ? new Date(sharedWorkout.sharedDate).toLocaleDateString() : 'Unknown';
+                    
+                    let confirmMsg = `📥 Import Shared Workout?\n\n`;
+                    confirmMsg += `Name: ${sharedWorkout.title}\n`;
+                    confirmMsg += `Type: ${workoutType}\n`;
+                    confirmMsg += `Exercises: ${exerciseCount}\n`;
+                    if (customExerciseCount > 0) {
+                        confirmMsg += `Custom Exercises: ${customExerciseCount}\n`;
+                    }
+                    confirmMsg += `Shared: ${sharedDate}\n`;
+                    confirmMsg += `\nAdd this workout to your app?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                    
+                    let importedExerciseCount = 0;
+                    
+                    // 1. Import any custom exercises first
+                    if (sharedWorkout.customExercisesData && sharedWorkout.customExercisesData.length > 0) {
+                        sharedWorkout.customExercisesData.forEach(ex => {
+                            // Only import if it doesn't already exist
+                            if (!exerciseDatabase[ex.name]) {
+                                saveCustomExerciseToDB(ex.name, ex);
+                                importedExerciseCount++;
+                            }
+                        });
+                    }
+
+                    // 2. Save the workout itself
+                    const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+                    let newName = sharedWorkout.title;
+                    let counter = 1;
+                    while (savedCustomWorkouts[newName]) {
+                        newName = `${sharedWorkout.title} (Imported ${counter})`;
+                        counter++;
+                    }
+
+                    savedCustomWorkouts[newName] = sharedWorkout.workoutData;
+                    localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+                    
+                    // Reload custom workouts dropdown
+                    loadCustomWorkoutsIntoDropdown();
+                    populateShareWorkoutDropdown();
+                    
+                    let successMsg = `✅ SUCCESS! Workout imported!\n\n`;
+                    successMsg += `"${newName}" is now in your app!\n`;
+                    if (importedExerciseCount > 0) {
+                        successMsg += `\n${importedExerciseCount} custom exercise(s) were also added.\n`;
+                    }
+                    successMsg += `\n📋 TO USE THIS WORKOUT:\n`;
+                    successMsg += `1. Go to the "Workout" tab\n`;
+                    successMsg += `2. Select "Create Custom ${workoutType} Workout"\n`;
+                    successMsg += `3. Find "${newName}" in the dropdown\n`;
+                    successMsg += `4. Click "Load" and start your workout!\n`;
+                    
+                    alert(successMsg);
+                    
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    alert('❌ Failed to import workout: ' + error.message + '\n\nPlease make sure you selected a valid workout file.');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
         }
         
         // Export all data to JSON file
