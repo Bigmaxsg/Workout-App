@@ -1,14 +1,3 @@
-Of course! Adding an export/import feature is an excellent way to safeguard your workout data, and clarifying where to share from will improve the user experience.
-
-I've updated the code to include a new "Settings" tab in the navigation bar. This new section contains buttons to **Export Data** and **Import Data**.
-
-*   **Export Data:** When you click this, it gathers all your workout history, custom exercises, workouts, and preferences from local storage and saves it as a single `workout_tracker_pro_backup.json` file to your device.
-*   **Import Data:** This allows you to select a previously exported backup file. When you choose a valid file, it will restore all your data. **Be careful, as this will overwrite any current data.**
-*   **Sharing Workouts:** As requested, I've made the sharing function more prominent. While the button itself is located in the "Workout" tab (next to the custom workout you wish to share), I've added an informational box in the new "Settings" tab that directs you to the right place. This is more intuitive, as you need to select *which* workout to share first.
-
-Here is the complete and updated code for your `index.html` file:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
