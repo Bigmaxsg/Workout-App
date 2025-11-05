@@ -5138,6 +5138,85 @@ User's request: ${msg}`;
         }
 
     </script>
+
+<!-- Deep Link Share Feature (replaces workout file sharing) -->
+<script>
+// --- Deep Link Share Feature Replacement ---
+
+// Function to share custom workout via link (keeps original button - same name)
+function shareCustomWorkoutFromSettings() {
+    const select = document.getElementById("shareWorkoutSelect");
+    const workoutName = select ? select.value : null;
+    if (!workoutName) {
+        alert("Please select a workout to share first.");
+        return;
+    }
+
+    const customWorkouts = JSON.parse(localStorage.getItem("customWorkouts") || "[]");
+    const workout = customWorkouts.find(w => w.name === workoutName);
+    if (!workout) {
+        alert("Workout not found.");
+        return;
+    }
+
+    try {
+        const encoded = encodeURIComponent(btoa(JSON.stringify(workout)));
+        const shareUrl = `${location.origin}${location.pathname}?addWorkout=${encoded}`;
+
+        // Copy to clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("✅ Shareable workout link copied to clipboard!\\n\\nSend this link to a friend to share your workout.");
+            }).catch(err => {
+                console.error("Clipboard copy failed", err);
+                prompt("Copy this link to share your workout:", shareUrl);
+            });
+        } else {
+            // Fallback: show prompt with link
+            prompt("Copy this link to share your workout:", shareUrl);
+        }
+    } catch (err) {
+        console.error("Failed to create share link:", err);
+        alert("Failed to create share link.");
+    }
+}
+
+// Automatically import shared workout from URL if present
+(function handleSharedWorkoutLink() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encoded = urlParams.get("addWorkout");
+        if (!encoded) return;
+
+        const decoded = JSON.parse(atob(decodeURIComponent(encoded)));
+        const workouts = JSON.parse(localStorage.getItem("customWorkouts") || "[]");
+
+        // Avoid duplicates by name
+        if (!workouts.find(w => w.name === decoded.name)) {
+            workouts.push(decoded);
+            localStorage.setItem("customWorkouts", JSON.stringify(workouts));
+            // Friendly UI feedback: small modal if available, else alert
+            try {
+                showTemporaryMessage && showTemporaryMessage(`✅ '${decoded.name}' has been added to your workouts!`);
+            } catch(e) {
+                alert(`✅ '${decoded.name}' has been added to your workouts!`);
+            }
+        } else {
+            try {
+                showTemporaryMessage && showTemporaryMessage(`'${decoded.name}' is already in your workouts.`);
+            } catch(e) {
+                alert(`'${decoded.name}' is already in your workouts.`);
+            }
+        }
+
+        // Clean up URL (remove query string)
+        history.replaceState(null, "", location.pathname);
+    } catch (err) {
+        console.error("Failed to import shared workout:", err);
+    }
+})();
+</script>
+<!-- End Deep Link Share Feature -->
 </body>
 </html>
 ```
