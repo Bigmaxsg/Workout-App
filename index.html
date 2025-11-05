@@ -4389,14 +4389,36 @@ User's request: ${msg}`;
                     const sharedWorkout = JSON.parse(decodedString);
 
                     if (sharedWorkout.title && sharedWorkout.workoutData) {
-                        if (confirm(`Do you want to add the shared workout "${sharedWorkout.title}" to your custom workouts?`)) {
+                        // Show a more detailed confirmation message
+                        const workoutType = sharedWorkout.workoutData.workoutType === 'hiit' ? 'HIIT' : 'Strength';
+                        const exerciseCount = sharedWorkout.workoutData.exercises ? sharedWorkout.workoutData.exercises.length : 
+                                            (Array.isArray(sharedWorkout.workoutData) ? sharedWorkout.workoutData.length : 0);
+                        const customExerciseCount = sharedWorkout.customExercisesData ? sharedWorkout.customExercisesData.length : 0;
+                        
+                        let confirmMsg = `📥 Import Shared Workout?\n\n`;
+                        confirmMsg += `Name: ${sharedWorkout.title}\n`;
+                        confirmMsg += `Type: ${workoutType}\n`;
+                        confirmMsg += `Exercises: ${exerciseCount}\n`;
+                        if (customExerciseCount > 0) {
+                            confirmMsg += `Custom Exercises: ${customExerciseCount}\n`;
+                        }
+                        confirmMsg += `\nAdd this workout to your app?`;
+                        
+                        if (confirm(confirmMsg)) {
+                            let importedExerciseCount = 0;
+                            
                             // 1. Import any custom exercises first
                             if (sharedWorkout.customExercisesData && sharedWorkout.customExercisesData.length > 0) {
                                 sharedWorkout.customExercisesData.forEach(ex => {
-                                    // The save function handles both adding to DB and localStorage
-                                    saveCustomExerciseToDB(ex.name, ex);
+                                    // Only import if it doesn't already exist
+                                    if (!exerciseDatabase[ex.name]) {
+                                        saveCustomExerciseToDB(ex.name, ex);
+                                        importedExerciseCount++;
+                                    }
                                 });
-                                alert(`${sharedWorkout.customExercisesData.length} custom exercise(s) were added to your library.`);
+                                if (importedExerciseCount > 0) {
+                                    console.log(`${importedExerciseCount} custom exercise(s) added to library`);
+                                }
                             }
 
                             // 2. Save the workout itself
@@ -4411,17 +4433,28 @@ User's request: ${msg}`;
                             savedCustomWorkouts[newName] = sharedWorkout.workoutData;
                             localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
 
-                            alert(`Workout "${newName}" added successfully! Reloading the app to apply all changes.`);
-                            // Reload to ensure all components recognize the new exercises and workouts
+                            // Clean the URL before reloading
                             window.history.replaceState({}, document.title, window.location.pathname);
+                            
+                            let successMsg = `✅ Workout "${newName}" imported successfully!`;
+                            if (importedExerciseCount > 0) {
+                                successMsg += `\n\n${importedExerciseCount} custom exercise(s) were also added to your library.`;
+                            }
+                            successMsg += '\n\nThe page will reload to apply all changes.';
+                            
+                            alert(successMsg);
                             window.location.reload();
+                        } else {
+                            // User cancelled - clean the URL so they're not prompted again
+                            window.history.replaceState({}, document.title, window.location.pathname);
                         }
+                    } else {
+                        alert('❌ Invalid workout data format. The share link may be corrupted.');
+                        window.history.replaceState({}, document.title, window.location.pathname);
                     }
                 } catch (error) {
                     console.error('Failed to parse shared workout data:', error);
-                    alert('The shared workout link appears to be invalid or corrupted.');
-                } finally {
-                    // Clean the URL to prevent re-importing on refresh
+                    alert('❌ The shared workout link is invalid or corrupted.\n\nError: ' + error.message);
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }
