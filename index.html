@@ -53,6 +53,7 @@ background: #d9c7a5;
 border-bottom: 2px solid #8b7355;
 overflow-x: auto; /* Allows horizontal scrolling on small screens */
 -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+flex-wrap: wrap; /* Allow wrapping to multiple rows */
 }
 
 .nav::-webkit-scrollbar {
@@ -60,7 +61,8 @@ display: none; /* Hide scrollbar for a cleaner look */
 }
 
 .nav-btn {
-flex: 1; /* Distribute tabs evenly */
+flex: 1 1 auto; /* Allow flexible sizing and wrapping */
+min-width: 100px; /* Minimum width for readability */
 padding: 12px 8px; /* Reduced padding for smaller screens */
 background: none;
 border: none;
@@ -71,7 +73,6 @@ color: #3e3024;
 transition: all 0.3s;
 white-space: nowrap; /* Prevents text from wrapping */
 text-align: center; /* Center tab text */
-min-width: 0; /* Allow flex to shrink below content size */
 }
 
 .nav-btn.active {
@@ -632,8 +633,10 @@ grid-template-columns: 1fr;
 }
 
 .nav-btn {
-font-size: 12px;
-padding: 12px 8px;
+flex: 1 1 calc(33.333% - 2px); /* 3 tabs per row on mobile */
+min-width: 0;
+font-size: 11px;
+padding: 10px 4px;
 }
 
 .exercise-card {
