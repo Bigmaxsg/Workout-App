@@ -4083,6 +4083,14 @@ function playHiitSound(type) {
     }
     
     const ctx = window.audioCtx;
+    
+    // Resume audio context if it was suspended
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        console.log("Audio context resumed");
+      });
+    }
+    
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -4307,6 +4315,15 @@ function pauseResumeHiit() {
   const btn = document.getElementById('hiitPauseResumeBtn');
   hiitIsPaused = !hiitIsPaused;
   btn.textContent = hiitIsPaused ? 'Resume' : 'Pause';
+  
+  // Ensure audio context is ready when resuming
+  if (!hiitIsPaused && window.audioCtx) {
+    if (window.audioCtx.state === 'suspended') {
+      window.audioCtx.resume().then(() => {
+        console.log("Audio context resumed after pause");
+      });
+    }
+  }
 }
 
 function endHiitWorkout() {
