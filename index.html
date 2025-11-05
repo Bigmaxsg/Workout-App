@@ -51,7 +51,7 @@ font-size: 14px;
 display: flex;
 background: #d9c7a5;
 border-bottom: 2px solid #8b7355;
-overflow-x: auto; /* Allows horizontal scrolling */
+overflow-x: auto; /* Allows horizontal scrolling on small screens */
 -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
@@ -60,16 +60,18 @@ display: none; /* Hide scrollbar for a cleaner look */
 }
 
 .nav-btn {
-/* flex: 1; */ /* Removed to allow natural width */
-padding: 15px 14px; /* Adjusted padding */
+flex: 1; /* Distribute tabs evenly */
+padding: 12px 8px; /* Reduced padding for smaller screens */
 background: none;
 border: none;
 cursor: pointer;
-font-size: 14px;
+font-size: 12px; /* Reduced font size for better fit */
 font-weight: 600;
 color: #3e3024;
 transition: all 0.3s;
 white-space: nowrap; /* Prevents text from wrapping */
+text-align: center; /* Center tab text */
+min-width: 0; /* Allow flex to shrink below content size */
 }
 
 .nav-btn.active {
