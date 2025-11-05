@@ -753,7 +753,7 @@ font-size: 13px;
 
  <div id="workout" class="section active">
  <div class="workout-timer">
- <h3>Workout Timer</h3>
+ <h3>Workout Duration Timer</h3>
  <div class="timer-display" id="timerDisplay">00:00</div>
  <div class="timer-controls">
  <button class="timer-btn" onclick="startTimer()">Start</button>
@@ -940,7 +940,7 @@ font-size: 13px;
 </div>
 
 <div style="display: flex; gap: 10px; margin-top: 15px;">
-  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()" style="flex: 1;">Pause</button>
+  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()" style="flex: 1;">Pause Exercise</button>
   <button class="btn btn-danger" onclick="endHiitWorkout()" style="flex: 1;">End Workout</button>
 </div>
 ```
@@ -2841,6 +2841,7 @@ font-size: 13px;
  
  document.getElementById('workoutSetup').style.display = 'none';
  document.getElementById('guidedWorkoutMode').style.display = 'block';
+ document.querySelector('.nav').style.display = 'none'; // Hide nav bar during workout
  
  startTimer();
  showAppleWatchReminder();
@@ -3056,6 +3057,15 @@ font-size: 13px;
  updateRecommendation();
  updateProgress();
  updateHistory();
+ 
+ // Show nav bar again
+ document.querySelector('.nav').style.display = 'flex';
+ 
+ // Switch to history tab to show completed workout
+ document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+ document.getElementById('history').classList.add('active');
+ document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+ document.querySelectorAll('.nav-btn')[5].classList.add('active'); // History is the 6th tab (index 5)
  }
 
  function updateExercise(idx, field, value) {
@@ -4205,7 +4215,7 @@ function playHiitSound(type) {
     osc.frequency.value = freq;
     osc.type = 'sine';
     
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.setValueAtTime(0.7, ctx.currentTime); // Increased volume from 0.3 to 0.7
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
     
     osc.connect(gain);
@@ -4273,8 +4283,9 @@ function startHiitWorkout() {
   document.getElementById('hiitWorkoutMode').style.display = 'block';
   document.getElementById('hiitCountdownScreen').style.display = 'none';
   document.getElementById('hiitActiveScreen').style.display = 'block';
-  document.getElementById('hiitPauseResumeBtn').textContent = '⏸️ Pause';
+  document.getElementById('hiitPauseResumeBtn').textContent = '⏸️ Pause Exercise';
   document.getElementById('hiitPauseResumeBtn').style.display = 'block';
+  document.querySelector('.nav').style.display = 'none'; // Hide nav bar during HIIT workout
 
   // Update display immediately
   updateHiitDisplay();
@@ -4441,7 +4452,7 @@ function adjustHiitParam(param, change) {
 function pauseResumeHiit() {
   const btn = document.getElementById('hiitPauseResumeBtn');
   hiitIsPaused = !hiitIsPaused;
-  btn.textContent = hiitIsPaused ? 'Resume' : 'Pause';
+  btn.textContent = hiitIsPaused ? 'Resume Exercise' : 'Pause Exercise';
   
   // Ensure audio context is ready when resuming
   if (!hiitIsPaused && window.audioCtx) {
