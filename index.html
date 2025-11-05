@@ -3546,6 +3546,12 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  timerSeconds++;
  document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
  }, 1000);
+ 
+ // If HIIT workout is active, start the HIIT interval
+ if (window.hiitActive) {
+   console.log("Starting HIIT interval");
+   runHiitInterval();
+ }
  }
  }
 
@@ -4053,42 +4059,45 @@ function handleIncomingWorkout() {
 
 // ===== HIIT WORKOUT FUNCTIONS =====
 function playHiitSound(type) {
+  // Use simple audio API with error handling
   try {
-    if (!audioCtx) {
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch (e) {
-        console.log("Web Audio API not available:", e);
-        return;
-      }
+    if (!window.audioCtx) {
+      window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
     
-    let frequency = 440;
-    let duration = 0.1;
-
-    if (type === 'start') {
-      frequency = 880;
-      duration = 0.2;
-    } else if (type === 'rest') {
-      frequency = 330;
+    const ctx = window.audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    let freq = 440;
+    let duration = 0.2;
+    
+    if (type === 'work') {
+      freq = 880;  // High pitch for work
       duration = 0.3;
+    } else if (type === 'rest') {
+      freq = 440;  // Medium pitch for rest
+      duration = 0.3;
+    } else if (type === 'next') {
+      freq = 660;  // Mid-high pitch for next exercise
+      duration = 0.2;
     }
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
     
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duration);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+    
+    console.log("Sound played:", type);
   } catch (e) {
-    console.log("Audio playback error:", e);
+    console.log("Sound not available:", e.message);
   }
 }
 
@@ -4139,17 +4148,23 @@ function startHiitWorkout() {
   hiitTimeRemaining = hiitWorkoutParams.workTime;
   hiitIsPaused = false;
 
-  // Hide workout setup, show HIIT mode
+  // Hide workout setup, show HIIT mode (with timer ready to start)
   document.getElementById('workoutSetup').style.display = 'none';
   document.getElementById('guidedWorkoutMode').style.display = 'none';
   document.getElementById('hiitWorkoutMode').style.display = 'block';
-  document.getElementById('hiitCountdownScreen').style.display = 'block';
-  document.getElementById('hiitActiveScreen').style.display = 'none';
-  document.getElementById('hiitPauseResumeBtn').textContent = 'Pause';
+  document.getElementById('hiitCountdownScreen').style.display = 'none';
+  document.getElementById('hiitActiveScreen').style.display = 'block';
+  document.getElementById('hiitPauseResumeBtn').textContent = '⏸️ Pause';
   document.getElementById('hiitPauseResumeBtn').style.display = 'block';
 
-  // Start countdown
-  startHiitCountdown();
+  // Update display immediately
+  updateHiitDisplay();
+  
+  // Mark that HIIT is active - the timer will start when user clicks Start
+  window.hiitActive = true;
+  
+  console.log("HIIT Workout loaded. Press the 'Start' button on the Workout Timer to begin!");
+  alert("HIIT Workout ready! Now click the 'Start' button on the Workout Timer above to begin your workout.");
 }
 
 function startHiitCountdown() {
@@ -4182,6 +4197,13 @@ function runHiitInterval() {
   console.log("=== Starting Work/Rest Interval ===");
   console.log("Mode:", hiitCurrentMode, "Time:", hiitTimeRemaining);
 
+  // Play sound when phase starts
+  if (hiitCurrentMode === 'work') {
+    playHiitSound('work');  // High pitch for work
+  } else {
+    playHiitSound('rest');  // Medium pitch for rest
+  }
+
   let hiitWorkingTime = hiitTimeRemaining;
   
   hiitTimerInterval = setInterval(() => {
@@ -4190,6 +4212,11 @@ function runHiitInterval() {
     hiitWorkingTime--;
     document.getElementById('hiitTimerDisplay').textContent = hiitWorkingTime;
     console.log("Time remaining:", hiitWorkingTime);
+
+    // Play sound 3 seconds before phase ends to alert user next is coming
+    if (hiitWorkingTime === 3) {
+      playHiitSound('next');
+    }
 
     if (hiitWorkingTime <= 0) {
       clearInterval(hiitTimerInterval);
