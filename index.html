@@ -4153,33 +4153,23 @@ function startHiitWorkout() {
 }
 
 function startHiitCountdown() {
-  let countdown = 5;
-  document.getElementById('hiitCountdownDisplay').textContent = countdown;
+  let hiitCountdown = 5;
+  document.getElementById('hiitCountdownDisplay').textContent = hiitCountdown;
   
-  try {
-    playHiitSound('beep');
-  } catch (e) {
-    console.log("Audio error (non-critical):", e);
-  }
-
-  hiitTimerInterval = setInterval(() => {
-    countdown--;
-    console.log("Countdown:", countdown); // Debug log
+  console.log("=== HIIT Countdown Starting ===");
+  
+  let countdownInterval = setInterval(() => {
+    hiitCountdown--;
+    console.log("Countdown:", hiitCountdown);
+    document.getElementById('hiitCountdownDisplay').textContent = hiitCountdown;
     
-    if (countdown > 0) {
-      document.getElementById('hiitCountdownDisplay').textContent = countdown;
-      try {
-        playHiitSound('beep');
-      } catch (e) {
-        console.log("Audio error (non-critical):", e);
-      }
-    } else {
-      clearInterval(hiitTimerInterval);
+    if (hiitCountdown <= 0) {
+      clearInterval(countdownInterval);
+      console.log("Countdown complete, showing active screen");
       document.getElementById('hiitCountdownScreen').style.display = 'none';
       document.getElementById('hiitActiveScreen').style.display = 'block';
       hiitTimeRemaining = hiitWorkoutParams.workTime;
-      console.log("Starting workout interval"); // Debug log
-      runHiitInterval();
+      setTimeout(() => runHiitInterval(), 100);
     }
   }, 1000);
 }
@@ -4189,31 +4179,21 @@ function runHiitInterval() {
 
   updateHiitDisplay();
   
-  try {
-    if (hiitCurrentMode === 'work') {
-      playHiitSound('start');
-    } else {
-      playHiitSound('rest');
-    }
-  } catch (e) {
-    console.log("Audio error (non-critical):", e);
-  }
+  console.log("=== Starting Work/Rest Interval ===");
+  console.log("Mode:", hiitCurrentMode, "Time:", hiitTimeRemaining);
 
-  console.log("Starting interval for mode:", hiitCurrentMode, "Time remaining:", hiitTimeRemaining);
-
+  let hiitWorkingTime = hiitTimeRemaining;
+  
   hiitTimerInterval = setInterval(() => {
-    if (hiitIsPaused) {
-      console.log("Workout paused");
-      return;
-    }
+    if (hiitIsPaused) return;
 
-    hiitTimeRemaining--;
-    console.log("Time remaining:", hiitTimeRemaining);
-    document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
+    hiitWorkingTime--;
+    document.getElementById('hiitTimerDisplay').textContent = hiitWorkingTime;
+    console.log("Time remaining:", hiitWorkingTime);
 
-    if (hiitTimeRemaining <= 0) {
+    if (hiitWorkingTime <= 0) {
       clearInterval(hiitTimerInterval);
-      console.log("Phase complete, moving to next");
+      console.log("Phase complete");
       nextHiitPhase();
     }
   }, 1000);
