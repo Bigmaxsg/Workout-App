@@ -866,10 +866,44 @@ font-size: 13px;
     <h3 id="hiitExerciseName">Jumping Jacks</h3>
     <p id="hiitNextExerciseName">Next Up: Rest</p>
     <div id="hiitRoundDisplay">Round 1 of 4</div>
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
-      <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()">Pause</button>
-      <button class="btn btn-danger" onclick="endHiitWorkout()">End Workout</button>
+
+```
+<!-- Adjustment Controls -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; background: rgba(212,175,55,0.2); padding: 15px; border-radius: 10px;">
+  <div style="text-align: center;">
+    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Work (sec)</div>
+    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
+      <span id="hiitWorkDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">30</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
     </div>
+  </div>
+  
+  <div style="text-align: center;">
+    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Rest (sec)</div>
+    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
+      <span id="hiitRestDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">15</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
+    </div>
+  </div>
+  
+  <div style="text-align: center;">
+    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Rounds</div>
+    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
+      <span id="hiitRoundsDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">4</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
+    </div>
+  </div>
+</div>
+
+<div style="display: flex; gap: 10px; margin-top: 20px;">
+  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()">Pause</button>
+  <button class="btn btn-danger" onclick="endHiitWorkout()">End Workout</button>
+</div>
+```
+
   </div>
 </div>
 
@@ -4290,6 +4324,11 @@ function updateHiitDisplay() {
   const roundDisplay = document.getElementById('hiitRoundDisplay');
 
   roundDisplay.textContent = `Round ${hiitCurrentRound} of ${hiitWorkoutParams.totalRounds}`;
+  
+  // Update the display values
+  document.getElementById('hiitWorkDisplay').textContent = hiitWorkoutParams.workTime;
+  document.getElementById('hiitRestDisplay').textContent = hiitWorkoutParams.restTime;
+  document.getElementById('hiitRoundsDisplay').textContent = hiitWorkoutParams.totalRounds;
 
   if (hiitCurrentMode === 'work') {
     modeDisplay.textContent = 'WORK!';
@@ -4309,6 +4348,24 @@ function updateHiitDisplay() {
   }
 
   document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
+}
+
+function adjustHiitParam(param, change) {
+  if (param === 'work') {
+    hiitWorkoutParams.workTime = Math.max(5, hiitWorkoutParams.workTime + change);
+    document.getElementById('hiitWorkDisplay').textContent = hiitWorkoutParams.workTime;
+    console.log("Work time adjusted to:", hiitWorkoutParams.workTime);
+  } else if (param === 'rest') {
+    hiitWorkoutParams.restTime = Math.max(5, hiitWorkoutParams.restTime + change);
+    document.getElementById('hiitRestDisplay').textContent = hiitWorkoutParams.restTime;
+    console.log("Rest time adjusted to:", hiitWorkoutParams.restTime);
+  } else if (param === 'rounds') {
+    hiitWorkoutParams.totalRounds = Math.max(1, hiitWorkoutParams.totalRounds + change);
+    document.getElementById('hiitRoundsDisplay').textContent = hiitWorkoutParams.totalRounds;
+    // Update the round display to reflect new total
+    document.getElementById('hiitRoundDisplay').textContent = `Round ${hiitCurrentRound} of ${hiitWorkoutParams.totalRounds}`;
+    console.log("Rounds adjusted to:", hiitWorkoutParams.totalRounds);
+  }
 }
 
 function pauseResumeHiit() {
