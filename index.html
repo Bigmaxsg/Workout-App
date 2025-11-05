@@ -784,6 +784,39 @@ font-size: 13px;
  <p><strong>Circuit:</strong> Do one set of each exercise, then repeat for all rounds.</p>
  <p><strong>HIIT:</strong> Perform exercises for timed work/rest intervals.</p>
  </div>
+
+ <!-- HIIT Adjustments (Pre-Workout) -->
+
+ <div id="hiitPreWorkoutAdjustments" style="display:none; background: rgba(212,175,55,0.2); padding: 12px; border-radius: 10px; margin-bottom: 15px;">
+ <div style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 10px;">Adjust HIIT Parameters:</div>
+ <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+ <div style="text-align: center;">
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Work</div>
+ <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', -5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+ <span id="hiitPreWorkWorkDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">30</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', 5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+ </div>
+ </div>
+ <div style="text-align: center;">
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Rest</div>
+ <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', -5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+ <span id="hiitPreWorkRestDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">15</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', 5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+ </div>
+ </div>
+ <div style="text-align: center;">
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Rounds</div>
+ <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', -1)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+ <span id="hiitPreWorkRoundsDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">4</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', 1)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+ </div>
+ </div>
+ </div>
+ </div>
+
  <button class="btn" onclick="startGuidedWorkout('traditional')" style="margin-bottom: 10px;">
  Start Traditional Style
  </button>
@@ -868,39 +901,39 @@ font-size: 13px;
     <div id="hiitRoundDisplay">Round 1 of 4</div>
 
 ```
-<!-- Adjustment Controls -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; background: rgba(212,175,55,0.2); padding: 15px; border-radius: 10px;">
+<!-- Adjustment Controls - Mobile Optimized -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 15px; background: rgba(212,175,55,0.2); padding: 10px; border-radius: 8px;">
   <div style="text-align: center;">
-    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Work (sec)</div>
-    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
-      <span id="hiitWorkDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">30</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
+    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Work</div>
+    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
+      <span id="hiitWorkDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">30</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
     </div>
   </div>
   
   <div style="text-align: center;">
-    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Rest (sec)</div>
-    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
-      <span id="hiitRestDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">15</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
+    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Rest</div>
+    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
+      <span id="hiitRestDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">15</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
     </div>
   </div>
   
   <div style="text-align: center;">
-    <div style="font-size: 12px; color: #f5f5dc; margin-bottom: 5px;">Rounds</div>
-    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">-</button>
-      <span id="hiitRoundsDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold;">4</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 40px; padding: 5px; margin: 0; font-size: 14px;">+</button>
+    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Rounds</div>
+    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
+      <span id="hiitRoundsDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">4</span>
+      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
     </div>
   </div>
 </div>
 
-<div style="display: flex; gap: 10px; margin-top: 20px;">
-  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()">Pause</button>
-  <button class="btn btn-danger" onclick="endHiitWorkout()">End Workout</button>
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()" style="flex: 1;">Pause</button>
+  <button class="btn btn-danger" onclick="endHiitWorkout()" style="flex: 1;">End Workout</button>
 </div>
 ```
 
@@ -2156,6 +2189,7 @@ font-size: 13px;
  if (!type) {
  container.innerHTML = '';
  document.getElementById('workoutModeSelection').style.display = 'none';
+ document.getElementById('hiitPreWorkoutAdjustments').style.display = 'none';
  return;
  }
 
@@ -2264,8 +2298,14 @@ font-size: 13px;
     hiitWorkoutParams = {
         workTime: savedWorkout.workTime,
         restTime: savedWorkout.restTime,
-        totalRounds: savedWorkout.rounds
+        totalRounds: savedWorkout.rounds,
+        exercises: currentWorkout.map(ex => ex.name)
     };
+
+    // Update pre-workout display values
+    document.getElementById('hiitPreWorkWorkDisplay').textContent = hiitWorkoutParams.workTime;
+    document.getElementById('hiitPreWorkRestDisplay').textContent = hiitWorkoutParams.restTime;
+    document.getElementById('hiitPreWorkRoundsDisplay').textContent = hiitWorkoutParams.totalRounds;
 
     const container = document.getElementById('workoutContainer');
     container.innerHTML = `
@@ -2285,9 +2325,15 @@ font-size: 13px;
         `).join('')}
       </div>
     `;
+    
+    // Show HIIT adjustments and workout mode selection
+    document.getElementById('hiitPreWorkoutAdjustments').style.display = 'block';
     document.getElementById('workoutModeSelection').style.display = 'block';
     return;
   }
+ 
+ // Hide HIIT adjustments for non-HIIT workouts
+ document.getElementById('hiitPreWorkoutAdjustments').style.display = 'none';
  
  // Load custom exercises from localStorage in case they're not in runtime database
  const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
@@ -4348,6 +4394,22 @@ function updateHiitDisplay() {
   }
 
   document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
+}
+
+function adjustHiitParamPreWorkout(param, change) {
+  if (param === 'work') {
+    hiitWorkoutParams.workTime = Math.max(5, hiitWorkoutParams.workTime + change);
+    document.getElementById('hiitPreWorkWorkDisplay').textContent = hiitWorkoutParams.workTime;
+    console.log("Pre-workout: Work time adjusted to:", hiitWorkoutParams.workTime);
+  } else if (param === 'rest') {
+    hiitWorkoutParams.restTime = Math.max(5, hiitWorkoutParams.restTime + change);
+    document.getElementById('hiitPreWorkRestDisplay').textContent = hiitWorkoutParams.restTime;
+    console.log("Pre-workout: Rest time adjusted to:", hiitWorkoutParams.restTime);
+  } else if (param === 'rounds') {
+    hiitWorkoutParams.totalRounds = Math.max(1, hiitWorkoutParams.totalRounds + change);
+    document.getElementById('hiitPreWorkRoundsDisplay').textContent = hiitWorkoutParams.totalRounds;
+    console.log("Pre-workout: Rounds adjusted to:", hiitWorkoutParams.totalRounds);
+  }
 }
 
 function adjustHiitParam(param, change) {
