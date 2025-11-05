@@ -1071,25 +1071,42 @@
             </div>
             <!-- Settings Section -->
             <div id="settings" class="section">
-                <h2>Settings & Data Management</h2>
+                <h2 style="margin-bottom: 20px;">Settings & Data Management</h2>
+                
+                <!-- Share Workouts Section -->
                 <div class="info-box">
-                    <p><strong>Share Workouts:</strong> You can share any of your saved custom workouts with friends! Go
-                        to the "Workout" tab, select "Create Custom Strength/HIIT Workout", choose a saved workout from
-                        the dropdown, and click the "Share Selected" button.</p>
+                    <p><strong>📤 Share Custom Workouts:</strong> Share your custom workout plans with friends! They can import them directly into their app.</p>
                 </div>
+                <div class="form-group">
+                    <label>Select Workout to Share</label>
+                    <select id="shareWorkoutSelect">
+                        <option value="">-- Choose a workout --</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Share Selected Workout</button>
+                
+                <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
-                    <p><strong>Backup Your Data:</strong> Save all your workout history, custom exercises, and
-                        preferences to a file. This is useful for transferring data or as a backup in case your
-                        browser's data is cleared.</p>
+                    <p><strong>💾 Backup Your Data:</strong> Save all your workout history, custom exercises, custom workouts, and preferences to a file. This is useful for transferring data to another browser or device, or as a backup in case your browser's data is cleared.</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Exported file includes: workout history, custom exercises, custom workouts, preferences, and API key.</p>
                 </div>
-                <button class="btn btn-success" onclick="exportData()">Export Data to File</button>
+                <button class="btn btn-success" onclick="exportData()" style="margin-bottom: 30px;">💾 Export All Data to File</button>
+                
+                <!-- Import Data Section -->
                 <div class="info-box" style="margin-top: 20px; border-left-color: #8b0000;">
-                    <p><strong>Restore from Backup:</strong> Import a previously saved backup file.
-                        <strong>Warning:</strong> This will overwrite all current data in the app. This action cannot be
-                        undone.</p>
+                    <p><strong>⚠️ Restore from Backup:</strong> Import a previously saved backup file.</p>
+                    <p style="margin-top: 10px; color: #8b0000;"><strong>Warning:</strong> This will replace ALL current data in the app with the data from the backup file. Your existing workouts, exercises, and history will be overwritten. This action cannot be undone!</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Tip: Export your current data first if you want to keep a copy before importing.</p>
                 </div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <label for="importFile" class="btn btn-danger">Import Data from File</label>
+                <label for="importFile" class="btn btn-danger">📥 Import Data from File</label>
+                
+                <!-- Clear Data Section -->
+                <div class="info-box" style="margin-top: 30px; border-left-color: #8b0000;">
+                    <p><strong>🗑️ Clear All Data:</strong> Permanently delete all data from the app and start fresh.</p>
+                    <p style="margin-top: 10px; color: #8b0000;"><strong>Warning:</strong> This will delete your entire workout history, all custom exercises, all custom workouts, and all preferences. This action cannot be undone!</p>
+                </div>
+                <button class="btn btn-danger" onclick="clearAllData()" style="margin-top: 10px;">🗑️ Clear All App Data</button>
             </div>
         </div>
     </div>
@@ -2280,6 +2297,7 @@
             if (sectionId === 'progress') updateProgress();
             if (sectionId === 'history') updateHistory();
             if (sectionId === 'exercises') renderExerciseList();
+            if (sectionId === 'settings') populateShareWorkoutDropdown();
         }
 
 
@@ -2586,8 +2604,7 @@
     </select>
     <button class="btn" onclick="loadSavedCustomWorkout()" style="width: auto; margin-top: 0; padding: 12px;">Load</button>
  </div>
- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-    <button class="btn btn-secondary" onclick="shareCustomWorkout()" style="width: 100%; padding: 10px; margin-top: 0; font-size: 14px;">Share Selected</button>
+ <div style="display: flex; gap: 10px;">
     <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px; font-size: 14px;">Delete Selected</button>
  </div>
  </div>
@@ -2641,8 +2658,7 @@
         </select>
         <button class="btn" onclick="loadSavedCustomWorkout()" style="width: auto; margin-top: 0; padding: 12px;">Load</button>
       </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button class="btn btn-secondary" onclick="shareCustomWorkout()" style="width: 100%; padding: 10px; margin-top: 0; font-size: 14px;">Share Selected</button>
+      <div style="display: flex; gap: 10px;">
         <button class="delete-btn" onclick="deleteSavedCustomWorkout()" style="width: 100%; padding: 10px; font-size: 14px;">Delete Selected</button>
       </div>
     </div>` : ''}
@@ -4727,6 +4743,242 @@ User's request: ${msg}`;
                 resetWorkoutState();
             }, 1500);
         }
+
+        // ===== SETTINGS TAB FUNCTIONS =====
+        
+        // Populate the share workout dropdown in Settings tab
+        function populateShareWorkoutDropdown() {
+            const select = document.getElementById('shareWorkoutSelect');
+            if (!select) return;
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            const workoutNames = Object.keys(savedCustomWorkouts).sort();
+            
+            // Clear existing options except the first one
+            select.innerHTML = '<option value="">-- Choose a workout --</option>';
+            
+            // Add all custom workouts
+            workoutNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                const workout = savedCustomWorkouts[name];
+                const type = workout.workoutType === 'hiit' ? ' (HIIT)' : ' (Strength)';
+                option.textContent = name + type;
+                select.appendChild(option);
+            });
+        }
+        
+        // Share workout from Settings tab
+        async function shareCustomWorkoutFromSettings() {
+            const select = document.getElementById('shareWorkoutSelect');
+            const workoutName = select.value;
+            
+            if (!workoutName) {
+                alert('Please select a workout to share.');
+                return;
+            }
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            const workoutData = savedCustomWorkouts[workoutName];
+            
+            if (!workoutData) {
+                alert('Workout not found!');
+                return;
+            }
+            
+            // Find all custom exercises within this workout
+            const customExercisesToShare = [];
+            const exercisesInWorkout = workoutData.exercises || workoutData; // Handle both HIIT and strength
+            
+            if (Array.isArray(exercisesInWorkout)) {
+                exercisesInWorkout.forEach(exercise => {
+                    const exerciseName = exercise.name;
+                    // If the exercise is NOT in the original, built-in list, it's custom
+                    if (!builtInExerciseNames.includes(exerciseName)) {
+                        // Check if we haven't already added it
+                        if (!customExercisesToShare.find(ex => ex.name === exerciseName)) {
+                            if (exerciseDatabase[exerciseName]) {
+                                customExercisesToShare.push({
+                                    name: exerciseName,
+                                    ...exerciseDatabase[exerciseName]
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const shareObject = {
+                title: workoutName,
+                workoutData: workoutData,
+                customExercisesData: customExercisesToShare
+            };
+            
+            try {
+                const jsonString = JSON.stringify(shareObject);
+                const encodedData = btoa(jsonString);
+                const baseUrl = window.location.origin + window.location.pathname;
+                const shareUrl = `${baseUrl}?workout=${encodedData}`;
+                
+                if (navigator.share) {
+                    await navigator.share({
+                        title: 'Check out my workout!',
+                        text: `Here is a workout I made in the Workout Tracker Pro app: ${workoutName}`,
+                        url: shareUrl
+                    });
+                } else {
+                    // Fallback for desktop browsers
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert('✅ Workout link copied to clipboard! Share it with your friends.');
+                }
+            } catch (error) {
+                console.error('Sharing failed:', error);
+                alert('Could not share workout. Your browser might not support sharing, but the link may have been copied to your clipboard.');
+            }
+        }
+        
+        // Export all data to JSON file
+        function exportData() {
+            try {
+                const dataToExport = {
+                    workoutHistory: JSON.parse(localStorage.getItem('workoutHistory')) || [],
+                    customWorkouts: JSON.parse(localStorage.getItem('customWorkouts')) || {},
+                    customExercises: JSON.parse(localStorage.getItem('customExercises')) || {},
+                    workoutPreferences: JSON.parse(localStorage.getItem('workoutPreferences')) || {},
+                    customYouTubeLinks: JSON.parse(localStorage.getItem('customYouTubeLinks')) || {},
+                    exerciseDescriptions: JSON.parse(localStorage.getItem('exerciseDescriptions')) || {},
+                    geminiKey: localStorage.getItem('geminiKey') || '',
+                    lastRecommendationDate: localStorage.getItem('lastRecommendationDate') || '',
+                    exportDate: new Date().toISOString(),
+                    appVersion: 'Workout Tracker Pro v2.0'
+                };
+                
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const dateStr = new Date().toISOString().split('T')[0];
+                a.href = url;
+                a.download = `workout-tracker-backup-${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Data exported successfully! Your backup file has been downloaded.');
+            } catch (error) {
+                console.error('Export failed:', error);
+                alert('❌ Failed to export data: ' + error.message);
+            }
+        }
+        
+        // Import data from JSON file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure
+                    if (!importedData.workoutHistory && !importedData.customWorkouts && !importedData.customExercises) {
+                        alert('❌ Invalid backup file format. Please select a valid Workout Tracker Pro backup file.');
+                        return;
+                    }
+                    
+                    // Show confirmation with details
+                    const workoutCount = (importedData.workoutHistory || []).length;
+                    const customWorkoutCount = Object.keys(importedData.customWorkouts || {}).length;
+                    const customExerciseCount = Object.keys(importedData.customExercises || {}).length;
+                    const exportDate = importedData.exportDate ? new Date(importedData.exportDate).toLocaleDateString() : 'Unknown';
+                    
+                    const confirmMsg = `Import backup from ${exportDate}?\n\n` +
+                        `This backup contains:\n` +
+                        `• ${workoutCount} workout(s) in history\n` +
+                        `• ${customWorkoutCount} custom workout(s)\n` +
+                        `• ${customExerciseCount} custom exercise(s)\n\n` +
+                        `⚠️ WARNING: This will REPLACE all your current data!\n\n` +
+                        `Are you sure you want to continue?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                    
+                    // Import all data
+                    if (importedData.workoutHistory) {
+                        localStorage.setItem('workoutHistory', JSON.stringify(importedData.workoutHistory));
+                        workoutHistory = importedData.workoutHistory;
+                    }
+                    if (importedData.customWorkouts) {
+                        localStorage.setItem('customWorkouts', JSON.stringify(importedData.customWorkouts));
+                    }
+                    if (importedData.customExercises) {
+                        localStorage.setItem('customExercises', JSON.stringify(importedData.customExercises));
+                    }
+                    if (importedData.workoutPreferences) {
+                        localStorage.setItem('workoutPreferences', JSON.stringify(importedData.workoutPreferences));
+                    }
+                    if (importedData.customYouTubeLinks) {
+                        localStorage.setItem('customYouTubeLinks', JSON.stringify(importedData.customYouTubeLinks));
+                    }
+                    if (importedData.exerciseDescriptions) {
+                        localStorage.setItem('exerciseDescriptions', JSON.stringify(importedData.exerciseDescriptions));
+                    }
+                    if (importedData.geminiKey) {
+                        localStorage.setItem('geminiKey', importedData.geminiKey);
+                    }
+                    if (importedData.lastRecommendationDate) {
+                        localStorage.setItem('lastRecommendationDate', importedData.lastRecommendationDate);
+                    }
+                    
+                    alert('✅ Data imported successfully! The page will now reload to apply all changes.');
+                    location.reload();
+                    
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    alert('❌ Failed to import data: ' + error.message + '\n\nPlease make sure you selected a valid backup file.');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
+        }
+        
+        // Clear all app data
+        function clearAllData() {
+            const confirmMsg = '⚠️ PERMANENT DATA DELETION WARNING ⚠️\n\n' +
+                'This will delete:\n' +
+                '• All workout history\n' +
+                '• All custom workouts\n' +
+                '• All custom exercises\n' +
+                '• All preferences\n' +
+                '• Your API key\n\n' +
+                'This action CANNOT be undone!\n\n' +
+                'Type "DELETE" to confirm:';
+            
+            const userInput = prompt(confirmMsg);
+            
+            if (userInput === 'DELETE') {
+                // Clear all localStorage
+                localStorage.removeItem('workoutHistory');
+                localStorage.removeItem('customWorkouts');
+                localStorage.removeItem('customExercises');
+                localStorage.removeItem('workoutPreferences');
+                localStorage.removeItem('customYouTubeLinks');
+                localStorage.removeItem('exerciseDescriptions');
+                localStorage.removeItem('geminiKey');
+                localStorage.removeItem('lastRecommendationDate');
+                
+                alert('✅ All data has been cleared. The page will now reload.');
+                location.reload();
+            } else if (userInput !== null) {
+                alert('❌ Deletion cancelled. You must type "DELETE" exactly to confirm.');
+            }
+        }
+
     </script>
 </body>
 </html>
