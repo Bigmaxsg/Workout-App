@@ -82,7 +82,7 @@ border-bottom: 3px solid #d4af37;
 }
 
 .content {
-padding: 20px;
+padding: 15px; /* Reduced from 20px */
 min-height: 400px;
 }
 
@@ -420,33 +420,34 @@ font-size: 12px;
 background: linear-gradient(135deg, #003d5c 0%, #005580 100%);
 color: #d4af37;
 border-radius: 12px;
-padding: 20px;
+padding: 12px; /* Reduced from 20px */
 text-align: center;
-margin-bottom: 20px;
+margin-bottom: 15px; /* Reduced from 20px */
 border: 2px solid #d4af37;
 }
 
 .timer-display {
-font-size: 48px;
+font-size: 36px; /* Reduced from 48px */
 font-weight: 700;
-margin: 10px 0;
+margin: 5px 0; /* Reduced from 10px */
 }
 
 .timer-controls {
 display: flex;
-gap: 10px;
+gap: 8px; /* Reduced from 10px */
 justify-content: center;
-margin-top: 15px;
+margin-top: 8px; /* Reduced from 15px */
 }
 
 .timer-btn {
-padding: 10px 20px;
+padding: 8px 16px; /* Reduced from 10px 20px */
 background: rgba(245, 245, 220, 0.2);
 border: 2px solid #d4af37;
 color: #d4af37;
 border-radius: 8px;
 cursor: pointer;
 font-weight: 600;
+font-size: 14px;
 }
 
 .modal {
@@ -595,15 +596,15 @@ font-weight: bold;
 text-align: center;
 }
 #hiitTimerDisplay {
-font-size: 100px;
+font-size: 80px; /* Reduced from 100px */
 font-weight: bold;
-margin: 10px 0;
+margin: 5px 0; /* Reduced from 10px */
 color: #d4af37;
 }
 #hiitModeDisplay {
-font-size: 32px;
+font-size: 28px; /* Reduced from 32px */
 font-weight: 600;
-margin-bottom: 10px;
+margin-bottom: 5px; /* Reduced from 10px */
 }
 #hiitModeDisplay.work {
 color: #28a745;
@@ -612,19 +613,21 @@ color: #28a745;
 color: #007bff;
 }
 #hiitExerciseName {
-font-size: 24px;
+font-size: 20px; /* Reduced from 24px */
 color: #f5f5dc;
 font-weight: bold;
+margin-bottom: 3px;
 }
 #hiitNextExerciseName {
-font-size: 16px;
+font-size: 14px; /* Reduced from 16px */
 color: #f5f5dc;
 opacity: 0.8;
 }
 #hiitRoundDisplay {
-margin-top: 15px;
-font-size: 18px;
+margin-top: 8px; /* Reduced from 15px */
+font-size: 16px; /* Reduced from 18px */
 color: #f5f5dc;
+margin-bottom: 8px;
 }
 
 @media (max-width: 600px) {
@@ -893,7 +896,7 @@ font-size: 13px;
 
  <!-- HIIT Workout Mode -->
 
- <div id="hiitWorkoutMode" style="display:none; background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%); padding: 20px; border-radius: 12px;">
+ <div id="hiitWorkoutMode" style="display:none; background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%); padding: 12px; border-radius: 12px;">
   <div id="hiitCountdownScreen">
     <h2 style="color: #f5f5dc;">Get Ready!</h2>
     <div id="hiitCountdownDisplay">5</div>
@@ -907,41 +910,41 @@ font-size: 13px;
 
 ```
 <!-- Adjustment Controls - Full Width Mobile Optimized -->
-<div style="margin: 15px -20px 0 -20px; background: rgba(212,175,55,0.2); padding: 12px 20px; border-radius: 0;">
-  <div style="font-size: 11px; color: #f5f5dc; margin-bottom: 10px; text-align: center;">Adjust Parameters:</div>
-  <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+<div style="margin: 10px -12px 0 -12px; background: rgba(212,175,55,0.2); padding: 8px 12px; border-radius: 0;">
+  <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px; text-align: center;">Adjust Parameters:</div>
+  <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
     <div style="text-align: center;">
-      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Work</div>
-      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-        <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
-        <span id="hiitWorkDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">30</span>
-        <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Work</div>
+      <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitWorkDisplay" style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">30</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
       </div>
     </div>
     
     <div style="text-align: center;">
-      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Rest</div>
-      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
-        <span id="hiitRestDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">15</span>
-        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Rest</div>
+      <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitRestDisplay" style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">15</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
       </div>
     </div>
     
     <div style="text-align: center;">
-      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Rounds</div>
-      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
-        <span id="hiitRoundsDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">4</span>
-        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Rounds</div>
+      <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitRoundsDisplay" style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">4</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
       </div>
     </div>
   </div>
 </div>
 
-<div style="display: flex; gap: 10px; margin-top: 15px;">
-  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()" style="flex: 1;">Pause Exercise</button>
-  <button class="btn btn-danger" onclick="endHiitWorkout()" style="flex: 1;">End Workout</button>
+<div style="display: flex; gap: 8px; margin-top: 10px;">
+  <button id="hiitPauseResumeBtn" class="btn btn-secondary" onclick="pauseResumeHiit()" style="flex: 1; padding: 10px; font-size: 13px;">Pause Exercise</button>
+  <button class="btn btn-danger" onclick="endHiitWorkout()" style="flex: 1; padding: 10px; font-size: 13px;">End Workout</button>
 </div>
 ```
 
@@ -3046,6 +3049,7 @@ font-size: 13px;
 
  function resetWorkoutState() {
  guidedMode = false;
+ window.hiitActive = false; // Clear HIIT active flag
  document.getElementById('workoutSetup').style.display = 'block';
  document.getElementById('guidedWorkoutMode').style.display = 'none';
  document.getElementById('hiitWorkoutMode').style.display = 'none';
