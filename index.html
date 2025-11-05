@@ -787,31 +787,31 @@ font-size: 13px;
 
  <!-- HIIT Adjustments (Pre-Workout) -->
 
- <div id="hiitPreWorkoutAdjustments" style="display:none; background: rgba(212,175,55,0.2); padding: 12px; border-radius: 10px; margin-bottom: 15px;">
- <div style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 10px;">Adjust HIIT Parameters:</div>
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+ <div id="hiitPreWorkoutAdjustments" style="display:none; margin: 15px -20px; background: rgba(212,175,55,0.2); padding: 12px 20px; border-radius: 0;">
+ <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 10px; text-align: center;">Adjust HIIT Parameters:</div>
+ <div style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap;">
  <div style="text-align: center;">
- <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Work</div>
- <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', -5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
- <span id="hiitPreWorkWorkDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">30</span>
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', 5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
- </div>
- </div>
- <div style="text-align: center;">
- <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Rest</div>
- <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', -5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
- <span id="hiitPreWorkRestDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">15</span>
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', 5)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Work</div>
+ <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+ <span id="hiitPreWorkWorkDisplay" style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">30</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
  </div>
  </div>
  <div style="text-align: center;">
- <div style="font-size: 11px; color: #6c757d; margin-bottom: 3px;">Rounds</div>
- <div style="display: flex; gap: 3px; justify-content: center; align-items: center;">
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', -1)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
- <span id="hiitPreWorkRoundsDisplay" style="min-width: 35px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">4</span>
- <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', 1)" style="width: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Rest</div>
+ <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+ <span id="hiitPreWorkRestDisplay" style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">15</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+ </div>
+ </div>
+ <div style="text-align: center;">
+ <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Rounds</div>
+ <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', -1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+ <span id="hiitPreWorkRoundsDisplay" style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">4</span>
+ <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rounds', 1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
  </div>
  </div>
  </div>
@@ -901,32 +901,35 @@ font-size: 13px;
     <div id="hiitRoundDisplay">Round 1 of 4</div>
 
 ```
-<!-- Adjustment Controls - Mobile Optimized -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 15px; background: rgba(212,175,55,0.2); padding: 10px; border-radius: 8px;">
-  <div style="text-align: center;">
-    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Work</div>
-    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
-      <span id="hiitWorkDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">30</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
+<!-- Adjustment Controls - Full Width Mobile Optimized -->
+<div style="margin: 15px -20px 0 -20px; background: rgba(212,175,55,0.2); padding: 12px 20px; border-radius: 0;">
+  <div style="font-size: 11px; color: #f5f5dc; margin-bottom: 10px; text-align: center;">Adjust Parameters:</div>
+  <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+    <div style="text-align: center;">
+      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Work</div>
+      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitWorkDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">30</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      </div>
     </div>
-  </div>
-  
-  <div style="text-align: center;">
-    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Rest</div>
-    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
-      <span id="hiitRestDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">15</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
+    
+    <div style="text-align: center;">
+      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Rest</div>
+      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitRestDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">15</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      </div>
     </div>
-  </div>
-  
-  <div style="text-align: center;">
-    <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 4px;">Rounds</div>
-    <div style="display: flex; gap: 2px; justify-content: center; align-items: center;">
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">−</button>
-      <span id="hiitRoundsDisplay" style="min-width: 32px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">4</span>
-      <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 30px; padding: 3px; margin: 0; font-size: 11px;">+</button>
+    
+    <div style="text-align: center;">
+      <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px;">Rounds</div>
+      <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">−</button>
+        <span id="hiitRoundsDisplay" style="min-width: 40px; text-align: center; color: #d4af37; font-weight: bold; font-size: 14px;">4</span>
+        <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)" style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+      </div>
     </div>
   </div>
 </div>
