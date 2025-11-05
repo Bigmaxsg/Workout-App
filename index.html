@@ -4053,39 +4053,43 @@ function handleIncomingWorkout() {
 
 // ===== HIIT WORKOUT FUNCTIONS =====
 function playHiitSound(type) {
-  if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-      console.error("Web Audio API is not supported");
-      return;
+  try {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.log("Web Audio API not available:", e);
+        return;
+      }
     }
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    let frequency = 440;
+    let duration = 0.1;
+
+    if (type === 'start') {
+      frequency = 880;
+      duration = 0.2;
+    } else if (type === 'rest') {
+      frequency = 330;
+      duration = 0.3;
+    }
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration);
+  } catch (e) {
+    console.log("Audio playback error:", e);
   }
-
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-  
-  let frequency = 440;
-  let duration = 0.1;
-
-  if (type === 'start') {
-    frequency = 880;
-    duration = 0.2;
-  } else if (type === 'rest') {
-    frequency = 330;
-    duration = 0.3;
-  }
-
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-  gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  
-  oscillator.start(audioCtx.currentTime);
-  oscillator.stop(audioCtx.currentTime + duration);
 }
 
 function startHiitWorkout() {
@@ -4151,18 +4155,30 @@ function startHiitWorkout() {
 function startHiitCountdown() {
   let countdown = 5;
   document.getElementById('hiitCountdownDisplay').textContent = countdown;
-  playHiitSound('beep');
+  
+  try {
+    playHiitSound('beep');
+  } catch (e) {
+    console.log("Audio error (non-critical):", e);
+  }
 
   hiitTimerInterval = setInterval(() => {
     countdown--;
+    console.log("Countdown:", countdown); // Debug log
+    
     if (countdown > 0) {
       document.getElementById('hiitCountdownDisplay').textContent = countdown;
-      playHiitSound('beep');
+      try {
+        playHiitSound('beep');
+      } catch (e) {
+        console.log("Audio error (non-critical):", e);
+      }
     } else {
       clearInterval(hiitTimerInterval);
       document.getElementById('hiitCountdownScreen').style.display = 'none';
       document.getElementById('hiitActiveScreen').style.display = 'block';
       hiitTimeRemaining = hiitWorkoutParams.workTime;
+      console.log("Starting workout interval"); // Debug log
       runHiitInterval();
     }
   }, 1000);
@@ -4173,20 +4189,31 @@ function runHiitInterval() {
 
   updateHiitDisplay();
   
-  if (hiitCurrentMode === 'work') {
-    playHiitSound('start');
-  } else {
-    playHiitSound('rest');
+  try {
+    if (hiitCurrentMode === 'work') {
+      playHiitSound('start');
+    } else {
+      playHiitSound('rest');
+    }
+  } catch (e) {
+    console.log("Audio error (non-critical):", e);
   }
 
+  console.log("Starting interval for mode:", hiitCurrentMode, "Time remaining:", hiitTimeRemaining);
+
   hiitTimerInterval = setInterval(() => {
-    if (hiitIsPaused) return;
+    if (hiitIsPaused) {
+      console.log("Workout paused");
+      return;
+    }
 
     hiitTimeRemaining--;
+    console.log("Time remaining:", hiitTimeRemaining);
     document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
 
     if (hiitTimeRemaining <= 0) {
       clearInterval(hiitTimerInterval);
+      console.log("Phase complete, moving to next");
       nextHiitPhase();
     }
   }, 1000);
