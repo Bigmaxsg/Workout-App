@@ -1075,8 +1075,7 @@
                 
                 <!-- Share Workouts Section -->
                 <div class="info-box">
-                    <p><strong>📤 Share Custom Workouts:</strong> Create a shareable HTML file that your friends can simply open and click "Add to My App" - no manual import needed!</p>
-                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">The HTML file displays the workout beautifully and adds it automatically when they click the button.</p>
+                    <p><strong>📤 Share Custom Workouts:</strong> Export a workout as a file that you can send to friends. They can then import it into their app!</p>
                 </div>
                 <div class="form-group">
                     <label>Select Workout to Share</label>
@@ -1084,8 +1083,23 @@
                         <option value="">-- Choose a workout --</option>
                     </select>
                 </div>
-                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Create Shareable HTML Page</button>
+                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Create Shareable Workout File</button>
                 
+                <!-- Import Shared Workout Section -->
+                <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50;">
+                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">📥 Received a Workout from a Friend?</p>
+                    <p><strong>Import it here!</strong> If someone sent you a workout file (ends with .json), follow these steps:</p>
+                    <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                        <li>Make sure you've downloaded the file to your device</li>
+                        <li>Click the green "Import Shared Workout File" button below</li>
+                        <li>Select the workout file you received</li>
+                        <li>Review the workout details and click OK</li>
+                        <li>Done! The workout is now in your app</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;"><strong>File name looks like:</strong> workout-leg-day.json or workout-hiit-blast.json</p>
+                </div>
+                <input type="file" id="importSharedWorkout" accept=".json" style="display: none;" onchange="importSharedWorkout(event)">
+                <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">📥 Import Shared Workout File</label>
                 
                 <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
@@ -4853,232 +4867,36 @@ User's request: ${msg}`;
             };
             
             try {
-                // Generate workout details text
-                const workoutType = workoutData.workoutType === 'hiit' ? 'HIIT' : 'Strength';
-                let detailsText = `Type: ${workoutType}`;
-                
-                if (workoutData.workoutType === 'hiit') {
-                    detailsText += `<br>Work: ${workoutData.workTime}s | Rest: ${workoutData.restTime}s | Rounds: ${workoutData.rounds}`;
-                }
-                
-                // Generate exercise list HTML
-                let exerciseListHTML = '';
-                if (Array.isArray(exercisesInWorkout)) {
-                    exercisesInWorkout.forEach(exercise => {
-                        let exerciseDetails = '';
-                        if (exercise.sets && exercise.reps) {
-                            exerciseDetails = `${exercise.sets} sets × ${exercise.reps} reps`;
-                            if (exercise.weight) {
-                                exerciseDetails += ` @ ${exercise.weight} lbs`;
-                            }
-                        }
-                        
-                        exerciseListHTML += `
-                <div class="exercise-item">
-                    <h3>${exercise.name}</h3>
-                    ${exerciseDetails ? `<p>${exerciseDetails}</p>` : ''}
-                </div>`;
-                    });
-                }
-                
-                // Get the main app filename (current page)
-                const mainAppPath = window.location.pathname.split('/').pop() || 'index.html';
-                
-                // Create HTML file content
-                const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shared Workout - ${workoutName}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 { font-size: 28px; margin-bottom: 10px; }
-        .badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .content { padding: 30px; }
-        .info-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .info-box p { margin: 5px 0; line-height: 1.6; }
-        .exercise-list { margin: 20px 0; }
-        .exercise-item {
-            background: #f8f9fa;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            border-left: 4px solid #764ba2;
-        }
-        .exercise-item h3 { color: #333; font-size: 18px; margin-bottom: 5px; }
-        .exercise-item p { color: #666; font-size: 14px; }
-        .btn-container { margin-top: 30px; display: flex; gap: 10px; flex-direction: column; }
-        .btn {
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        .btn-secondary:hover { background: #f8f9fa; }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-            background: #f8f9fa;
-        }
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        @media (max-width: 600px) {
-            .header h1 { font-size: 24px; }
-            .content { padding: 20px; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>💪 ${workoutName}</h1>
-            <div class="badge">${workoutType} Workout</div>
-        </div>
-        <div class="content">
-            <div id="successMessage" class="success-message">
-                ✅ Workout added! Opening your Workout Tracker in 2 seconds...
-            </div>
-            <div class="info-box">
-                <p><strong>📋 Workout Details:</strong></p>
-                <p>${detailsText}</p>
-                ${customExercisesToShare.length > 0 ? `<p>Includes ${customExercisesToShare.length} custom exercise(s)</p>` : ''}
-            </div>
-            <div class="exercise-list">
-                <h2 style="margin-bottom: 15px; color: #333;">Exercises:</h2>
-                ${exerciseListHTML}
-            </div>
-            <div class="btn-container">
-                <button class="btn btn-primary" onclick="addToMyApp()">
-                    ✨ Add to My Workout App
-                </button>
-                <a href="${mainAppPath}" class="btn btn-secondary">
-                    📱 Open Workout Tracker
-                </a>
-            </div>
-        </div>
-        <div class="footer">
-            Shared via Workout Tracker Pro
-        </div>
-    </div>
-    <script>
-        const workoutData = ${JSON.stringify(shareObject)};
-        function addToMyApp() {
-            try {
-                const savedWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
-                let workoutName = workoutData.title;
-                let counter = 1;
-                while (savedWorkouts[workoutName]) {
-                    workoutName = workoutData.title + ' (Imported ' + counter + ')';
-                    counter++;
-                }
-                savedWorkouts[workoutName] = workoutData.workoutData;
-                localStorage.setItem('customWorkouts', JSON.stringify(savedWorkouts));
-                if (workoutData.customExercisesData && workoutData.customExercisesData.length > 0) {
-                    const customExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
-                    workoutData.customExercisesData.forEach(ex => {
-                        if (!customExercises[ex.name]) {
-                            customExercises[ex.name] = ex;
-                        }
-                    });
-                    localStorage.setItem('customExercises', JSON.stringify(customExercises));
-                }
-                document.getElementById('successMessage').style.display = 'block';
-                setTimeout(() => { window.location.href = '${mainAppPath}'; }, 2000);
-            } catch (error) {
-                alert('❌ Error: ' + error.message);
-            }
-        }
-    </script>
-</body>
-</html>`;
-                
-                // Create and download the HTML file
-                const blob = new Blob([htmlContent], { type: 'text/html' });
+                // Create a downloadable file
+                const jsonString = JSON.stringify(shareObject, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                
+                // Clean filename (remove special characters)
                 const cleanName = workoutName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
                 a.href = url;
-                a.download = `shared-workout-${cleanName}.html`;
+                a.download = `workout-${cleanName}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                const shareMsg = `✅ Shareable workout created!\\n\\n` +
-                    `File: shared-workout-${cleanName}.html\\n` +
-                    `Exercises: ${exercisesInWorkout.length}${customExercisesToShare.length > 0 ? ` (${customExercisesToShare.length} custom)` : ''}\\n\\n` +
-                    `📤 HOW TO SHARE:\\n` +
-                    `Send this HTML file via text, email, or AirDrop.\\n\\n` +
-                    `📱 FOR YOUR FRIEND:\\n` +
-                    `1. Open the HTML file (double-click or tap it)\\n` +
-                    `2. Click "Add to My Workout App"\\n` +
-                    `3. Done! Workout is added automatically!\\n\\n` +
-                    `Much easier than before! 🎉`;
+                const exerciseText = customExercisesToShare.length > 0 
+                    ? `\nIncludes ${customExercisesToShare.length} custom exercise(s)`
+                    : '';
+                
+                const shareMsg = `✅ Workout file created!\n\n` +
+                    `File: workout-${cleanName}.json${exerciseText}\n\n` +
+                    `📤 HOW TO SHARE:\n` +
+                    `Send this file to your friend via text, email, or AirDrop.\n\n` +
+                    `📥 INSTRUCTIONS FOR THEM:\n` +
+                    `1. Download the file\n` +
+                    `2. Open Workout Tracker app\n` +
+                    `3. Tap Settings tab (last tab)\n` +
+                    `4. Tap "Import Shared Workout File"\n` +
+                    `5. Select the workout file\n` +
+                    `6. Tap OK - Done!`;
                 
                 alert(shareMsg);
             } catch (error) {
