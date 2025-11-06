@@ -1091,20 +1091,12 @@
             <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">📤 Create Shareable Workout File</button>
             
             <!-- Import Shared Workout Section -->
-            <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50;">
-                <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">📥 Received a Workout from a Friend?</p>
-                <p><strong>Import it here!</strong> If someone sent you a workout file (ends with .json), follow these steps:</p>
-                <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
-                    <li>Make sure you've downloaded the file to your device</li>
-                    <li>Click the green "Import Shared Workout File" button below</li>
-                    <li>Select the workout file you received</li>
-                    <li>Review the workout details and click OK</li>
-                    <li>Done! The workout is now in your app</li>
-                </ol>
-                <p style="margin-top: 10px; font-size: 13px; color: #6c757d;"><strong>File name looks like:</strong> workout-leg-day.json or workout-hiit-blast.json</p>
+            <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+                <p><strong>📥 Import Shared Workout:</strong> Received a workout file from a friend? Import it here to add it to your workout collection!</p>
+                <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">File format: workout-*.json</p>
             </div>
             <input type="file" id="importSharedWorkout" accept=".json" style="display: none;" onchange="importSharedWorkout(event)">
-            <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">📥 Import Shared Workout File</label>
+            <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px;">📥 Import Shared Workout File</label>
             
             <!-- Export Data Section -->
             <div class="info-box" style="margin-top: 20px;">
@@ -4943,22 +4935,10 @@ User’s request: ${msg}`;
             URL.revokeObjectURL(url);
             
             const exerciseText = customExercisesToShare.length > 0 
-                ? `\nIncludes ${customExercisesToShare.length} custom exercise(s)`
+                ? `\n\nThis workout includes ${customExercisesToShare.length} custom exercise(s).`
                 : '';
             
-            const shareMsg = `✅ Workout file created!\n\n` +
-                `File: workout-${cleanName}.json${exerciseText}\n\n` +
-                `📤 HOW TO SHARE:\n` +
-                `Send this file to your friend via text, email, or AirDrop.\n\n` +
-                `📥 INSTRUCTIONS FOR THEM:\n` +
-                `1. Download the file\n` +
-                `2. Open Workout Tracker app\n` +
-                `3. Tap Settings tab (last tab)\n` +
-                `4. Tap "Import Shared Workout File"\n` +
-                `5. Select the workout file\n` +
-                `6. Tap OK - Done!`;
-            
-            alert(shareMsg);
+            alert(`✅ Workout file created!\n\nFile: workout-${cleanName}.json\n\nShare this file with your friends. They can import it using:\nSettings → Import Shared Workout${exerciseText}`);
         } catch (error) {
             console.error('Sharing failed:', error);
             alert('❌ Could not create workout file: ' + error.message);
@@ -5031,16 +5011,11 @@ User’s request: ${msg}`;
                 loadCustomWorkoutsIntoDropdown();
                 populateShareWorkoutDropdown();
                 
-                let successMsg = `✅ SUCCESS! Workout imported!\n\n`;
-                successMsg += `"${newName}" is now in your app!\n`;
+                let successMsg = `✅ Workout "${newName}" imported successfully!`;
                 if (importedExerciseCount > 0) {
-                    successMsg += `\n${importedExerciseCount} custom exercise(s) were also added.\n`;
+                    successMsg += `\n\n${importedExerciseCount} custom exercise(s) were also added to your library.`;
                 }
-                successMsg += `\n📋 TO USE THIS WORKOUT:\n`;
-                successMsg += `1. Go to the "Workout" tab\n`;
-                successMsg += `2. Select "Create Custom ${workoutType} Workout"\n`;
-                successMsg += `3. Find "${newName}" in the dropdown\n`;
-                successMsg += `4. Click "Load" and start your workout!\n`;
+                successMsg += '\n\nYou can now find it in the Workout tab dropdown!';
                 
                 alert(successMsg);
                 
