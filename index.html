@@ -853,7 +853,7 @@
                                     <div
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', -5)"
-                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkWorkDisplay"
                                             style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">30</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', 5)"
@@ -865,7 +865,7 @@
                                     <div
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', -5)"
-                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkRestDisplay"
                                             style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">15</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', 5)"
@@ -878,7 +878,7 @@
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary"
                                             onclick="adjustHiitParamPreWorkout('rounds', -1)"
-                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkRoundsDisplay"
                                             style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">4</span>
                                         <button class="btn btn-secondary"
@@ -974,7 +974,7 @@
                                     <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Work</div>
                                     <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('work', -5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitWorkDisplay"
                                             style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">30</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('work', 5)"
@@ -985,7 +985,7 @@
                                     <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Rest</div>
                                     <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('rest', -5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitRestDisplay"
                                             style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">15</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('rest', 5)"
@@ -996,7 +996,7 @@
                                     <div style="font-size: 9px; color: #f5f5dc; margin-bottom: 4px;">Rounds</div>
                                     <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', -1)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">âˆ’</button>
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitRoundsDisplay"
                                             style="min-width: 35px; text-align: center; color: #d4af37; font-weight: bold; font-size: 13px;">4</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParam('rounds', 1)"
@@ -3322,9 +3322,9 @@
             if (shouldGenerateNewAI) {
                 aiRecommendationHtml = `
  <div style="margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 12px; border: 2px solid #d4af37;">
- <p style="margin: 0; font-size: 14px;"><strong>✨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
+ <p style="margin: 0; font-size: 14px;"><strong>âœ¨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
  <button class="btn" onclick="generateAIDailyRecommendation()" style="margin-top: 10px; font-size: 14px; padding: 10px;">
- 🤖 Generate AI Workout
+ ðŸ¤– Generate AI Workout
  </button>
  </div>
  `;
@@ -3802,9 +3802,17 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
                     document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
                 }, 1000);
 
-                // If HIIT workout is active, start the HIIT interval
-                if (window.hiitActive) {
-                    console.log("Starting HIIT interval");
+                // Check if HIIT workout mode is active (countdown screen visible)
+                const hiitMode = document.getElementById('hiitWorkoutMode');
+                const hiitCountdownScreen = document.getElementById('hiitCountdownScreen');
+                
+                if (hiitMode && hiitMode.style.display === 'block' && 
+                    hiitCountdownScreen && hiitCountdownScreen.style.display === 'block') {
+                    console.log("Starting HIIT countdown");
+                    startHiitCountdown();
+                } else if (window.hiitActive) {
+                    // If already in active HIIT interval, resume it
+                    console.log("Resuming HIIT interval");
                     runHiitInterval();
                 }
             }
@@ -4469,12 +4477,12 @@ User's request: ${msg}`;
                             window.history.replaceState({}, document.title, window.location.pathname);
                         }
                     } else {
-                        alert('âŒ Invalid workout data format. The share link may be corrupted.');
+                        alert('Ã¢ÂÅ’ Invalid workout data format. The share link may be corrupted.');
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
                 } catch (error) {
                     console.error('Failed to parse shared workout data:', error);
-                    alert('âŒ The shared workout link is invalid or corrupted.\n\nError: ' + error.message);
+                    alert('Ã¢ÂÅ’ The shared workout link is invalid or corrupted.\n\nError: ' + error.message);
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }
@@ -4546,6 +4554,16 @@ User's request: ${msg}`;
                 return;
             }
 
+            // Initialize audio context on user interaction (required for beeps to work)
+            if (!window.audioCtx) {
+                try {
+                    window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log("Audio context initialized");
+                } catch (e) {
+                    console.log("Could not initialize audio context:", e);
+                }
+            }
+
             hiitWorkoutParams.exercises = currentWorkout.map(ex => ex.name);
             // Parameters are already set in hiitWorkoutParams by the load function or pre-workout adjustments
 
@@ -4563,7 +4581,8 @@ User's request: ${msg}`;
             document.getElementById('hiitActiveScreen').style.display = 'none';
             document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
 
-            startHiitCountdown();
+            // Show message to user to press Start button
+            alert("HIIT Workout ready! Now click the 'Start' button on the Workout Timer above to begin your workout.");
         }
 
 
@@ -4904,7 +4923,7 @@ User's request: ${msg}`;
                 alert(shareMsg);
             } catch (error) {
                 console.error('Sharing failed:', error);
-                alert('âŒ Could not create workout file: ' + error.message);
+                alert('Ã¢ÂÅ’ Could not create workout file: ' + error.message);
             }
         }
         
@@ -4920,7 +4939,7 @@ User's request: ${msg}`;
                     
                     // Validate the data structure
                     if (!sharedWorkout.title || !sharedWorkout.workoutData) {
-                        alert('âŒ Invalid workout file format. Please select a valid shared workout file.');
+                        alert('Ã¢ÂÅ’ Invalid workout file format. Please select a valid shared workout file.');
                         return;
                     }
                     
@@ -4989,7 +5008,7 @@ User's request: ${msg}`;
                     
                 } catch (error) {
                     console.error('Import failed:', error);
-                    alert('âŒ Failed to import workout: ' + error.message + '\n\nPlease make sure you selected a valid workout file.');
+                    alert('Ã¢ÂÅ’ Failed to import workout: ' + error.message + '\n\nPlease make sure you selected a valid workout file.');
                 }
             };
             reader.readAsText(file);
@@ -5029,7 +5048,7 @@ User's request: ${msg}`;
                 alert('[SUCCESS] Data exported successfully! Your backup file has been downloaded.');
             } catch (error) {
                 console.error('Export failed:', error);
-                alert('âŒ Failed to export data: ' + error.message);
+                alert('Ã¢ÂÅ’ Failed to export data: ' + error.message);
             }
         }
         
@@ -5045,7 +5064,7 @@ User's request: ${msg}`;
                     
                     // Validate the data structure
                     if (!importedData.workoutHistory && !importedData.customWorkouts && !importedData.customExercises) {
-                        alert('âŒ Invalid backup file format. Please select a valid Workout Tracker Pro backup file.');
+                        alert('Ã¢ÂÅ’ Invalid backup file format. Please select a valid Workout Tracker Pro backup file.');
                         return;
                     }
                     
@@ -5057,9 +5076,9 @@ User's request: ${msg}`;
                     
                     const confirmMsg = `Import backup from ${exportDate}?\n\n` +
                         `This backup contains:\n` +
-                        `â€¢ ${workoutCount} workout(s) in history\n` +
-                        `â€¢ ${customWorkoutCount} custom workout(s)\n` +
-                        `â€¢ ${customExerciseCount} custom exercise(s)\n\n` +
+                        `Ã¢â‚¬Â¢ ${workoutCount} workout(s) in history\n` +
+                        `Ã¢â‚¬Â¢ ${customWorkoutCount} custom workout(s)\n` +
+                        `Ã¢â‚¬Â¢ ${customExerciseCount} custom exercise(s)\n\n` +
                         `[!] WARNING: This will REPLACE all your current data!\n\n` +
                         `Are you sure you want to continue?`;
                     
@@ -5099,7 +5118,7 @@ User's request: ${msg}`;
                     
                 } catch (error) {
                     console.error('Import failed:', error);
-                    alert('âŒ Failed to import data: ' + error.message + '\n\nPlease make sure you selected a valid backup file.');
+                    alert('Ã¢ÂÅ’ Failed to import data: ' + error.message + '\n\nPlease make sure you selected a valid backup file.');
                 }
             };
             reader.readAsText(file);
@@ -5112,11 +5131,11 @@ User's request: ${msg}`;
         function clearAllData() {
             const confirmMsg = '[!] PERMANENT DATA DELETION WARNING [!]\n\n' +
                 'This will delete:\n' +
-                'â€¢ All workout history\n' +
-                'â€¢ All custom workouts\n' +
-                'â€¢ All custom exercises\n' +
-                'â€¢ All preferences\n' +
-                'â€¢ Your API key\n\n' +
+                'Ã¢â‚¬Â¢ All workout history\n' +
+                'Ã¢â‚¬Â¢ All custom workouts\n' +
+                'Ã¢â‚¬Â¢ All custom exercises\n' +
+                'Ã¢â‚¬Â¢ All preferences\n' +
+                'Ã¢â‚¬Â¢ Your API key\n\n' +
                 'This action CANNOT be undone!\n\n' +
                 'Type "DELETE" to confirm:';
             
@@ -5136,7 +5155,7 @@ User's request: ${msg}`;
                 alert('[SUCCESS] All data has been cleared. The page will now reload.');
                 location.reload();
             } else if (userInput !== null) {
-                alert('âŒ Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                alert('Ã¢ÂÅ’ Deletion cancelled. You must type "DELETE" exactly to confirm.');
             }
         }
 
