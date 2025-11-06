@@ -3921,7 +3921,7 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
                 return;
             }
 
-            const instruction_prompt = `You are a helpful AI fitness coach integrated into a workout app. Your primary goal is to assist the user. Analyze the user's request and respond in one of three ways:
+            const instruction_prompt = `You are a helpful AI fitness coach integrated into a workout app. Your primary goal is to assist the user. Analyze the user's request and respond in one of four ways:
 
 1. If the user wants to create a standard strength workout (e.g., "give me a leg workout", "create a 30 minute dumbbell routine"):
 Respond with a JSON object for the workout plan. The JSON must have this EXACT structure:
@@ -3935,7 +3935,10 @@ Respond with a JSON object specifically for a HIIT workout. The JSON must have t
 Respond with a JSON object to update the app's database. The JSON must have this EXACT structure:
 {"action": "update_exercise", "exerciseName": "Name Of The Exercise", "details": {"description": "Detailed instructions on how to perform the exercise.", "equipment": "The equipment needed."}}
 
-ONLY respond with one of the three valid JSON formats. Do not add any other text or explanation outside of the JSON.
+4. If the user asks a general fitness question or wants advice (e.g., "what's the best way to warm up?", "should I do cardio before or after weights?", "how many rest days should I take?", "what's better for fat loss?"):
+Respond conversationally with helpful, accurate fitness advice. Do NOT use JSON format for these responses - just respond naturally as a knowledgeable fitness coach.
+
+For workout/HIIT creation or exercise updates (options 1-3), respond ONLY with the appropriate JSON format. For general questions and advice (option 4), respond conversationally without JSON.
 
 User's request: ${msg}`;
 
