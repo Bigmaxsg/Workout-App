@@ -1075,7 +1075,7 @@
                 
                 <!-- Share Workouts Section -->
                 <div class="info-box">
-                    <p><strong>ðŸ“¤ Share Custom Workouts:</strong> Export a workout as a file that you can send to friends. They can then import it into their app!</p>
+                    <p><strong>[SHARE] Share Custom Workouts:</strong> Export a workout as a file that you can send to friends. They can then import it into their app!</p>
                 </div>
                 <div class="form-group">
                     <label>Select Workout to Share</label>
@@ -1083,11 +1083,11 @@
                         <option value="">-- Choose a workout --</option>
                     </select>
                 </div>
-                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">ðŸ“¤ Create Shareable Workout File</button>
+                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">[SHARE] Create Shareable Workout File</button>
                 
-                <!-- Import Shared Workout Section -->
+                <!-- [IMPORT] Import Shared Workout Section -->
                 <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50;">
-                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">ðŸ“¥ Received a Workout from a Friend?</p>
+                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">[IMPORT] Received a Workout from a Friend?</p>
                     <p><strong>Import it here!</strong> If someone sent you a workout file (ends with .json), follow these steps:</p>
                     <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
                         <li>Make sure you've downloaded the file to your device</li>
@@ -1099,30 +1099,30 @@
                     <p style="margin-top: 10px; font-size: 13px; color: #6c757d;"><strong>File name looks like:</strong> workout-leg-day.json or workout-hiit-blast.json</p>
                 </div>
                 <input type="file" id="importSharedWorkout" accept=".json" style="display: none;" onchange="importSharedWorkout(event)">
-                <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">ðŸ“¥ Import Shared Workout File</label>
+                <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">[IMPORT] Import Shared Workout File</label>
                 
                 <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
-                    <p><strong>ðŸ’¾ Backup Your Data:</strong> Save all your workout history, custom exercises, custom workouts, and preferences to a file. This is useful for transferring data to another browser or device, or as a backup in case your browser's data is cleared.</p>
+                    <p><strong>[SAVE] Backup Your Data:</strong> Save all your workout history, custom exercises, custom workouts, and preferences to a file. This is useful for transferring data to another browser or device, or as a backup in case your browser's data is cleared.</p>
                     <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Exported file includes: workout history, custom exercises, custom workouts, preferences, and API key.</p>
                 </div>
-                <button class="btn btn-success" onclick="exportData()" style="margin-bottom: 30px;">ðŸ’¾ Export All Data to File</button>
+                <button class="btn btn-success" onclick="exportData()" style="margin-bottom: 30px;">[SAVE] Export All Data to File</button>
                 
-                <!-- Import Data Section -->
+                <!-- [IMPORT] Import Data Section -->
                 <div class="info-box" style="margin-top: 20px; border-left-color: #8b0000;">
                     <p><strong>[!] Restore from Backup:</strong> Import a previously saved backup file.</p>
                     <p style="margin-top: 10px; color: #8b0000;"><strong>Warning:</strong> This will replace ALL current data in the app with the data from the backup file. Your existing workouts, exercises, and history will be overwritten. This action cannot be undone!</p>
                     <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Tip: Export your current data first if you want to keep a copy before importing.</p>
                 </div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <label for="importFile" class="btn btn-danger">ðŸ“¥ Import Data from Backup File</label>
+                <label for="importFile" class="btn btn-danger">[IMPORT] Import Data from Backup File</label>
                 
                 <!-- Clear Data Section -->
                 <div class="info-box" style="margin-top: 30px; border-left-color: #8b0000;">
-                    <p><strong>ðŸ—‘ï¸ Clear All Data:</strong> Permanently delete all data from the app and start fresh.</p>
+                    <p><strong>[DELETE] Clear All Data:</strong> Permanently delete all data from the app and start fresh.</p>
                     <p style="margin-top: 10px; color: #8b0000;"><strong>Warning:</strong> This will delete your entire workout history, all custom exercises, all custom workouts, and all preferences. This action cannot be undone!</p>
                 </div>
-                <button class="btn btn-danger" onclick="clearAllData()" style="margin-top: 10px;">ðŸ—‘ï¸ Clear All App Data</button>
+                <button class="btn btn-danger" onclick="clearAllData()" style="margin-top: 10px;">[DELETE] Clear All App Data</button>
             </div>
         </div>
     </div>
@@ -1151,7 +1151,7 @@
                 </div>
                 <button class="btn btn-secondary" onclick="generateExerciseDetailsWithAI()" id="aiGenerateBtn"
                     style="width: auto; padding: 10px 15px; font-size: 14px; margin-bottom: 20px;">
-                    ðŸ¤– Generate with AI
+                    [AI] Generate with AI
                 </button>
                 <div class="form-group">
                     <label>Equipment *</label>
@@ -3230,12 +3230,12 @@
  <strong>Equipment:</strong> ${equipment}
  </div>
  <div style="margin-top: 15px;">
- <strong>ðŸ’¡ Detailed Instructions</strong>
+ <strong>[TIP] Detailed Instructions</strong>
  <p style="line-height: 1.6; margin-top: 10px;">${instructions}</p>
  </div>
  <div style="margin-top: 15px;">
  <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
- ðŸŽ¥ Watch Video Tutorial on YouTube
+ [VIDEO] [VIDEO] Watch Video Tutorial on YouTube
  </a>
  </div>
  `;
@@ -3262,7 +3262,7 @@
  </div>
  ${imageHtml}
  <div style="margin-top: 15px;">
- <strong>ðŸ’¡ Detailed Instructions</strong>
+ <strong>[TIP] Detailed Instructions</strong>
  <p style="line-height: 1.6; margin-top: 10px;">${displayInstructions}</p>
  </div>
  <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
@@ -3270,7 +3270,7 @@
  </div>
  <div style="margin-top: 15px;">
  <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
- ðŸŽ¥ Watch Video Tutorial on YouTube
+ [VIDEO] [VIDEO] Watch Video Tutorial on YouTube
  </a>
  </div>
  `;
@@ -3322,9 +3322,9 @@
             if (shouldGenerateNewAI) {
                 aiRecommendationHtml = `
  <div style="margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 12px; border: 2px solid #d4af37;">
- <p style="margin: 0; font-size: 14px;"><strong>âœ¨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
+ <p style="margin: 0; font-size: 14px;"><strong>✨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
  <button class="btn" onclick="generateAIDailyRecommendation()" style="margin-top: 10px; font-size: 14px; padding: 10px;">
- ðŸ¤– Generate AI Workout
+ 🤖 Generate AI Workout
  </button>
  </div>
  `;
@@ -3458,10 +3458,10 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
  </div>
  <div style="display: flex; gap: 10px; margin-top: 15px;">
  <button class="btn btn-success" onclick="createWorkoutFromAIDailyRecommendation('${escapeHTML(aiWorkout.title)}', ${JSON.stringify(aiWorkout.exercises).replace(/'/g, "&apos;")})" style="flex: 1;">
- âœ“ Add to Custom Workouts
+ [+] Add to Custom Workouts
  </button>
  <button class="btn btn-secondary" onclick="updateRecommendation()" style="flex: 1;">
- âœ— View Other Option
+ [X] View Other Option
  </button>
  </div>
  </div>
@@ -4020,7 +4020,7 @@ User's request: ${msg}`;
             buttonContainer.style.justifyContent = 'center';
 
             const createBtn = document.createElement('button');
-            createBtn.textContent = 'âœ“ Save Workout';
+            createBtn.textContent = '[+] Save Workout';
             createBtn.className = 'btn btn-success';
             createBtn.style.width = 'auto';
             createBtn.style.padding = '10px 20px';
@@ -4031,7 +4031,7 @@ User's request: ${msg}`;
             };
 
             const cancelBtn = document.createElement('button');
-            cancelBtn.textContent = 'âœ— No Thanks';
+            cancelBtn.textContent = '[X] No Thanks';
             cancelBtn.className = 'btn btn-secondary';
             cancelBtn.style.width = 'auto';
             cancelBtn.style.padding = '10px 20px';
@@ -4076,7 +4076,7 @@ User's request: ${msg}`;
                 localStorage.setItem('exerciseDescriptions', JSON.stringify(exerciseDescriptions));
             }
 
-            addMsg(`âœ… I've updated the details for "${exerciseName}" in the app's database.`, 'bot');
+            addMsg(`[SUCCESS] I've updated the details for "${exerciseName}" in the app's database.`, 'bot');
             renderExerciseList();
         }
 
@@ -4131,7 +4131,7 @@ User's request: ${msg}`;
             localStorage.setItem('exerciseDescriptions', JSON.stringify(exerciseDescriptions));
 
             localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
-            addMsg(`âœ“ Workout "${workoutName}" has been saved! You can now find it in the "Workout" tab.`, 'bot');
+            addMsg(`[SUCCESS] Workout has been saved! You can now find it in the "Workout" tab.`, 'bot');
 
             loadCustomWorkoutsIntoDropdown();
             renderExerciseList();
@@ -4251,7 +4251,7 @@ User's request: ${msg}`;
                 console.error("AI Generation Error:", error);
                 alert('An error occurred while generating details with AI. Please check the console.');
             } finally {
-                btn.textContent = 'ðŸ¤– Generate with AI';
+                btn.textContent = '[AI] Generate with AI';
                 btn.disabled = false;
             }
         }
@@ -4292,7 +4292,7 @@ User's request: ${msg}`;
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                alert('Data exported successfully!');
+                alert('[SUCCESS] Data exported successfully!');
             } catch (error) {
                 console.error("Export failed:", error);
                 alert("An error occurred during export. Please check the console for details.");
@@ -4331,7 +4331,7 @@ User's request: ${msg}`;
                 initAI();
             }
             // Note: URL-based workout sharing has been replaced with file-based sharing
-            // If you receive a workout file, use Settings â†’ Import Shared Workout
+            // If you receive a workout file, use Settings [IMPORT] Import Shared Workout
 
             document.getElementById('userMessage').addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' && !event.shiftKey) {
@@ -4415,7 +4415,7 @@ User's request: ${msg}`;
                                             (Array.isArray(sharedWorkout.workoutData) ? sharedWorkout.workoutData.length : 0);
                         const customExerciseCount = sharedWorkout.customExercisesData ? sharedWorkout.customExercisesData.length : 0;
                         
-                        let confirmMsg = `ðŸ“¥ Import Shared Workout?\n\n`;
+                        let confirmMsg = `[IMPORT] Import Shared Workout?\n\n`;
                         confirmMsg += `Name: ${sharedWorkout.title}\n`;
                         confirmMsg += `Type: ${workoutType}\n`;
                         confirmMsg += `Exercises: ${exerciseCount}\n`;
@@ -4456,7 +4456,7 @@ User's request: ${msg}`;
                             // Clean the URL before reloading
                             window.history.replaceState({}, document.title, window.location.pathname);
                             
-                            let successMsg = `âœ… Workout "${newName}" imported successfully!`;
+                            let successMsg = `[SUCCESS] Workout imported successfully!`;
                             if (importedExerciseCount > 0) {
                                 successMsg += `\n\n${importedExerciseCount} custom exercise(s) were also added to your library.`;
                             }
@@ -4774,7 +4774,7 @@ User's request: ${msg}`;
 
 
             document.getElementById('hiitModeDisplay').textContent = 'COMPLETE!';
-            document.getElementById('hiitTimerDisplay').textContent = 'âœ“';
+            document.getElementById('hiitTimerDisplay').textContent = '[OK]';
             document.getElementById('hiitExerciseName').textContent = 'Workout Finished';
             document.getElementById('hiitNextExerciseName').textContent = '';
             document.getElementById('hiitPauseResumeBtn').style.display = 'none';
@@ -4792,7 +4792,7 @@ User's request: ${msg}`;
                 workoutHistory.unshift(workout);
                 localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
-                alert('Workout Complete! Excellent work! ðŸ’ª');
+                alert('Workout Complete! Excellent work! [STRONG]');
                 resetWorkoutState();
             }, 1500);
         }
@@ -4889,11 +4889,11 @@ User's request: ${msg}`;
                     ? `\nIncludes ${customExercisesToShare.length} custom exercise(s)`
                     : '';
                 
-                const shareMsg = `âœ… Workout file created!\n\n` +
+                const shareMsg = `[SUCCESS] Workout file created!\n\n` +
                     `File: workout-${cleanName}.json${exerciseText}\n\n` +
-                    `ðŸ“¤ HOW TO SHARE:\n` +
+                    `[SHARE] HOW TO SHARE:\n` +
                     `Send this file to your friend via text, email, or AirDrop.\n\n` +
-                    `ðŸ“¥ INSTRUCTIONS FOR THEM:\n` +
+                    `[IMPORT] INSTRUCTIONS FOR THEM:\n` +
                     `1. Download the file\n` +
                     `2. Open Workout Tracker app\n` +
                     `3. Tap Settings tab (last tab)\n` +
@@ -4931,7 +4931,7 @@ User's request: ${msg}`;
                     const customExerciseCount = sharedWorkout.customExercisesData ? sharedWorkout.customExercisesData.length : 0;
                     const sharedDate = sharedWorkout.sharedDate ? new Date(sharedWorkout.sharedDate).toLocaleDateString() : 'Unknown';
                     
-                    let confirmMsg = `ðŸ“¥ Import Shared Workout?\n\n`;
+                    let confirmMsg = `[IMPORT] Import Shared Workout?\n\n`;
                     confirmMsg += `Name: ${sharedWorkout.title}\n`;
                     confirmMsg += `Type: ${workoutType}\n`;
                     confirmMsg += `Exercises: ${exerciseCount}\n`;
@@ -4974,12 +4974,12 @@ User's request: ${msg}`;
                     loadCustomWorkoutsIntoDropdown();
                     populateShareWorkoutDropdown();
                     
-                    let successMsg = `âœ… SUCCESS! Workout imported!\n\n`;
+                    let successMsg = `[SUCCESS] Workout imported!\n\n`;
                     successMsg += `"${newName}" is now in your app!\n`;
                     if (importedExerciseCount > 0) {
                         successMsg += `\n${importedExerciseCount} custom exercise(s) were also added.\n`;
                     }
-                    successMsg += `\nðŸ“‹ TO USE THIS WORKOUT:\n`;
+                    successMsg += `\n[COPY] TO USE THIS WORKOUT:\n`;
                     successMsg += `1. Go to the "Workout" tab\n`;
                     successMsg += `2. Select "Create Custom ${workoutType} Workout"\n`;
                     successMsg += `3. Find "${newName}" in the dropdown\n`;
@@ -5026,7 +5026,7 @@ User's request: ${msg}`;
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                alert('âœ… Data exported successfully! Your backup file has been downloaded.');
+                alert('[SUCCESS] Data exported successfully! Your backup file has been downloaded.');
             } catch (error) {
                 console.error('Export failed:', error);
                 alert('âŒ Failed to export data: ' + error.message);
@@ -5094,7 +5094,7 @@ User's request: ${msg}`;
                         localStorage.setItem('lastRecommendationDate', importedData.lastRecommendationDate);
                     }
                     
-                    alert('âœ… Data imported successfully! The page will now reload to apply all changes.');
+                    alert('[SUCCESS] Data imported successfully! The page will now reload to apply all changes.');
                     location.reload();
                     
                 } catch (error) {
@@ -5133,7 +5133,7 @@ User's request: ${msg}`;
                 localStorage.removeItem('geminiKey');
                 localStorage.removeItem('lastRecommendationDate');
                 
-                alert('âœ… All data has been cleared. The page will now reload.');
+                alert('[SUCCESS] All data has been cleared. The page will now reload.');
                 location.reload();
             } else if (userInput !== null) {
                 alert('âŒ Deletion cancelled. You must type "DELETE" exactly to confirm.');
