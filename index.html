@@ -1174,8 +1174,6 @@
             <div id="settings" class="section">
                 <h2 style="margin-bottom: 20px;">Settings & Data Management</h2>
                 
-
-
                 <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
                     <p><strong>[SAVE] Backup Your Data:</strong> Save all your workout history, custom exercises, custom workouts, and preferences to a file. This is useful for transferring data to another browser or device, or as a backup in case your browser's data is cleared.</p>
@@ -1263,7 +1261,7 @@
             </div>
         </div>
     </div>
-    <script>
+     <script>
         // Using FREE public domain exercise images from yuhonas/free-exercise-db
         // All images are CC-BY-SA-4.0 or public domain - free for commercial use!
 
@@ -4340,76 +4338,90 @@ User's request: ${msg}`;
             }
         }
 
-        // ===== NEW DATA MANAGEMENT FUNCTIONS =====
+        // ===== DATA MANAGEMENT FUNCTIONS (RESTORED) =====
 
         function exportData() {
             try {
-                const backupData = {};
-                const keysToExport = [
-                    'workoutHistory', 'customExercises', 'customWorkouts',
-                    'workoutPreferences', 'geminiKey', 'customYouTubeLinks',
-                    'exerciseDescriptions'
-                ];
-
-                keysToExport.forEach(key => {
-                    const data = localStorage.getItem(key);
-                    if (data) {
-                        // We store the raw string, which is already JSON
-                        backupData[key] = data;
-                    }
-                });
-
-                if (Object.keys(backupData).length === 0) {
-                    alert('No data found to export.');
-                    return;
-                }
-
-                const jsonString = JSON.stringify(backupData, null, 2);
-                const blob = new Blob([jsonString], {
-                    type: 'application/json'
-                });
+                const dataToExport = {
+                    workoutHistory: JSON.parse(localStorage.getItem('workoutHistory')) || [],
+                    customWorkouts: JSON.parse(localStorage.getItem('customWorkouts')) || {},
+                    customExercises: JSON.parse(localStorage.getItem('customExercises')) || {},
+                    workoutPreferences: JSON.parse(localStorage.getItem('workoutPreferences')) || {},
+                    customYouTubeLinks: JSON.parse(localStorage.getItem('customYouTubeLinks')) || {},
+                    exerciseDescriptions: JSON.parse(localStorage.getItem('exerciseDescriptions')) || {},
+                    geminiKey: localStorage.getItem('geminiKey') || '',
+                    lastRecommendationDate: localStorage.getItem('lastRecommendationDate') || '',
+                    exportDate: new Date().toISOString(),
+                    appVersion: 'Workout Tracker Pro v2.1' // Updated version
+                };
+                
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                const dateStr = new Date().toISOString().split('T')[0];
                 a.href = url;
-                a.download = 'workout_tracker_pro_backup.json';
+                a.download = `workout-tracker-backup-${dateStr}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                alert('[SUCCESS] Data exported successfully!');
+                
+                alert('[SUCCESS] Data exported successfully! Your backup file has been downloaded.');
             } catch (error) {
-                console.error("Export failed:", error);
-                alert("An error occurred during export. Please check the console for details.");
+                console.error('Export failed:', error);
+                alert('Failed to export data: ' + error.message);
             }
         }
 
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-
+            
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if (confirm('Are you sure you want to import this data? This will OVERWRITE all your current workout history and custom exercises.')) {
-                        localStorage.clear();
-                        Object.keys(importedData).forEach(key => {
-                            // The stored data is already a string, so no need to stringify again
-                            localStorage.setItem(key, importedData[key]);
-                        });
-                        alert('Import successful! The app will now reload to apply the changes.');
-                        window.location.reload();
+                    
+                    if (!importedData.workoutHistory && !importedData.customWorkouts) {
+                        alert('Invalid backup file format. Please select a valid backup file.');
+                        return;
                     }
+                    
+                    const workoutCount = (importedData.workoutHistory || []).length;
+                    const exportDate = importedData.exportDate ? new Date(importedData.exportDate).toLocaleDateString() : 'Unknown';
+                    
+                    const confirmMsg = `Import backup from ${exportDate}?\n\n` +
+                        `This backup contains ${workoutCount} workout(s) in history.\n\n` +
+                        `[!] WARNING: This will REPLACE all your current data!\n\n` +
+                        `Are you sure you want to continue?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        event.target.value = ''; // Reset file input
+                        return;
+                    }
+                    
+                    // Clear existing data before import
+                    localStorage.clear();
+
+                    // Import all data keys found in the file
+                    Object.keys(importedData).forEach(key => {
+                        // The data is already an object/array, so we need to stringify it for localStorage
+                        localStorage.setItem(key, JSON.stringify(importedData[key]));
+                    });
+                    
+                    alert('[SUCCESS] Data imported successfully! The page will now reload.');
+                    location.reload();
+                    
                 } catch (error) {
-                    alert('Invalid backup file. Please select a valid JSON file exported from this app.');
-                    console.error('Import error:', error);
+                    console.error('Import failed:', error);
+                    alert('Failed to import data: ' + error.message);
                 }
             };
             reader.readAsText(file);
-            // Reset the input so the same file can be selected again if needed
-            event.target.value = null;
+            event.target.value = '';
         }
-
+        
         window.addEventListener('load', function () {
             if (localStorage.getItem('geminiKey')) {
                 initAI();
@@ -4753,8 +4765,9 @@ User's request: ${msg}`;
             }, 1500);
         }
 
-        // ===== SETTINGS TAB FUNCTIONS =====
+        // ===== SETTINGS TAB FUNCTIONS (RESTORED) =====
         
+        // This function is already present from a previous step, but included for completeness
         function populateShareWorkoutDropdown() {
             const select = document.getElementById('shareWorkoutSelect');
             if (!select) return;
@@ -4800,6 +4813,7 @@ User's request: ${msg}`;
         // QR CODE SHARING FUNCTIONS (v5 - URL-based, Native Camera)
         // ===================================================================
         
+        // This function is already present from a previous step, but included for completeness
         function populateQRShareWorkoutDropdown() {
             const select = document.getElementById('qrShareWorkoutSelect');
             if (!select) return;
@@ -4852,7 +4866,7 @@ User's request: ${msg}`;
             const binaryString = String.fromCharCode.apply(null, compressedBinary);
             const base64String = btoa(binaryString);
 
-            // --- NEW LOGIC: Create a URL with the data ---
+            // Create a URL with the data
             const baseUrl = window.location.origin + window.location.pathname;
             const shareUrl = `${baseUrl}?workout=${encodeURIComponent(base64String)}`;
             
