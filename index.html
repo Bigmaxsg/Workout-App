@@ -806,7 +806,6 @@
     </style>
       <!-- QR LIBRARIES -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 <!-- ADD THIS LINE FOR COMPRESSION -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 </head>
@@ -1159,26 +1158,18 @@
                     </ol>
                 </div>
                 
-                <button class="btn btn-success" onclick="startQRScanner()" id="startScanBtn" style="margin-top: 20px; margin-bottom: 15px;">[CAMERA] Start Camera Scanner</button>
-                <button class="btn btn-secondary" onclick="stopQRScanner()" id="stopScanBtn" style="display: none; margin-bottom: 15px;">[STOP] Stop Scanner</button>
-                
-                <div id="qrScannerContainer" style="display: none; background: #000; padding: 10px; border-radius: 10px; margin-bottom: 20px; position: relative;">
-                    <video id="qrVideo" playsinline style="width: 100%; border-radius: 5px;"></video>
-                    <div id="qrScannerOverlay">
-                        <div id="qrScannerBox">
-                            <div id="qrScannerLaser"></div>
-                        </div>
-                    </div>
-                    <canvas id="qrScanCanvas" style="display: none;"></canvas>
+                <!-- NEW, SIMPLER INSTRUCTIONS -->
+                <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50; margin-top: 30px;">
+                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">[SCAN] How to Scan a Workout QR Code</p>
+                    <p>Scanning is now easier and more reliable than ever!</p>
+                    <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                        <li>Open your phone's built-in <strong>Camera app</strong>.</li>
+                        <li>Point it at the workout QR code.</li>
+                        <li>Tap the link that appears on your screen.</li>
+                        <li>The app will open and ask you to confirm the import.</li>
+                    </ol>
                 </div>
-                
-                <!-- ADD THIS NEW DIV FOR TIPS -->
-                <div id="qrScannerTips" style="display: none; text-align: center; font-size: 13px; color: #6c757d; margin-top: -10px; margin-bottom: 20px;">
-                    <b>Tip:</b> Hold the camera steady and ensure the QR code is well-lit and in focus.
-                </div>
-                
-                <div id="scanStatus" style="display: none; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: bold;"></div>
-            </div>
+
             <!-- Settings Section -->
             <div id="settings" class="section">
                 <h2 style="margin-bottom: 20px;">Settings & Data Management</h2>
@@ -4430,6 +4421,9 @@ User's request: ${msg}`;
                     sendMessage();
                 }
             });
+
+            // NEW: Handle incoming workout from URL on page load
+            handleIncomingWorkout();
         });
 
         // ===== HIIT WORKOUT FUNCTIONS =====
@@ -4803,11 +4797,8 @@ User's request: ${msg}`;
         }
 
         // ===================================================================
-        // QR CODE SHARING FUNCTIONS (v4 - FINAL, CAMERA ENHANCED)
+        // QR CODE SHARING FUNCTIONS (v5 - URL-based, Native Camera)
         // ===================================================================
-        
-        let qrStream = null;
-        let isScannerActive = false;
         
         function populateQRShareWorkoutDropdown() {
             const select = document.getElementById('qrShareWorkoutSelect');
@@ -4822,30 +4813,6 @@ User's request: ${msg}`;
             });
         }
         
-        function playBeep(silent = false) {
-            try {
-                if (!window.audioCtx) {
-                    window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                const ctx = window.audioCtx;
-                if (ctx.state === 'suspended') ctx.resume();
-                if (silent) return; // Exit if we're just unlocking the context
-
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(900, ctx.currentTime);
-                gain.gain.setValueAtTime(0.5, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.1);
-            } catch (e) {
-                console.log("Beep sound failed:", e);
-            }
-        }
-
         function generateWorkoutQR() {
             const workoutSelect = document.getElementById('qrShareWorkoutSelect');
             const workoutName = workoutSelect.value;
@@ -4884,6 +4851,10 @@ User's request: ${msg}`;
             const compressedBinary = pako.deflate(jsonString);
             const binaryString = String.fromCharCode.apply(null, compressedBinary);
             const base64String = btoa(binaryString);
+
+            // --- NEW LOGIC: Create a URL with the data ---
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?workout=${encodeURIComponent(base64String)}`;
             
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.style.display = 'block';
@@ -4892,139 +4863,27 @@ User's request: ${msg}`;
             qrCanvasContainer.innerHTML = ''; // Clear previous QR
 
             new QRCode(qrCanvasContainer, {
-                text: base64String,
+                text: shareUrl, // Generate a QR code for the URL
                 width: 280,
                 height: 280,
                 colorDark: "#001f3f",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L
+                correctLevel: QRCode.CorrectLevel.M // M is good for URLs
             });
             
-            alert('[SUCCESS] QR Code generated successfully!');
+            document.getElementById('qrCanvas').style.display = 'none';
         }
 
-        async function startQRScanner() {
-            if (location.protocol !== 'https:') {
-                alert('Camera access is only available on secure (https://) websites.');
-                return;
-            }
-            // Unlock audio context ahead of time
-            playBeep(true); 
+        function handleIncomingWorkout() {
+            const params = new URLSearchParams(window.location.search);
+            const workoutParam = params.get('workout');
 
-            const video = document.getElementById('qrVideo');
-            const container = document.getElementById('qrScannerContainer');
-            const startBtn = document.getElementById('startScanBtn');
-            const stopBtn = document.getElementById('stopScanBtn');
-            const statusDiv = document.getElementById('scanStatus');
-            const tipsDiv = document.getElementById('qrScannerTips');
-            
-            // Define advanced camera constraints
-            const constraints = {
-                video: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    // Try to enable continuous focus
-                    advanced: [{ focusMode: 'continuous' }]
-                }
-            };
-            
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                isScannerActive = true;
-                qrStream = stream;
-                video.srcObject = stream;
-                video.play();
-                
-                container.style.display = 'block';
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'block';
-                statusDiv.style.display = 'block';
-                tipsDiv.style.display = 'block';
-                statusDiv.style.background = '#d9c7a5';
-                statusDiv.style.color = '#3e3024';
-                statusDiv.textContent = 'Align QR code inside the box';
-                
-                scanQRCode();
-            } catch (error) {
-                console.error('Camera access error:', error);
-                let errorMessage = 'Could not access the camera. ';
-                if (error.name === 'NotAllowedError') errorMessage += 'Please grant camera permissions and refresh.';
-                else if (error.name === 'NotFoundError') errorMessage += 'No camera was found.';
-                else if (error.name === 'OverconstrainedError') {
-                     errorMessage += 'Your camera may not support the requested resolution or focus settings. Trying with basic settings...';
-                     // Fallback to basic settings if advanced ones fail
-                     try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }});
-                        isScannerActive = true;
-                        qrStream = stream;
-                        video.srcObject = stream;
-                        video.play();
-                        container.style.display = 'block';
-                        scanQRCode();
-                     } catch (fallbackError) {
-                        alert('Could not start camera even with basic settings. Please check permissions.');
-                     }
-                } else {
-                     errorMessage += 'An unknown error occurred.';
-                }
-                if (!isScannerActive) alert(errorMessage);
-            }
-        }
-        
-        function stopQRScanner() {
-            isScannerActive = false;
-            if (qrStream) {
-                qrStream.getTracks().forEach(track => track.stop());
-                qrStream = null;
-            }
-            document.getElementById('qrScannerContainer').style.display = 'none';
-            document.getElementById('startScanBtn').style.display = 'block';
-            document.getElementById('stopScanBtn').style.display = 'none';
-            document.getElementById('scanStatus').style.display = 'none';
-            document.getElementById('qrScannerTips').style.display = 'none';
-            document.getElementById('qrScannerBox').classList.remove('success');
-        }
+            if (!workoutParam) return; // No workout data in URL, do nothing
 
-        function scanQRCode() {
-            if (!isScannerActive) return;
-
-            const video = document.getElementById('qrVideo');
-            const canvas = document.getElementById('qrScanCanvas');
-            const ctx = canvas.getContext('2d');
-            const scannerBox = document.getElementById('qrScannerBox');
-            const statusDiv = document.getElementById('scanStatus');
-
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code) {
-                    isScannerActive = false;
-                    
-                    playBeep();
-                    scannerBox.classList.add('success');
-                    statusDiv.textContent = 'Scan Successful!';
-                    statusDiv.style.background = '#e8f5e9';
-                    statusDiv.style.color = '#2e7d32';
-
-                    setTimeout(() => {
-                       stopQRScanner();
-                       processScannedWorkout(code.data);
-                    }, 500);
-                    return;
-                }
-            }
-            requestAnimationFrame(scanQRCode);
-        }
-       
-        function processScannedWorkout(qrData) {
             try {
                 let jsonString;
                 let sharedWorkout;
+                const qrData = decodeURIComponent(workoutParam);
 
                 try {
                    const binaryString = atob(qrData);
@@ -5039,10 +4898,9 @@ User's request: ${msg}`;
                 const title = sharedWorkout.t || sharedWorkout.title;
                 const workoutData = sharedWorkout.d || sharedWorkout.workoutData;
                 const customExercisesData = sharedWorkout.c || sharedWorkout.customExercisesData;
-                const sharedDate = sharedWorkout.s || sharedWorkout.sharedDate;
 
                 if (!title || !workoutData) {
-                    alert('[!] Invalid QR code data. Scan a valid workout QR code.');
+                    alert('[!] Invalid workout data in the URL.');
                     return;
                 }
                 
@@ -5050,7 +4908,7 @@ User's request: ${msg}`;
                 const exercises = workoutData.workoutType === 'hiit' ? workoutData.exercises : workoutData;
                 const exerciseCount = Array.isArray(exercises) ? exercises.length : 0;
                 
-                let confirmMsg = `[QR CODE SCANNED] Import Workout?\n\n`;
+                let confirmMsg = `[Workout Found] Import this shared workout?\n\n`;
                 confirmMsg += `Name: ${title}\n`;
                 confirmMsg += `Type: ${workoutType}\n`;
                 confirmMsg += `Exercises: ${exerciseCount}\n`;
@@ -5059,7 +4917,11 @@ User's request: ${msg}`;
                 }
                 confirmMsg += `\nAdd this workout to your app?`;
                 
-                if (!confirm(confirmMsg)) return;
+                if (!confirm(confirmMsg)) {
+                     // Clean the URL even if user cancels
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    return;
+                }
                 
                 let importedExerciseCount = 0;
                 if (customExercisesData && customExercisesData.length > 0) {
@@ -5085,15 +4947,20 @@ User's request: ${msg}`;
                 loadCustomWorkoutsIntoDropdown();
                 populateQRShareWorkoutDropdown();
                 
-                let successMsg = `[SUCCESS] Workout imported!\n\n"${newName}" is now available.`;
+                let successMsg = `[SUCCESS] Workout imported!\n\n"${newName}" is now available in your custom workouts.`;
                 if (importedExerciseCount > 0) {
                     successMsg += `\n${importedExerciseCount} new custom exercise(s) were also added.`;
                 }
                 alert(successMsg);
+
+                // IMPORTANT: Clean the URL after import to prevent re-importing on refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
                 
             } catch (error) {
                 console.error('Import failed:', error);
-                alert('[!] Failed to import workout. The QR code may be corrupted or in an old format.');
+                alert('[!] Failed to import workout from URL. The data may be corrupted.');
+                // Clean the URL on failure too
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
     </script>
