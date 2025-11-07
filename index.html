@@ -3407,9 +3407,9 @@
             if (shouldGenerateNewAI) {
                 aiRecommendationHtml = `
  <div style="margin-top: 20px; padding: 15px; background: #d9c7a5; border-radius: 12px; border: 2px solid #d4af37;">
- <p style="margin: 0; font-size: 14px;"><strong>Ã¢Å“Â¨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
+ <p style="margin: 0; font-size: 14px;"><strong>✨ AI Daily Recommendation:</strong> Click button below to generate a personalized AI workout based on your history!</p>
  <button class="btn" onclick="generateAIDailyRecommendation()" style="margin-top: 10px; font-size: 14px; padding: 10px;">
- Ã°Å¸Â¤â€“ Generate AI Workout
+ 🤖 Generate AI Workout
  </button>
  </div>
  `;
@@ -4783,11 +4783,11 @@ User's request: ${msg}`;
         function clearAllData() {
             const confirmMsg = '[!] PERMANENT DATA DELETION WARNING [!]\n\n' +
                 'This will delete:\n' +
-                'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ All workout history\n' +
-                'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ All custom workouts\n' +
-                'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ All custom exercises\n' +
-                'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ All preferences\n' +
-                'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Your API key\n\n' +
+                '• All workout history\n' +
+                '• All custom workouts\n' +
+                '• All custom exercises\n' +
+                '• All preferences\n' +
+                '• Your API key\n\n' +
                 'This action CANNOT be undone!\n\n' +
                 'Type "DELETE" to confirm:';
             
@@ -4798,12 +4798,12 @@ User's request: ${msg}`;
                 alert('[SUCCESS] All data has been cleared. The page will now reload.');
                 location.reload();
             } else if (userInput !== null) {
-                alert('ÃƒÂ¢Ã‚Â Ã…â€™ Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
             }
         }
 
         // ===================================================================
-        // QR CODE SHARING FUNCTIONS (v3 - FINAL, RELIABLE VERSION)
+        // QR CODE SHARING FUNCTIONS (v4 - FINAL, CAMERA ENHANCED)
         // ===================================================================
         
         let qrStream = null;
@@ -4822,13 +4822,15 @@ User's request: ${msg}`;
             });
         }
         
-        function playBeep() {
+        function playBeep(silent = false) {
             try {
                 if (!window.audioCtx) {
                     window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
                 const ctx = window.audioCtx;
                 if (ctx.state === 'suspended') ctx.resume();
+                if (silent) return; // Exit if we're just unlocking the context
+
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
@@ -4871,7 +4873,7 @@ User's request: ${msg}`;
             }
 
             const shareableWorkout = {
-                v: '2.2-b64zip', // Versioning for new Base64 compressed format
+                v: '2.2-b64zip', 
                 t: workoutName,
                 d: workoutData,
                 c: customExercisesData,
@@ -4879,7 +4881,6 @@ User's request: ${msg}`;
             };
 
             const jsonString = JSON.stringify(shareableWorkout);
-            
             const compressedBinary = pako.deflate(jsonString);
             const binaryString = String.fromCharCode.apply(null, compressedBinary);
             const base64String = btoa(binaryString);
@@ -4902,45 +4903,73 @@ User's request: ${msg}`;
             alert('[SUCCESS] QR Code generated successfully!');
         }
 
-        function startQRScanner() {
+        async function startQRScanner() {
             if (location.protocol !== 'https:') {
                 alert('Camera access is only available on secure (https://) websites.');
                 return;
             }
+            // Unlock audio context ahead of time
+            playBeep(true); 
 
             const video = document.getElementById('qrVideo');
             const container = document.getElementById('qrScannerContainer');
             const startBtn = document.getElementById('startScanBtn');
             const stopBtn = document.getElementById('stopScanBtn');
             const statusDiv = document.getElementById('scanStatus');
-            const tipsDiv = document.getElementById('qrScannerTips'); // Get the new tips div
+            const tipsDiv = document.getElementById('qrScannerTips');
             
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(stream => {
-                    isScannerActive = true;
-                    qrStream = stream;
-                    video.srcObject = stream;
-                    video.play();
-                    
-                    container.style.display = 'block';
-                    startBtn.style.display = 'none';
-                    stopBtn.style.display = 'block';
-                    statusDiv.style.display = 'block';
-                    tipsDiv.style.display = 'block'; // Show the tips
-                    statusDiv.style.background = '#d9c7a5';
-                    statusDiv.style.color = '#3e3024';
-                    statusDiv.textContent = 'Align QR code inside the box';
-                    
-                    scanQRCode();
-                })
-                .catch(error => {
-                    console.error('Camera access error:', error);
-                    let errorMessage = 'Could not access the camera. ';
-                    if (error.name === 'NotAllowedError') errorMessage += 'Please grant camera permissions and refresh.';
-                    else if (error.name === 'NotFoundError') errorMessage += 'No camera was found.';
-                    else errorMessage += 'An unknown error occurred.';
-                    alert(errorMessage);
-                });
+            // Define advanced camera constraints
+            const constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    // Try to enable continuous focus
+                    advanced: [{ focusMode: 'continuous' }]
+                }
+            };
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                isScannerActive = true;
+                qrStream = stream;
+                video.srcObject = stream;
+                video.play();
+                
+                container.style.display = 'block';
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                statusDiv.style.display = 'block';
+                tipsDiv.style.display = 'block';
+                statusDiv.style.background = '#d9c7a5';
+                statusDiv.style.color = '#3e3024';
+                statusDiv.textContent = 'Align QR code inside the box';
+                
+                scanQRCode();
+            } catch (error) {
+                console.error('Camera access error:', error);
+                let errorMessage = 'Could not access the camera. ';
+                if (error.name === 'NotAllowedError') errorMessage += 'Please grant camera permissions and refresh.';
+                else if (error.name === 'NotFoundError') errorMessage += 'No camera was found.';
+                else if (error.name === 'OverconstrainedError') {
+                     errorMessage += 'Your camera may not support the requested resolution or focus settings. Trying with basic settings...';
+                     // Fallback to basic settings if advanced ones fail
+                     try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }});
+                        isScannerActive = true;
+                        qrStream = stream;
+                        video.srcObject = stream;
+                        video.play();
+                        container.style.display = 'block';
+                        scanQRCode();
+                     } catch (fallbackError) {
+                        alert('Could not start camera even with basic settings. Please check permissions.');
+                     }
+                } else {
+                     errorMessage += 'An unknown error occurred.';
+                }
+                if (!isScannerActive) alert(errorMessage);
+            }
         }
         
         function stopQRScanner() {
@@ -4953,12 +4982,10 @@ User's request: ${msg}`;
             document.getElementById('startScanBtn').style.display = 'block';
             document.getElementById('stopScanBtn').style.display = 'none';
             document.getElementById('scanStatus').style.display = 'none';
-            document.getElementById('qrScannerTips').style.display = 'none'; // Hide the tips
-            // Reset the scanner box style
+            document.getElementById('qrScannerTips').style.display = 'none';
             document.getElementById('qrScannerBox').classList.remove('success');
         }
 
-        // --- NEW, MORE ROBUST SCANNING LOGIC ---
         function scanQRCode() {
             if (!isScannerActive) return;
 
@@ -4976,28 +5003,24 @@ User's request: ${msg}`;
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
 
                 if (code) {
-                    // --- SUCCESS! ---
-                    isScannerActive = false; // Stop the loop immediately
+                    isScannerActive = false;
                     
-                    // 1. Provide Instant Feedback
                     playBeep();
-                    scannerBox.classList.add('success'); // Flash the box green
+                    scannerBox.classList.add('success');
                     statusDiv.textContent = 'Scan Successful!';
                     statusDiv.style.background = '#e8f5e9';
                     statusDiv.style.color = '#2e7d32';
 
-                    // 2. Process the data after a short delay so the user sees the feedback
                     setTimeout(() => {
                        stopQRScanner();
                        processScannedWorkout(code.data);
-                    }, 500); // 0.5 second delay
-                    return; // Exit the function
+                    }, 500);
+                    return;
                 }
             }
-            // If no code was found, request the next frame to continue scanning
             requestAnimationFrame(scanQRCode);
         }
-              
+       
         function processScannedWorkout(qrData) {
             try {
                 let jsonString;
