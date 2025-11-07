@@ -756,6 +756,9 @@
             }
         }
     </style>
+      <!-- QR LIBRARIES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 </head>
 
 <body>
@@ -5204,59 +5207,21 @@ User's request: ${msg}`;
                 select.appendChild(option);
             });
         }
-        
-        // Simple QR Code generator function
-        function generateQRCode(text, canvas) {
-            const ctx = canvas.getContext('2d');
-            const size = 400;
-            canvas.width = size;
-            canvas.height = size;
-            
-            // Simple QR encoding (version 10, error correction level L)
-            const qrSize = 57; // Version 10 has 57x57 modules
-            const moduleSize = Math.floor(size / (qrSize + 8)); // Add quiet zone
-            const offset = Math.floor((size - (qrSize * moduleSize)) / 2);
-            
-            // Clear canvas
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, size, size);
-            
-            // Create simple QR pattern (this is a simplified version)
-            ctx.fillStyle = 'black';
-            
-            // Convert text to binary
-            const data = encodeURIComponent(text);
-            const binary = data.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join('');
-            
-            // Draw modules based on binary data
-            let dataIndex = 0;
-            for (let row = 0; row < qrSize; row++) {
-                for (let col = 0; col < qrSize; col++) {
-                    // Finder patterns (corners)
-                    const isFinderPattern = 
-                        (row < 7 && col < 7) || // Top-left
-                        (row < 7 && col >= qrSize - 7) || // Top-right
-                        (row >= qrSize - 7 && col < 7); // Bottom-left
-                    
-                    if (isFinderPattern) {
-                        const inFinder = (row < 7 && col < 7 && ((row === 0 || row === 6 || col === 0 || col === 6) || (row >= 2 && row <= 4 && col >= 2 && col <= 4))) ||
-                                        (row < 7 && col >= qrSize - 7 && ((row === 0 || row === 6 || col === qrSize - 7 || col === qrSize - 1) || (row >= 2 && row <= 4 && col >= qrSize - 5 && col <= qrSize - 3))) ||
-                                        (row >= qrSize - 7 && col < 7 && ((row === qrSize - 7 || row === qrSize - 1 || col === 0 || col === 6) || (row >= qrSize - 5 && row <= qrSize - 3 && col >= 2 && col <= 4)));
-                        
-                        if (inFinder) {
-                            ctx.fillRect(col * moduleSize + offset, row * moduleSize + offset, moduleSize, moduleSize);
-                        }
-                    } else if (dataIndex < binary.length) {
-                        // Data modules
-                        if (binary[dataIndex] === '1' || (dataIndex + row + col) % 2 === 0) {
-                            ctx.fillRect(col * moduleSize + offset, row * moduleSize + offset, moduleSize, moduleSize);
-                        }
-                        dataIndex++;
-                    }
-                }
-            }
-        }
-        
+        // ✅ NEW: Real QR Code generator (using QRCode.js)
+function generateQRCode(text, canvas) {
+    const container = canvas.parentNode; // Use the parent div instead of drawing directly to canvas
+    container.innerHTML = ""; // Clear last QR
+
+    new QRCode(container, {
+        text: text,
+        width: 300,
+        height: 300,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+              
         // Generate workout QR code
         function generateWorkoutQR() {
             const workoutSelect = document.getElementById('qrShareWorkoutSelect');
@@ -5275,18 +5240,18 @@ User's request: ${msg}`;
                 return;
             }
             
-            // Gather custom exercises if any
-            const customExercisesData = [];
-            const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
-            
-            workoutData.forEach(ex => {
-                if (allCustomExercises[ex.name]) {
-                    customExercisesData.push({
-                        name: ex.name,
-                        ...allCustomExercises[ex.name]
-                    });
-                }
-            });
+           // Gather custom exercises if any
+const customExercisesData = [];
+const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+
+workoutData.forEach(ex => {
+    if (allCustomExercises[ex.name]) {
+        customExercisesData.push({
+            name: ex.name,
+            data: allCustomExercises[ex.name]
+        });
+    }
+});
             
             // Create shareable workout object
             const shareableWorkout = {
@@ -5372,59 +5337,33 @@ User's request: ${msg}`;
             statusDiv.style.display = 'none';
         }
         
-        // Scan QR code from video
-        function scanQRCode() {
-            const video = document.getElementById('qrVideo');
-            const canvas = document.getElementById('qrScanCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                return;
-            }
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const qrData = decodeQRFromImageData(imageData);
-            
-            if (qrData) {
-                stopQRScanner();
-                processScannedWorkout(qrData);
-            }
-        }
-        
-        // Simple QR decoder (looks for patterns)
-        function decodeQRFromImageData(imageData) {
-            // This is a simplified decoder that looks for QR code patterns
-            // In a production app, you'd use a library like jsQR
-            
-            const data = imageData.data;
-            const width = imageData.width;
-            const height = imageData.height;
-            
-            // Look for finder patterns (simplified detection)
-            let foundPattern = false;
-            
-            for (let y = 0; y < height - 7; y += 4) {
-                for (let x = 0; x < width - 7; x += 4) {
-                    const idx = (y * width + x) * 4;
-                    const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-                    
-                    if (brightness < 128) {
-                        foundPattern = true;
-                        break;
-                    }
-                }
-                if (foundPattern) break;
-            }
-            
-            // For demo purposes, return null (user will need to use file upload or manual entry)
-            // A real implementation would use jsQR or similar library
-            return null;
-        }
-        
+        // ✅ NEW: QR scanner using jsQR
+function scanQRCode() {
+    const video = document.getElementById('qrVideo');
+    const canvas = document.getElementById('qrScanCanvas');
+    const ctx = canvas.getContext('2d');
+
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+        requestAnimationFrame(scanQRCode);
+        return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+
+    if (qr) {
+        stopQRScanner();
+        processScannedWorkout(qr.data);
+        return;
+    }
+
+    requestAnimationFrame(scanQRCode);
+}
+       
         // Process scanned workout
         function processScannedWorkout(qrData) {
             try {
