@@ -1073,34 +1073,8 @@
             <div id="settings" class="section">
                 <h2 style="margin-bottom: 20px;">Settings & Data Management</h2>
                 
-                <!-- Share Workouts Section -->
-                <div class="info-box">
-                    <p><strong>[SHARE] Share Custom Workouts:</strong> Export a workout as a file that you can send to friends. They can then import it into their app!</p>
-                </div>
-                <div class="form-group">
-                    <label>Select Workout to Share</label>
-                    <select id="shareWorkoutSelect">
-                        <option value="">-- Choose a workout --</option>
-                    </select>
-                </div>
-                <button class="btn btn-success" onclick="shareCustomWorkoutFromSettings()" style="margin-bottom: 30px;">[SHARE] Create Shareable Workout File</button>
-                
-                <!-- [IMPORT] Import Shared Workout Section -->
-                <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50;">
-                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">[IMPORT] Received a Workout from a Friend?</p>
-                    <p><strong>Import it here!</strong> If someone sent you a workout file (ends with .json), follow these steps:</p>
-                    <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
-                        <li>Make sure you've downloaded the file to your device</li>
-                        <li>Click the green "Import Shared Workout File" button below</li>
-                        <li>Select the workout file you received</li>
-                        <li>Review the workout details and click OK</li>
-                        <li>Done! The workout is now in your app</li>
-                    </ol>
-                    <p style="margin-top: 10px; font-size: 13px; color: #6c757d;"><strong>File name looks like:</strong> workout-leg-day.json or workout-hiit-blast.json</p>
-                </div>
-                <input type="file" id="importSharedWorkout" accept=".json" style="display: none;" onchange="importSharedWorkout(event)">
-                <label for="importSharedWorkout" class="btn btn-success" style="margin-bottom: 30px; font-size: 16px; padding: 16px;">[IMPORT] Import Shared Workout File</label>
-                
+
+
                 <!-- Export Data Section -->
                 <div class="info-box" style="margin-top: 20px;">
                     <p><strong>[SAVE] Backup Your Data:</strong> Save all your workout history, custom exercises, custom workouts, and preferences to a file. This is useful for transferring data to another browser or device, or as a backup in case your browser's data is cleared.</p>
