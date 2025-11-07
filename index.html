@@ -5280,8 +5280,8 @@ User's request: ${msg}`;
             }
         }
 
-        // --- IMPROVED: QR generator with data compression ---
-        function generateWorkoutQR() {
+       // --- IMPROVED: QR generator with Base64 encoding for reliability ---
+       function generateWorkoutQR() {
             const workoutSelect = document.getElementById('qrShareWorkoutSelect');
             const workoutName = workoutSelect.value;
             if (!workoutName) {
@@ -5308,7 +5308,7 @@ User's request: ${msg}`;
             }
 
             const shareableWorkout = {
-                v: '2.1-zip', // Versioning to indicate compression
+                v: '2.2-b64zip', // Versioning for new Base64 compressed format
                 t: workoutName,
                 d: workoutData,
                 c: customExercisesData,
@@ -5317,8 +5317,15 @@ User's request: ${msg}`;
 
             const jsonString = JSON.stringify(shareableWorkout);
             
-            // --- FIX: Compress the data before generating the QR code ---
-            const compressedData = pako.deflate(jsonString, { to: 'string' });
+            // --- START OF FIX ---
+            // 1. Compress the JSON string into a binary array (Uint8Array)
+            const compressedBinary = pako.deflate(jsonString);
+
+            // 2. Convert the binary data to a Base64 string. This is safe for the QR library.
+            // The btoa function needs a binary string, which we create from the Uint8Array.
+            const binaryString = String.fromCharCode.apply(null, compressedBinary);
+            const base64String = btoa(binaryString);
+            // --- END OF FIX ---
             
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.style.display = 'block';
@@ -5327,110 +5334,39 @@ User's request: ${msg}`;
             qrCanvasContainer.innerHTML = ''; // Clear previous QR
 
             new QRCode(qrCanvasContainer, {
-                text: compressedData,
+                text: base64String, // Use the safe Base64 string
                 width: 280,
                 height: 280,
                 colorDark: "#001f3f",
                 colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L // Use Level L for less density
+                correctLevel: QRCode.CorrectLevel.L
             });
             
-            alert('[SUCCESS] QR Code generated! It is now smaller and easier to scan.');
-        }
-
-        // Start QR scanner
-        function startQRScanner() {
-            if (location.protocol !== 'https:') {
-                alert('Camera access is only available on secure (https://) websites.');
-                return;
-            }
-
-            const video = document.getElementById('qrVideo');
-            const container = document.getElementById('qrScannerContainer');
-            const startBtn = document.getElementById('startScanBtn');
-            const stopBtn = document.getElementById('stopScanBtn');
-            const statusDiv = document.getElementById('scanStatus');
-            
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(stream => {
-                    isScannerActive = true;
-                    qrStream = stream;
-                    video.srcObject = stream;
-                    video.play();
-                    
-                    container.style.display = 'block';
-                    startBtn.style.display = 'none';
-                    stopBtn.style.display = 'block';
-                    statusDiv.style.display = 'block';
-                    statusDiv.style.background = '#d9c7a5';
-                    statusDiv.style.color = '#3e3024';
-                    statusDiv.textContent = 'Align QR code inside the box';
-                    
-                    scanQRCode();
-                })
-                .catch(error => {
-                    console.error('Camera access error:', error);
-                    let errorMessage = 'Could not access the camera. ';
-                    if (error.name === 'NotAllowedError') errorMessage += 'Please grant camera permissions and refresh.';
-                    else if (error.name === 'NotFoundError') errorMessage += 'No camera was found.';
-                    else errorMessage += 'An unknown error occurred.';
-                    alert(errorMessage);
-                });
-        }
-        
-        function stopQRScanner() {
-            isScannerActive = false;
-            if (qrStream) {
-                qrStream.getTracks().forEach(track => track.stop());
-                qrStream = null;
-            }
-            document.getElementById('qrScannerContainer').style.display = 'none';
-            document.getElementById('startScanBtn').style.display = 'block';
-            document.getElementById('stopScanBtn').style.display = 'none';
-            document.getElementById('scanStatus').style.display = 'none';
-        }
-
-        function scanQRCode() {
-            if (!isScannerActive) return;
-
-            const video = document.getElementById('qrVideo');
-            const canvas = document.getElementById('qrScanCanvas');
-            const ctx = canvas.getContext('2d');
-
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code) {
-                    playBeep(); // --- FIX: Play sound on success ---
-                    isScannerActive = false; // Stop the loop immediately
-                    setTimeout(() => { // Give the beep time to play before the alert
-                       stopQRScanner();
-                       processScannedWorkout(code.data);
-                    }, 150);
-                    return;
-                }
-            }
-            requestAnimationFrame(scanQRCode);
+            alert('[SUCCESS] QR Code generated successfully!');
         }
        
-        // --- IMPROVED: Process scanned workout with decompression ---
+        // --- IMPROVED: Process scanned workout with Base64 decompression ---
         function processScannedWorkout(qrData) {
             try {
-                let jsonString = qrData;
+                let jsonString;
                 let sharedWorkout;
 
-                // --- FIX: Decompress the data if it's from a new version ---
+                // --- START OF FIX ---
+                // Try to decode and decompress first. If it fails, treat as plain JSON.
                 try {
-                   const decompressed = pako.inflate(qrData, { to: 'string' });
-                   sharedWorkout = JSON.parse(decompressed);
+                    // 1. Decode the Base64 string back into a binary string
+                    const binaryString = atob(qrData);
+                    // 2. Convert the binary string into a byte array (Uint8Array)
+                    const compressedBinary = new Uint8Array(binaryString.length).map((_, i) => binaryString.charCodeAt(i));
+                    // 3. Decompress the binary data back to the original JSON string
+                    jsonString = pako.inflate(compressedBinary, { to: 'string' });
+                    sharedWorkout = JSON.parse(jsonString);
                 } catch (e) {
-                   // If decompression fails, assume it's an old, uncompressed QR code
-                   sharedWorkout = JSON.parse(qrData);
+                    // If any step above fails, it's likely an old, uncompressed QR code.
+                    console.log("Could not decompress, attempting to parse as plain JSON.");
+                    sharedWorkout = JSON.parse(qrData);
                 }
+                // --- END OF FIX ---
                 
                 // Use shorthand properties for smaller data footprint
                 const title = sharedWorkout.t || sharedWorkout.title;
@@ -5439,7 +5375,7 @@ User's request: ${msg}`;
                 const sharedDate = sharedWorkout.s || sharedWorkout.sharedDate;
 
                 if (!title || !workoutData) {
-                    alert('[!] Invalid QR code. Scan a valid workout QR code.');
+                    alert('[!] Invalid QR code data. Scan a valid workout QR code.');
                     return;
                 }
                 
@@ -5490,7 +5426,7 @@ User's request: ${msg}`;
                 
             } catch (error) {
                 console.error('Import failed:', error);
-                alert('[!] Failed to import workout. The QR code may be corrupted.');
+                alert('[!] Failed to import workout. The QR code may be corrupted or in an old format.');
             }
         }
 
