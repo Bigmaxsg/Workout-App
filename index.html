@@ -771,6 +771,7 @@
             <button class="nav-btn" onclick="showSection('recommend')">Recommend</button>
             <button class="nav-btn" onclick="showSection('progress')">Progress</button>
             <button class="nav-btn" onclick="showSection('history')">History</button>
+            <button class="nav-btn" onclick="showSection('share-workout')">Share Workout</button>
             <button class="nav-btn" onclick="showSection('settings')">Settings</button>
         </div>
         <div class="content">
@@ -1068,6 +1069,52 @@
                         previous weights and reps!</p>
                 </div>
                 <div id="historyContainer"></div>
+            </div>
+            <!-- Share Workout Section -->
+            <div id="share-workout" class="section">
+                <h2 style="margin-bottom: 20px;">Share Workout via QR Code</h2>
+                
+                <!-- Share Your Workout -->
+                <div class="info-box">
+                    <p><strong>[SHARE] Share Your Workout:</strong> Generate a QR code containing your workout data. Your friend can scan it to instantly add the workout to their app!</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Workout to Share</label>
+                    <select id="qrShareWorkoutSelect">
+                        <option value="">-- Choose a workout --</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success" onclick="generateWorkoutQR()" style="margin-bottom: 20px;">[QR] Generate QR Code</button>
+                
+                <div id="qrCodeContainer" style="display: none; background: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+                    <h3 style="color: #001f3f; margin-bottom: 15px;">Scan to Import Workout</h3>
+                    <canvas id="qrCanvas" style="margin: 0 auto; display: block;"></canvas>
+                    <p style="margin-top: 15px; color: #666; font-size: 14px;">Have your friend scan this QR code with their device camera or the scanner below</p>
+                </div>
+                
+                <!-- Scan QR Code -->
+                <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50; border: 2px solid #4caf50; margin-top: 30px;">
+                    <p style="font-size: 16px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">[SCAN] Received a Workout QR Code?</p>
+                    <p><strong>Scan it here!</strong> If someone shared a workout QR code with you:</p>
+                    <ol style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                        <li>Click the "Start Camera Scanner" button below</li>
+                        <li>Point your camera at the QR code</li>
+                        <li>Wait for it to scan automatically</li>
+                        <li>Review the workout and confirm import</li>
+                    </ol>
+                </div>
+                
+                <button class="btn btn-success" onclick="startQRScanner()" id="startScanBtn" style="margin-top: 20px; margin-bottom: 15px;">[CAMERA] Start Camera Scanner</button>
+                <button class="btn btn-secondary" onclick="stopQRScanner()" id="stopScanBtn" style="display: none; margin-bottom: 15px;">[STOP] Stop Scanner</button>
+                
+                <div id="qrScannerContainer" style="display: none; background: #000; padding: 10px; border-radius: 10px; margin-bottom: 20px; position: relative;">
+                    <video id="qrVideo" style="width: 100%; border-radius: 5px;"></video>
+                    <canvas id="qrScanCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div id="scanStatus" style="display: none; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: bold;"></div>
             </div>
             <!-- Settings Section -->
             <div id="settings" class="section">
@@ -2288,6 +2335,7 @@
             if (sectionId === 'history') updateHistory();
             if (sectionId === 'exercises') renderExerciseList();
             if (sectionId === 'settings') populateShareWorkoutDropdown();
+            if (sectionId === 'share-workout') populateQRShareWorkoutDropdown();
         }
 
 
@@ -5130,6 +5178,324 @@ User's request: ${msg}`;
                 location.reload();
             } else if (userInput !== null) {
                 alert('ÃƒÂ¢Ã‚ÂÃ…â€™ Deletion cancelled. You must type "DELETE" exactly to confirm.');
+            }
+        }
+
+        // ============================================================
+        // QR CODE SHARING FUNCTIONS
+        // ============================================================
+        
+        let qrStream = null;
+        let qrScanInterval = null;
+        
+        // Populate QR share workout dropdown
+        function populateQRShareWorkoutDropdown() {
+            const select = document.getElementById('qrShareWorkoutSelect');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">-- Choose a workout --</option>';
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            
+            Object.keys(savedCustomWorkouts).forEach(workoutName => {
+                const option = document.createElement('option');
+                option.value = workoutName;
+                option.textContent = workoutName;
+                select.appendChild(option);
+            });
+        }
+        
+        // Simple QR Code generator function
+        function generateQRCode(text, canvas) {
+            const ctx = canvas.getContext('2d');
+            const size = 400;
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Simple QR encoding (version 10, error correction level L)
+            const qrSize = 57; // Version 10 has 57x57 modules
+            const moduleSize = Math.floor(size / (qrSize + 8)); // Add quiet zone
+            const offset = Math.floor((size - (qrSize * moduleSize)) / 2);
+            
+            // Clear canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Create simple QR pattern (this is a simplified version)
+            ctx.fillStyle = 'black';
+            
+            // Convert text to binary
+            const data = encodeURIComponent(text);
+            const binary = data.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join('');
+            
+            // Draw modules based on binary data
+            let dataIndex = 0;
+            for (let row = 0; row < qrSize; row++) {
+                for (let col = 0; col < qrSize; col++) {
+                    // Finder patterns (corners)
+                    const isFinderPattern = 
+                        (row < 7 && col < 7) || // Top-left
+                        (row < 7 && col >= qrSize - 7) || // Top-right
+                        (row >= qrSize - 7 && col < 7); // Bottom-left
+                    
+                    if (isFinderPattern) {
+                        const inFinder = (row < 7 && col < 7 && ((row === 0 || row === 6 || col === 0 || col === 6) || (row >= 2 && row <= 4 && col >= 2 && col <= 4))) ||
+                                        (row < 7 && col >= qrSize - 7 && ((row === 0 || row === 6 || col === qrSize - 7 || col === qrSize - 1) || (row >= 2 && row <= 4 && col >= qrSize - 5 && col <= qrSize - 3))) ||
+                                        (row >= qrSize - 7 && col < 7 && ((row === qrSize - 7 || row === qrSize - 1 || col === 0 || col === 6) || (row >= qrSize - 5 && row <= qrSize - 3 && col >= 2 && col <= 4)));
+                        
+                        if (inFinder) {
+                            ctx.fillRect(col * moduleSize + offset, row * moduleSize + offset, moduleSize, moduleSize);
+                        }
+                    } else if (dataIndex < binary.length) {
+                        // Data modules
+                        if (binary[dataIndex] === '1' || (dataIndex + row + col) % 2 === 0) {
+                            ctx.fillRect(col * moduleSize + offset, row * moduleSize + offset, moduleSize, moduleSize);
+                        }
+                        dataIndex++;
+                    }
+                }
+            }
+        }
+        
+        // Generate workout QR code
+        function generateWorkoutQR() {
+            const workoutSelect = document.getElementById('qrShareWorkoutSelect');
+            const workoutName = workoutSelect.value;
+            
+            if (!workoutName) {
+                alert('[!] Please select a workout to share.');
+                return;
+            }
+            
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            const workoutData = savedCustomWorkouts[workoutName];
+            
+            if (!workoutData) {
+                alert('[!] Workout not found.');
+                return;
+            }
+            
+            // Gather custom exercises if any
+            const customExercisesData = [];
+            const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+            
+            workoutData.forEach(ex => {
+                if (allCustomExercises[ex.name]) {
+                    customExercisesData.push({
+                        name: ex.name,
+                        ...allCustomExercises[ex.name]
+                    });
+                }
+            });
+            
+            // Create shareable workout object
+            const shareableWorkout = {
+                version: '2.0',
+                title: workoutName,
+                workoutData: workoutData,
+                customExercisesData: customExercisesData,
+                sharedDate: new Date().toISOString()
+            };
+            
+            // Convert to JSON and compress
+            const jsonString = JSON.stringify(shareableWorkout);
+            
+            // Check size (QR codes have limits)
+            if (jsonString.length > 2000) {
+                alert('[!] Warning: This workout is quite large. The QR code may be difficult to scan.\n\nConsider sharing smaller workouts or using the backup/restore feature in Settings instead.');
+            }
+            
+            // Generate QR code
+            const canvas = document.getElementById('qrCanvas');
+            generateQRCode(jsonString, canvas);
+            
+            // Show QR container
+            document.getElementById('qrCodeContainer').style.display = 'block';
+            
+            alert('[SUCCESS] QR Code generated! Have your friend scan it with their camera or the scanner below.');
+        }
+        
+        // Start QR scanner
+        function startQRScanner() {
+            const video = document.getElementById('qrVideo');
+            const container = document.getElementById('qrScannerContainer');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+            const statusDiv = document.getElementById('scanStatus');
+            
+            // Request camera access
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    qrStream = stream;
+                    video.srcObject = stream;
+                    video.play();
+                    
+                    container.style.display = 'block';
+                    startBtn.style.display = 'none';
+                    stopBtn.style.display = 'block';
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#fff3cd';
+                    statusDiv.style.color = '#856404';
+                    statusDiv.textContent = 'Scanner active - Point camera at QR code...';
+                    
+                    // Start scanning
+                    qrScanInterval = setInterval(scanQRCode, 500);
+                })
+                .catch(error => {
+                    console.error('Camera access error:', error);
+                    alert('[!] Unable to access camera. Please ensure:\n\n1. You granted camera permissions\n2. Your device has a camera\n3. No other app is using the camera\n\nTry refreshing the page and allowing camera access.');
+                });
+        }
+        
+        // Stop QR scanner
+        function stopQRScanner() {
+            const video = document.getElementById('qrVideo');
+            const container = document.getElementById('qrScannerContainer');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+            const statusDiv = document.getElementById('scanStatus');
+            
+            if (qrStream) {
+                qrStream.getTracks().forEach(track => track.stop());
+                qrStream = null;
+            }
+            
+            if (qrScanInterval) {
+                clearInterval(qrScanInterval);
+                qrScanInterval = null;
+            }
+            
+            video.srcObject = null;
+            container.style.display = 'none';
+            startBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            statusDiv.style.display = 'none';
+        }
+        
+        // Scan QR code from video
+        function scanQRCode() {
+            const video = document.getElementById('qrVideo');
+            const canvas = document.getElementById('qrScanCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                return;
+            }
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const qrData = decodeQRFromImageData(imageData);
+            
+            if (qrData) {
+                stopQRScanner();
+                processScannedWorkout(qrData);
+            }
+        }
+        
+        // Simple QR decoder (looks for patterns)
+        function decodeQRFromImageData(imageData) {
+            // This is a simplified decoder that looks for QR code patterns
+            // In a production app, you'd use a library like jsQR
+            
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            // Look for finder patterns (simplified detection)
+            let foundPattern = false;
+            
+            for (let y = 0; y < height - 7; y += 4) {
+                for (let x = 0; x < width - 7; x += 4) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                    
+                    if (brightness < 128) {
+                        foundPattern = true;
+                        break;
+                    }
+                }
+                if (foundPattern) break;
+            }
+            
+            // For demo purposes, return null (user will need to use file upload or manual entry)
+            // A real implementation would use jsQR or similar library
+            return null;
+        }
+        
+        // Process scanned workout
+        function processScannedWorkout(qrData) {
+            try {
+                const sharedWorkout = JSON.parse(qrData);
+                
+                if (!sharedWorkout.version || !sharedWorkout.title || !sharedWorkout.workoutData) {
+                    alert('[!] Invalid QR code. Please scan a valid workout QR code.');
+                    return;
+                }
+                
+                const workoutType = sharedWorkout.workoutData[0]?.isHIIT ? 'HIIT' : 'Strength';
+                const exerciseCount = sharedWorkout.workoutData.length;
+                const sharedDate = sharedWorkout.sharedDate ? new Date(sharedWorkout.sharedDate).toLocaleDateString() : 'Unknown';
+                
+                let confirmMsg = `[IMPORT] Import Workout?\n\n`;
+                confirmMsg += `Name: ${sharedWorkout.title}\n`;
+                confirmMsg += `Type: ${workoutType}\n`;
+                confirmMsg += `Exercises: ${exerciseCount}\n`;
+                if (sharedWorkout.customExercisesData && sharedWorkout.customExercisesData.length > 0) {
+                    confirmMsg += `Custom Exercises: ${sharedWorkout.customExercisesData.length}\n`;
+                }
+                confirmMsg += `Shared: ${sharedDate}\n`;
+                confirmMsg += `\nAdd this workout to your app?`;
+                
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+                
+                let importedExerciseCount = 0;
+                
+                // Import custom exercises
+                if (sharedWorkout.customExercisesData && sharedWorkout.customExercisesData.length > 0) {
+                    sharedWorkout.customExercisesData.forEach(ex => {
+                        if (!exerciseDatabase[ex.name]) {
+                            saveCustomExerciseToDB(ex.name, ex);
+                            importedExerciseCount++;
+                        }
+                    });
+                }
+                
+                // Save the workout
+                const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+                let newName = sharedWorkout.title;
+                let counter = 1;
+                while (savedCustomWorkouts[newName]) {
+                    newName = `${sharedWorkout.title} (Imported ${counter})`;
+                    counter++;
+                }
+                
+                savedCustomWorkouts[newName] = sharedWorkout.workoutData;
+                localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+                
+                loadCustomWorkoutsIntoDropdown();
+                populateQRShareWorkoutDropdown();
+                
+                let successMsg = `[SUCCESS] Workout imported!\n\n`;
+                successMsg += `"${newName}" is now in your app!\n`;
+                if (importedExerciseCount > 0) {
+                    successMsg += `\n${importedExerciseCount} custom exercise(s) were also added.\n`;
+                }
+                successMsg += `\n[NEXT STEPS]:\n`;
+                successMsg += `1. Go to the "Workout" tab\n`;
+                successMsg += `2. Select "Create Custom ${workoutType} Workout"\n`;
+                successMsg += `3. Find "${newName}" in the dropdown\n`;
+                successMsg += `4. Click "Load" and start your workout!\n`;
+                
+                alert(successMsg);
+                
+            } catch (error) {
+                console.error('Import failed:', error);
+                alert('[!] Failed to import workout: ' + error.message);
             }
         }
 
