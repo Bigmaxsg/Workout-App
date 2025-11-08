@@ -1,26 +1,3 @@
-Of course! It's a common issue where a small syntax error can cause other parts of the application to stop working. The errors you're seeing are related, and I can help you fix them while properly implementing the feature you wanted.
-
-### **Root Cause of the Errors:**
-
-1.  **`Uncaught SyntaxError: Unexpected token '}'`**: At the very end of your `<script>` block, inside the `updateCustomExerciseValue` function, there were a few extra lines of code and closing curly braces `}` that were accidentally duplicated. This single syntax error is critical because it stops the browser from reading and understanding the rest of your Javascript code.
-2.  **`Uncaught ReferenceError: showSection is not defined`**: This error is a direct symptom of the first error. Because the browser hit the syntax error and stopped processing the script, many of your functions, including `showSection`, were never properly defined. This is why clicking the navigation buttons failed.
-
-### **Solution:**
-
-I have corrected the syntax error and properly implemented the logic to save and recall the last-used weight, sets, and reps for every exercise.
-
-Here are the key changes I made:
-
-1.  **Fixed the Syntax Error:** I removed the duplicated code and extra braces at the end of the script to allow all your Javascript to run correctly.
-2.  **Implemented "Remember Last Used" Feature:**
-    *   I added logic to the `loadWorkout` function (for pre-defined workouts) and confirmed your existing logic in `renderCustomWorkout` (for custom workouts). Now, whenever a workout is loaded, it will check for the last-used values for each exercise and populate them.
-    *   I ensured that any time you adjust a value in **any** workout (pre-defined or custom), it is immediately saved for the next time you use that exercise.
-
-Below is the complete, corrected code for your `index (5).html` file. Simply replace the entire content of your file with the code below.
-
-***
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
