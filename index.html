@@ -3079,6 +3079,8 @@
 
         // Guided Workout Functions
         function startGuidedWorkout(style) {
+            resetTimer(); // ✅ FIX: Force-resets the timer state before starting a new workout.
+            
             workoutStyle = style;
             guidedMode = true;
             currentExerciseIndex = 0;
