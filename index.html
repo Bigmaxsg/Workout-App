@@ -3282,10 +3282,24 @@
     showSection('history');
 }
 
+       function updateExercise(idx, field, value) {
+    const numValue = parseFloat(value) || 0;
+    currentWorkout[idx][field] = numValue;
 
-        function updateExercise(idx, field, value) {
-            currentWorkout[idx][field] = parseFloat(value) || 0;
-        }
+    // ✅ NEW — persist last-used exercise settings immediately
+    const exercise = currentWorkout[idx];
+    const savedLastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
+
+    savedLastUsed[exercise.name] = {
+        weight: exercise.weight,
+        reps: exercise.reps,
+        sets: exercise.sets
+    };
+
+    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
+}
+    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
+}
 
         function showExerciseInfo(name) {
             const exercise = exerciseDatabase[name];
