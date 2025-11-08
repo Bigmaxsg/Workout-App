@@ -1189,14 +1189,7 @@
                     <p style="margin-top: 10px; font-size: 13px; color: #6c757d;">Tip: Export your current data first if you want to keep a copy before importing.</p>
                 </div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <label for="importFile" class="btn btn-danger">[IMPORT] Import Data from Backup File</label>
-                
-                <!-- Clear Data Section -->
-                <div class="info-box" style="margin-top: 30px; border-left-color: #8b0000;">
-                    <p><strong>[DELETE] Clear All Data:</strong> Permanently delete all data from the app and start fresh.</p>
-                    <p style="margin-top: 10px; color: #8b0000;"><strong>Warning:</strong> This will delete your entire workout history, all custom exercises, all custom workouts, and all preferences. This action cannot be undone!</p>
-                </div>
-                <button class="btn btn-danger" onclick="clearAllData()" style="margin-top: 10px;">[DELETE] Clear All App Data</button>
+                <label for="importFile" class="btn btn-danger">[IMPORT] Import Data from Backup File</label>                
             </div>
         </div>
     </div>
@@ -2245,7 +2238,28 @@
             localStorage.setItem('customExercises', JSON.stringify(customExercises));
             exerciseDatabase[name] = data; // Also update the runtime database
         }
+// ✅ FIX: NEW FUNCTION TO SAVE CHANGES TO A LOADED CUSTOM WORKOUT
+        function saveModifiedCustomWorkout() {
+            const workoutSelect = document.getElementById('workoutType');
+            const selectedValue = workoutSelect.value;
 
+            // Check if a saved custom workout is currently selected
+            if (selectedValue.startsWith('saved_')) {
+                const workoutName = selectedValue.substring(6);
+                const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+
+                // Update the saved workout data with the current values
+                if (savedCustomWorkouts[workoutName]) {
+                    savedCustomWorkouts[workoutName] = currentWorkout.map(ex => ({
+                        name: ex.name,
+                        weight: ex.weight,
+                        sets: ex.sets,
+                        reps: ex.reps
+                    }));
+                    localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+                }
+            }
+        }
         // Open add/edit exercise modal
         function openAddExerciseModal(isNew = false, exerciseName = '') {
             const modal = document.getElementById('addExerciseModal');
@@ -2654,6 +2668,7 @@
             const numValue = parseFloat(value) || 0;
             currentWorkout[idx][field] = numValue;
             saveWorkoutPreferences();
+            saveModifiedCustomWorkout(); // ✅ FIX: This new line saves changes for loaded custom workouts
         }
 
         // FIX #1 PART 2: This function saves preferences PER WORKOUT, which is the desired behavior.
@@ -3299,7 +3314,8 @@
             currentSetNumber = 1;
             currentRound = 1;
             workoutStyle = 'traditional';
-
+            restTimeRemaining = 0; // Explicitly reset rest timer
+            
             // Reset timers and update other sections
             resetTimer();
             updateRecommendation();
