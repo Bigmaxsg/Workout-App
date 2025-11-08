@@ -3007,19 +3007,6 @@
 
             currentWorkout.forEach(ex => ex.setsCompleted = 0);
 
-// ✅ Restore previously used settings (weight / reps / sets)
-const lastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
-
-currentWorkout = currentWorkout.map(ex => {
-    if (lastUsed[ex.name]) {
-        return {
-            ...ex,
-            ...lastUsed[ex.name]
-        };
-    }
-    return ex;
-});
-
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('saveCustomWorkoutSection').style.display = 'block';
         }
@@ -3267,54 +3254,31 @@ currentWorkout = currentWorkout.map(ex => {
         }
 
         function resetWorkoutState() {
-    guidedMode = false;
-    window.hiitActive = false;
-    document.getElementById('workoutSetup').style.display = 'block';
-    document.getElementById('guidedWorkoutMode').style.display = 'none';
-    document.getElementById('hiitWorkoutMode').style.display = 'none';
-    document.getElementById('workoutType').value = '';
-    document.getElementById('workoutContainer').innerHTML = '';
-    document.getElementById('workoutModeSelection').style.display = 'none';
+            guidedMode = false;
+            window.hiitActive = false; // Clear HIIT active flag
+            document.getElementById('workoutSetup').style.display = 'block';
+            document.getElementById('guidedWorkoutMode').style.display = 'none';
+            document.getElementById('hiitWorkoutMode').style.display = 'none';
+            document.getElementById('workoutType').value = '';
+            document.getElementById('workoutContainer').innerHTML = '';
+            document.getElementById('workoutModeSelection').style.display = 'none';
+            currentWorkout = [];
+            resetTimer();
+            updateRecommendation();
+            updateProgress();
+            updateHistory();
 
-    currentWorkout = [];        // <-- already here
+            // Show nav bar again
+            document.querySelector('.nav').style.display = 'flex';
 
-    // ✅ FIX START — clears leftover state
-    completedSets = [];
-    currentExerciseIndex = 0;
-    currentSetNumber = 1;
-    currentRound = 1;
-    workoutStyle = 'traditional';
-    // ✅ FIX END
+            // Switch to history tab to show completed workout
+            showSection('history');
+        }
 
-    resetTimer();
-    updateRecommendation();
-    updateProgress();
-    updateHistory();
 
-    document.querySelector('.nav').style.display = 'flex';
-    showSection('history');
-}
-
-      function updateCustomExerciseValue(idx, field, value) {
-    const numValue = parseFloat(value) || 0;
-    currentWorkout[idx][field] = numValue;
-
-    // ✅ Persist last-used exercise settings
-    const exercise = currentWorkout[idx];
-    const savedLastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
-
-    savedLastUsed[exercise.name] = {
-        weight: exercise.weight,
-        reps: exercise.reps,
-        sets: exercise.sets
-    };
-
-    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
-}
-    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
-}
-    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
-}
+        function updateExercise(idx, field, value) {
+            currentWorkout[idx][field] = parseFloat(value) || 0;
+        }
 
         function showExerciseInfo(name) {
             const exercise = exerciseDatabase[name];
