@@ -3014,7 +3014,7 @@ currentWorkout = currentWorkout.map(ex => {
     if (lastUsed[ex.name]) {
         return {
             ...ex,
-            ...lastUsed[ex.name]   // restores weight, reps, sets
+            ...lastUsed[ex.name]
         };
     }
     return ex;
