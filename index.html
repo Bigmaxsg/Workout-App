@@ -1141,9 +1141,10 @@
                 <button class="btn btn-success" onclick="generateWorkoutQR()" style="margin-bottom: 20px;">[QR] Generate QR Code</button>
                 
                 <div id="qrCodeContainer" style="display: none; background: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                    <h3 style="color: #001f3f; margin-bottom: 15px;">Scan to Import Workout</h3>
-                    <canvas id="qrCanvas" style="margin: 0 auto; display: block;"></canvas>
-                    <p style="margin-top: 15px; color: #666; font-size: 14px;">Have your friend scan this QR code with their device camera or the scanner below</p>
+                <h3 style="color: #001f3f; margin-bottom: 15px;">Scan to Import Workout</h3>
+                <!-- This div will hold the generated QR code -->
+                <div id="qrCodeOutput" style="margin: 0 auto; display: inline-block;"></div>
+                <p style="margin-top: 15px; color: #666; font-size: 14px;">Have your friend scan this QR code with their device camera or the scanner below</p>
                 </div>
                 
                 <!-- Scan QR Code -->
@@ -4872,62 +4873,66 @@ User's request: ${msg}`;
         }
         
         function generateWorkoutQR() {
-            const workoutSelect = document.getElementById('qrShareWorkoutSelect');
-            const workoutName = workoutSelect.value;
-            if (!workoutName) {
-                alert('[!] Please select a workout to share.');
-                return;
+    const workoutSelect = document.getElementById('qrShareWorkoutSelect');
+    const workoutName = workoutSelect.value;
+    if (!workoutName) {
+        alert('[!] Please select a workout to share.');
+        return;
+    }
+    const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+    const workoutData = savedCustomWorkouts[workoutName];
+    if (!workoutData) {
+        alert('[!] Workout not found.');
+        return;
+    }
+
+    const customExercisesData = [];
+    const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+    const exercisesInWorkout = workoutData.workoutType === 'hiit' ? workoutData.exercises : workoutData;
+
+    if (Array.isArray(exercisesInWorkout)) {
+        exercisesInWorkout.forEach(ex => {
+            if (allCustomExercises[ex.name] && !customExercisesData.some(customEx => customEx.name === ex.name)) {
+                customExercisesData.push({ name: ex.name, ...allCustomExercises[ex.name] });
             }
-            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
-            const workoutData = savedCustomWorkouts[workoutName];
-            if (!workoutData) {
-                alert('[!] Workout not found.');
-                return;
-            }
+        });
+    }
 
-            const customExercisesData = [];
-            const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
-            const exercisesInWorkout = workoutData.workoutType === 'hiit' ? workoutData.exercises : workoutData;
+    const shareableWorkout = {
+        v: '2.2-b64zip', 
+        t: workoutName,
+        d: workoutData,
+        c: customExercisesData,
+        s: new Date().toISOString()
+    };
 
-            if (Array.isArray(exercisesInWorkout)) {
-                exercisesInWorkout.forEach(ex => {
-                    if (allCustomExercises[ex.name] && !customExercisesData.some(customEx => customEx.name === ex.name)) {
-                        customExercisesData.push({ name: ex.name, ...allCustomExercises[ex.name] });
-                    }
-                });
-            }
+    const jsonString = JSON.stringify(shareableWorkout);
+    const compressedBinary = pako.deflate(jsonString);
+    const binaryString = String.fromCharCode.apply(null, compressedBinary);
+    const base64String = btoa(binaryString);
 
-            const shareableWorkout = {
-                v: '2.2-b64zip', 
-                t: workoutName,
-                d: workoutData,
-                c: customExercisesData,
-                s: new Date().toISOString()
-            };
+    // Create a URL with the data
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?workout=${encodeURIComponent(base64String)}`;
+    
+    // Make the main container visible
+    const qrContainer = document.getElementById('qrCodeContainer');
+    qrContainer.style.display = 'block';
+    
+    // Get the dedicated output div
+    const qrCodeOutput = document.getElementById('qrCodeOutput');
+    // Clear any previous QR code from the output div
+    qrCodeOutput.innerHTML = '';
 
-            const jsonString = JSON.stringify(shareableWorkout);
-            const compressedBinary = pako.deflate(jsonString);
-            const binaryString = String.fromCharCode.apply(null, compressedBinary);
-            const base64String = btoa(binaryString);
-
-            // Create a URL with the data
-            const baseUrl = window.location.origin + window.location.pathname;
-            const shareUrl = `${baseUrl}?workout=${encodeURIComponent(base64String)}`;
-            
-            const qrContainer = document.getElementById('qrCodeContainer');
-            qrContainer.style.display = 'block';
-            
-            const qrCanvasContainer = document.getElementById('qrCanvas').parentNode;
-            qrCanvasContainer.innerHTML = ''; // Clear previous QR
-
-            new QRCode(qrCanvasContainer, {
-                text: shareUrl, // Generate a QR code for the URL
-                width: 280,
-                height: 280,
-                colorDark: "#001f3f",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M // M is good for URLs
-            });
+    // Generate the new QR code inside the clean output div
+    new QRCode(qrCodeOutput, {
+        text: shareUrl,
+        width: 280,
+        height: 280,
+        colorDark: "#001f3f",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
             
             document.getElementById('qrCanvas').style.display = 'none';
         }
