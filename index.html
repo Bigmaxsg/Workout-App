@@ -4710,25 +4710,22 @@ User's request: ${msg}`;
 
         function pauseResumeHiit() {
             const btn = document.getElementById('hiitPauseResumeBtn');
-            hiitIsPaused = !hiitIsPaused;
-            if (hiitIsPaused) {
-                pauseTimer();
-                btn.textContent = 'Resume Exercise';
-            } else {
-                startTimer();
-                btn.textContent = 'Pause Exercise';
-            }
+            hiitIsPaused = !hiitIsPaused; // This flag is all we need to pause the interval
 
-            // Ensure audio context is ready when resuming
-            if (!hiitIsPaused && window.audioCtx) {
-                if (window.audioCtx.state === 'suspended') {
-                    window.audioCtx.resume().then(() => {
-                        console.log("Audio context resumed after pause");
-                    });
+            if (hiitIsPaused) {
+                // We are now paused. Update the button text.
+                btn.textContent = 'Resume Exercise';
+                // DO NOT call pauseTimer(). The main timer will continue running.
+            } else {
+                // We are resuming. Update the button text.
+                btn.textContent = 'Pause Exercise';
+                
+                // It's still good practice to resume the audio context here.
+                if (window.audioCtx && window.audioCtx.state === 'suspended') {
+                    window.audioCtx.resume();
                 }
             }
         }
-
 
         function endHiitWorkout() {
             if (!confirm('Are you sure you want to end this workout?')) {
