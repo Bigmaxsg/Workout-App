@@ -3254,26 +3254,33 @@
         }
 
         function resetWorkoutState() {
-            guidedMode = false;
-            window.hiitActive = false; // Clear HIIT active flag
-            document.getElementById('workoutSetup').style.display = 'block';
-            document.getElementById('guidedWorkoutMode').style.display = 'none';
-            document.getElementById('hiitWorkoutMode').style.display = 'none';
-            document.getElementById('workoutType').value = '';
-            document.getElementById('workoutContainer').innerHTML = '';
-            document.getElementById('workoutModeSelection').style.display = 'none';
-            currentWorkout = [];
-            resetTimer();
-            updateRecommendation();
-            updateProgress();
-            updateHistory();
+    guidedMode = false;
+    window.hiitActive = false;
+    document.getElementById('workoutSetup').style.display = 'block';
+    document.getElementById('guidedWorkoutMode').style.display = 'none';
+    document.getElementById('hiitWorkoutMode').style.display = 'none';
+    document.getElementById('workoutType').value = '';
+    document.getElementById('workoutContainer').innerHTML = '';
+    document.getElementById('workoutModeSelection').style.display = 'none';
 
-            // Show nav bar again
-            document.querySelector('.nav').style.display = 'flex';
+    currentWorkout = [];        // <-- already here
 
-            // Switch to history tab to show completed workout
-            showSection('history');
-        }
+    // ✅ FIX START — clears leftover state
+    completedSets = [];
+    currentExerciseIndex = 0;
+    currentSetNumber = 1;
+    currentRound = 1;
+    workoutStyle = 'traditional';
+    // ✅ FIX END
+
+    resetTimer();
+    updateRecommendation();
+    updateProgress();
+    updateHistory();
+
+    document.querySelector('.nav').style.display = 'flex';
+    showSection('history');
+}
 
 
         function updateExercise(idx, field, value) {
