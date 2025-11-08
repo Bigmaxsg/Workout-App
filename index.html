@@ -3007,6 +3007,19 @@
 
             currentWorkout.forEach(ex => ex.setsCompleted = 0);
 
+// ✅ Restore previously used settings (weight / reps / sets)
+const lastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
+
+currentWorkout = currentWorkout.map(ex => {
+    if (lastUsed[ex.name]) {
+        return {
+            ...ex,
+            ...lastUsed[ex.name]   // restores weight, reps, sets
+        };
+    }
+    return ex;
+});
+
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('saveCustomWorkoutSection').style.display = 'block';
         }
