@@ -2419,20 +2419,20 @@
                 loadSavedCustomWorkoutFromMain(workoutName);
                 return;
             }
-            
-            // FEATURE: Load last-used exercise values from localStorage.
-            const lastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
 
             const program = workoutPrograms[type];
+            const savedPrefs = JSON.parse(localStorage.getItem('workoutPreferences')) || {};
+            const workoutPrefs = savedPrefs[type] || {};
+
             currentWorkout = program.exercises.map(name => {
                 const defaults = exerciseDatabase[name];
-                // Start with defaults, then override with last used values if they exist.
+                const saved = workoutPrefs[name] || {};
                 return {
                     name,
                     ...defaults,
-                    weight: lastUsed[name]?.weight !== undefined ? lastUsed[name].weight : defaults.weight,
-                    sets: lastUsed[name]?.sets !== undefined ? lastUsed[name].sets : defaults.sets,
-                    reps: lastUsed[name]?.reps !== undefined ? lastUsed[name].reps : defaults.reps,
+                    weight: saved.weight !== undefined ? saved.weight : defaults.weight,
+                    sets: saved.sets !== undefined ? saved.sets : defaults.sets,
+                    reps: saved.reps !== undefined ? saved.reps : defaults.reps,
                     completed: false,
                     setsCompleted: 0
                 };
@@ -2441,7 +2441,7 @@
             container.innerHTML = `
  <div class="info-box">
  <p><strong>${program.name}</strong></p>
- <p>Customize your weights, sets, and reps below. Your changes will be saved!</p>
+ <p>Customize your weights, sets, and reps below. Your changes will be saved for this workout plan!</p>
  </div>
  <div style="margin-bottom: 20px;">
  ${currentWorkout.map((ex, idx) => `
@@ -2649,23 +2649,32 @@
             updateWorkoutValue(idx, field, newValue);
         }
 
+        // FIX #1 PART 1: This function now calls the correct saving function.
         function updateWorkoutValue(idx, field, value) {
             const numValue = parseFloat(value) || 0;
             currentWorkout[idx][field] = numValue;
-            
-            // FEATURE: Save the updated values to be recalled next time.
-            const exercise = currentWorkout[idx];
-            const savedLastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
-            savedLastUsed[exercise.name] = {
-                weight: exercise.weight,
-                reps: exercise.reps,
-                sets: exercise.sets
-            };
-            localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
+            saveWorkoutPreferences();
         }
-        
-        // This function is no longer needed as the logic from it is now in updateWorkoutValue
-        // function saveWorkoutPreferences() { ... }
+
+        // FIX #1 PART 2: This function saves preferences PER WORKOUT, which is the desired behavior.
+        function saveWorkoutPreferences() {
+            const type = document.getElementById('workoutType').value;
+            // Only save for pre-defined workouts, not custom ones.
+            if (!type || type === 'custom' || type === 'custom_hiit' || type.startsWith('saved_')) return;
+
+            const savedPrefs = JSON.parse(localStorage.getItem('workoutPreferences')) || {};
+            const workoutPrefs = {};
+            currentWorkout.forEach(ex => {
+                workoutPrefs[ex.name] = {
+                    weight: ex.weight,
+                    sets: ex.sets,
+                    reps: ex.reps
+                };
+            });
+
+            savedPrefs[type] = workoutPrefs;
+            localStorage.setItem('workoutPreferences', JSON.stringify(savedPrefs));
+        }
 
         function loadCustomWorkout() {
             const container = document.getElementById('workoutContainer');
@@ -2942,9 +2951,9 @@
                 document.getElementById('saveCustomWorkoutSection').style.display = 'none';
                 return;
             }
-            
-            // FEATURE: Restore previously used settings (weight / reps / sets)
+
             const lastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
+
             currentWorkout = currentWorkout.map(ex => {
                 if (lastUsed[ex.name]) {
                     return {
@@ -2954,7 +2963,6 @@
                 }
                 return ex;
             });
-
 
             if (type === 'hiit') {
                 list.innerHTML = currentWorkout.map((ex, idx) => `
@@ -3035,7 +3043,7 @@
             const numValue = parseFloat(value) || 0;
             currentWorkout[idx][field] = numValue;
 
-            // FEATURE: Persist last-used exercise settings
+            // Persist last-used exercise settings for custom workouts
             const exercise = currentWorkout[idx];
             const savedLastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
 
@@ -3271,7 +3279,9 @@
             resetWorkoutState();
         }
 
+        // FIX #2: This function now fully resets all guided workout state variables.
         function resetWorkoutState() {
+            // Reset flags and UI
             guidedMode = false;
             window.hiitActive = false;
             document.getElementById('workoutSetup').style.display = 'block';
@@ -3280,7 +3290,9 @@
             document.getElementById('workoutType').value = '';
             document.getElementById('workoutContainer').innerHTML = '';
             document.getElementById('workoutModeSelection').style.display = 'none';
+            document.querySelector('.nav').style.display = 'flex';
 
+            // Reset all state variables to their defaults
             currentWorkout = [];
             completedSets = [];
             currentExerciseIndex = 0;
@@ -3288,12 +3300,13 @@
             currentRound = 1;
             workoutStyle = 'traditional';
 
+            // Reset timers and update other sections
             resetTimer();
             updateRecommendation();
             updateProgress();
             updateHistory();
-
-            document.querySelector('.nav').style.display = 'flex';
+            
+            // Go to a neutral tab after workout completion
             showSection('history');
         }
 
@@ -5009,7 +5022,6 @@ User's request: ${msg}`;
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-        // FIX: Removed duplicated lines and extra curly braces that were causing a syntax error.
     </script>
 </body>
 </html>
