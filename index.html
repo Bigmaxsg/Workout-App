@@ -3919,21 +3919,24 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
        // ===== TIMER FUNCTIONS =====
 
         function startTimer() {
-            // --- START OF FIX: Unlock Audio on the correct user tap ---
-            if (!audioCtx) {
-                try {
-                    // Create the audio context the very first time the timer is started.
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    console.log("Audio Context initialized by user starting timer.");
-                } catch (e) {
-                    console.log("Could not initialize audio context:", e);
+            // ✅ FIX: This is the user's main click. Check if it's for starting a HIIT workout.
+            const hiitMode = document.getElementById('hiitWorkoutMode');
+            const hiitCountdownScreen = document.getElementById('hiitCountdownScreen');
+            if (hiitMode && hiitMode.style.display === 'block' && hiitCountdownScreen.style.display !== 'none') {
+                // If the HIIT countdown screen is visible, this click must enable the audio.
+                if (!audioCtx) {
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        console.log("Audio Context initialized by user for HIIT workout.");
+                    } catch (e) {
+                        console.log("Could not initialize audio context:", e);
+                    }
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
                 }
             }
-            // If the context exists but was suspended by the browser, try to resume it.
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            // --- END OF FIX ---
+            // --- End of audio logic ---
 
             if (!timerRunning) {
                 timerRunning = true;
@@ -3942,18 +3945,10 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
                     document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
                 }, 1000);
 
-                // Check if HIIT workout mode is active (countdown screen visible)
-                const hiitMode = document.getElementById('hiitWorkoutMode');
-                const hiitCountdownScreen = document.getElementById('hiitCountdownScreen');
-                
-                if (hiitMode && hiitMode.style.display === 'block' && 
-                    hiitCountdownScreen && hiitCountdownScreen.style.display !== 'none') {
+                // Now, if HIIT is ready, start its specific countdown process
+                if (hiitMode && hiitMode.style.display === 'block' && hiitCountdownScreen.style.display !== 'none') {
                     console.log("Starting HIIT countdown");
                     startHiitCountdown();
-                } else if (window.hiitActive) {
-                    // If already in active HIIT interval, resume it
-                    console.log("Resuming HIIT interval");
-                    runHiitInterval();
                 }
             }
         }
@@ -4505,20 +4500,17 @@ User's request: ${msg}`;
         });
 
         // ===== HIIT WORKOUT FUNCTIONS =====
-        function playHiitSound(type) {
-            // Use simple audio API with error handling
+       function playHiitSound(type) {
             try {
-                if (!window.audioCtx) {
-                    window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
+                // ✅ FIX: This function no longer creates the audio context, it just uses it.
+                // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
+                if (!audioCtx) return;
 
-                const ctx = window.audioCtx;
+                const ctx = audioCtx;
 
-                // Resume audio context if it was suspended
+                // Resume audio context just in case
                 if (ctx.state === 'suspended') {
-                    ctx.resume().then(() => {
-                        console.log("Audio context resumed");
-                    });
+                    ctx.resume();
                 }
 
                 const osc = ctx.createOscillator();
@@ -4533,35 +4525,24 @@ User's request: ${msg}`;
                 } else if (type === 'rest') {
                     freq = 440; // Medium pitch for rest start
                     duration = 0.3;
-                } else if (type === 'countdown3') {
-                    freq = 800; // For 3...
-                    duration = 0.15;
-                } else if (type === 'countdown2') {
-                    freq = 800; // For 2...
-                    duration = 0.15;
-                } else if (type === 'countdown1') {
-                    freq = 800; // For 1...
+                } else if (type === 'countdown3' || type === 'countdown2' || type === 'countdown1') {
+                    freq = 800; 
                     duration = 0.15;
                 }
 
                 osc.frequency.value = freq;
                 osc.type = 'sine';
-
-                gain.gain.setValueAtTime(0.7, ctx.currentTime); // Increased volume from 0.3 to 0.7
+                gain.gain.setValueAtTime(0.7, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-
                 osc.start(ctx.currentTime);
                 osc.stop(ctx.currentTime + duration);
 
-                console.log("Sound played:", type);
             } catch (e) {
-                console.log("Sound not available:", e.message);
+                console.log("Sound not available or could not play:", e.message);
             }
         }
-
         function startHiitWorkout() {
             // This now sources the parameters directly from the UI/state
             if (!currentWorkout || currentWorkout.length === 0) {
