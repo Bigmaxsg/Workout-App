@@ -3295,11 +3295,11 @@ currentWorkout = currentWorkout.map(ex => {
     showSection('history');
 }
 
-       function updateExercise(idx, field, value) {
+      function updateCustomExerciseValue(idx, field, value) {
     const numValue = parseFloat(value) || 0;
     currentWorkout[idx][field] = numValue;
 
-    // ✅ NEW — persist last-used exercise settings immediately
+    // ✅ Persist last-used exercise settings
     const exercise = currentWorkout[idx];
     const savedLastUsed = JSON.parse(localStorage.getItem('lastUsedExerciseValues')) || {};
 
@@ -3309,6 +3309,8 @@ currentWorkout = currentWorkout.map(ex => {
         sets: exercise.sets
     };
 
+    localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
+}
     localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
 }
     localStorage.setItem('lastUsedExerciseValues', JSON.stringify(savedLastUsed));
