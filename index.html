@@ -3868,8 +3868,25 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
             }
         }
 
-        // Timer Functions
+       // ===== TIMER FUNCTIONS =====
+
         function startTimer() {
+            // --- START OF FIX: Unlock Audio on the correct user tap ---
+            if (!audioCtx) {
+                try {
+                    // Create the audio context the very first time the timer is started.
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log("Audio Context initialized by user starting timer.");
+                } catch (e) {
+                    console.log("Could not initialize audio context:", e);
+                }
+            }
+            // If the context exists but was suspended by the browser, try to resume it.
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            // --- END OF FIX ---
+
             if (!timerRunning) {
                 timerRunning = true;
                 timerInterval = setInterval(() => {
@@ -3882,7 +3899,7 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
                 const hiitCountdownScreen = document.getElementById('hiitCountdownScreen');
                 
                 if (hiitMode && hiitMode.style.display === 'block' && 
-                    hiitCountdownScreen && hiitCountdownScreen.style.display === 'block') {
+                    hiitCountdownScreen && hiitCountdownScreen.style.display !== 'none') {
                     console.log("Starting HIIT countdown");
                     startHiitCountdown();
                 } else if (window.hiitActive) {
