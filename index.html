@@ -3189,42 +3189,57 @@
         }
 
         function completeSet() {
-            completedSets[currentExerciseIndex].completed[currentSetNumber - 1] = true;
+            // This logic is shared and correct for both styles
+            const exerciseIndexForUpdate = currentExerciseIndex;
 
             if (workoutStyle === 'traditional') {
-                if (currentSetNumber < currentWorkout[currentExerciseIndex].sets) {
+                // Mark the current set as complete
+                completedSets[exerciseIndexForUpdate].completed[currentSetNumber - 1] = true;
+
+                if (currentSetNumber < currentWorkout[exerciseIndexForUpdate].sets) {
                     currentSetNumber++;
+                    updateGuidedDisplay(); 
                     startRest(60);
                 } else {
                     currentExerciseIndex++;
                     currentSetNumber = 1;
-
                     if (currentExerciseIndex < currentWorkout.length) {
+                        updateGuidedDisplay();
                         startRest(90);
                     } else {
                         finishWorkout();
                     }
                 }
-            } else {
+            } else { // --- CIRCUIT LOGIC STARTS HERE ---
+
+                // BUG FIX #1: Update progress using the ROUND number, not the set number.
+                // This makes the progress bar advance correctly after each round.
+                completedSets[exerciseIndexForUpdate].completed[currentRound - 1] = true;
+                
                 currentExerciseIndex++;
 
                 if (currentExerciseIndex < currentWorkout.length) {
+                    // Moving to the next exercise within the same round
+                    updateGuidedDisplay();
                     startRest(30);
                 } else {
+                    // Just finished the last exercise of a round
                     currentRound++;
-                    currentExerciseIndex = 0;
+                    currentExerciseIndex = 0; // Go back to the first exercise for the next round
 
-                    const allComplete = completedSets.every(ex =>
-                        ex.completed.every(s => s)
-                    );
-
-                    if (allComplete) {
-                        finishWorkout();
+                    // BUG FIX #2: Check if we have completed the total number of rounds.
+                    // The total rounds is equal to the number of sets defined for the exercises.
+                    if (currentRound > currentWorkout[0].sets) {
+                        finishWorkout(); // The entire circuit is done!
                     } else {
-                        startRest(90);
+                        // Start the next round
+                        updateGuidedDisplay(); 
+                        startRest(90); // Longer rest between rounds
                     }
                 }
             }
+            // Update the visual progress bars right after any state change
+            updateProgressList();
         }
 
         function startRest(seconds) {
