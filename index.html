@@ -3135,15 +3135,22 @@
 
         function updateGuidedDisplay() {
             const exercise = currentWorkout[currentExerciseIndex];
+            let remainingSets; // Declare a variable to hold our result
 
-            // This calculates the number of sets that are left to complete.
-            const remainingSets = exercise.sets - (currentSetNumber - 1);
+            // This is the new, smarter logic
+            if (workoutStyle === 'traditional') {
+                // If it's a traditional workout, base the countdown on the current set number
+                remainingSets = exercise.sets - (currentSetNumber - 1);
+            } else {
+                // If it's a circuit workout, base the countdown on the current round number
+                remainingSets = exercise.sets - (currentRound - 1);
+            }
 
             document.getElementById('currentExerciseName').textContent = exercise.name;
             document.getElementById('currentWeight').textContent = exercise.weight;
             document.getElementById('currentReps').textContent = exercise.reps;
             
-            // This is the corrected line that updates the display you circled.
+            // This line now displays the correct remaining count for BOTH styles
             document.getElementById('currentSets').textContent = remainingSets;
 
             if (workoutStyle === 'traditional') {
@@ -3157,7 +3164,6 @@
                 document.getElementById('setProgress').textContent =
                     `Set ${currentRound}/${exercise.sets}`;
             }
-
             updateProgressList();
         }
 
