@@ -3136,10 +3136,15 @@
         function updateGuidedDisplay() {
             const exercise = currentWorkout[currentExerciseIndex];
 
+            // This calculates the number of sets that are left to complete.
+            const remainingSets = exercise.sets - (currentSetNumber - 1);
+
             document.getElementById('currentExerciseName').textContent = exercise.name;
             document.getElementById('currentWeight').textContent = exercise.weight;
             document.getElementById('currentReps').textContent = exercise.reps;
-            document.getElementById('currentSets').textContent = exercise.sets - (currentSetNumber - 1);
+            
+            // This is the corrected line that updates the display you circled.
+            document.getElementById('currentSets').textContent = remainingSets;
 
             if (workoutStyle === 'traditional') {
                 document.getElementById('exerciseProgress').textContent =
@@ -3152,6 +3157,9 @@
                 document.getElementById('setProgress').textContent =
                     `Set ${currentRound}/${exercise.sets}`;
             }
+
+            updateProgressList();
+        }
 
             updateProgressList();
         }
