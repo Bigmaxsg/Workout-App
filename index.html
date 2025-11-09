@@ -3139,7 +3139,7 @@
             document.getElementById('currentExerciseName').textContent = exercise.name;
             document.getElementById('currentWeight').textContent = exercise.weight;
             document.getElementById('currentReps').textContent = exercise.reps;
-            document.getElementById('currentSets').textContent = exercise.sets;
+            document.getElementById('currentSets').textContent = exercise.sets - (currentSetNumber - 1);
 
             if (workoutStyle === 'traditional') {
                 document.getElementById('exerciseProgress').textContent =
