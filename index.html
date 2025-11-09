@@ -316,7 +316,41 @@
             font-size: 14px;
             color: #6c757d;
         }
+        .history-details-body {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #d9c7a5;
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Adds space between each exercise line */
+        }
 
+        .history-exercise-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allows wrapping on small screens */
+            font-size: 14px;
+        }
+
+        .history-exercise-name {
+            font-weight: 600;
+            color: #333;
+            margin-right: 10px; /* Space between name and stats */
+        }
+
+        .history-exercise-stats {
+            color: #6c757d;
+            text-align: right;
+            flex-shrink: 0; /* Prevents stats from shrinking and wrapping too early */
+        }
+
+        .history-duration {
+            font-size: 18px;
+            font-weight: 600;
+            color: #003d5c;
+            text-align: right;
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -3891,7 +3925,7 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
         }
 
         // History
-        function updateHistory() {
+     function updateHistory() {
             const container = document.getElementById('historyContainer');
 
             if (workoutHistory.length === 0) {
@@ -3900,36 +3934,45 @@ IMPORTANT: Include equipment, detailed description, and youtubeLink for EVERY ex
             }
 
             container.innerHTML = workoutHistory.map((w, idx) => {
-                // Handle both regular and HIIT workouts
-                let exerciseDisplay = '';
-                if (Array.isArray(w.exercises)) {
-                    if (w.exercises.length > 0 && typeof w.exercises[0] === 'string') {
-                        // HIIT workouts have string array
-                        exerciseDisplay = w.exercises.join(', ');
-                    } else if (w.exercises.length > 0 && typeof w.exercises[0] === 'object') {
-                        // Regular workouts have object array
-                        exerciseDisplay = w.exercises.map(e => e.name).join(', ');
+                let exerciseDetailsHtml = '<p>No exercise data for this workout.</p>';
+
+                // Check if the workout has a populated exercise list
+                if (Array.isArray(w.exercises) && w.exercises.length > 0) {
+                    
+                    // Case 1: Strength/Circuit workout with detailed objects
+                    if (typeof w.exercises[0] === 'object' && w.exercises[0] !== null) {
+                        exerciseDetailsHtml = w.exercises.map(e => `
+                            <div class="history-exercise-detail">
+                                <span class="history-exercise-name">${e.name}</span>
+                                <span class="history-exercise-stats">${e.sets} sets of ${e.reps} reps @ ${e.weight} lbs</span>
+                            </div>
+                        `).join('');
+                    } 
+                    // Case 2: HIIT workout with a simple list of names
+                    else {
+                        let hiitDetails = `<div class="history-exercise-detail"><strong>Exercises:</strong> ${w.exercises.join(', ')}</div>`;
+                        if(w.rounds) {
+                             hiitDetails += `<div class="history-exercise-detail"><strong>Rounds Completed:</strong> ${w.rounds}</div>`;
+                        }
+                        exerciseDetailsHtml = hiitDetails;
                     }
                 }
 
-                let durationDisplay = formatTime(w.duration || 0);
-
                 return `
- <div class="history-item">
- <div class="history-header">
- <div class="history-date">${formatDate(w.date)}</div>
- <div class="history-type">${w.type}</div>
- </div>
- <div class="history-exercises">
- <strong>Exercises:</strong> ${exerciseDisplay}
- </div>
- ${w.rounds ? `<div style="margin-top: 5px; font-size: 14px; color: #6c757d;"><strong>Rounds:</strong> ${w.rounds}</div>` : ''}
- <div style="margin-top: 10px; font-size: 14px; color: #6c757d;">
- ${w.volume ? `<strong>Volume:</strong> ${w.volume} lbs |` : ''} <strong>Duration:</strong> ${durationDisplay}
- </div>
- <button class="delete-btn" onclick="deleteWorkout(${idx})" style="margin-top: 10px;">Delete</button>
- </div>
- `;
+                <div class="history-item">
+                    <div class="history-header">
+                        <div>
+                            <div class="history-type">${w.type}</div>
+                            <div class="history-date" style="font-size:13px; color: #6c757d;">${formatDate(w.date)}</div>
+                        </div>
+                        <div class="history-duration">${formatTime(w.duration || 0)}</div>
+                    </div>
+                    <div class="history-details-body">
+                        ${exerciseDetailsHtml}
+                    </div>
+                    <button class="delete-btn" onclick="deleteWorkout(${idx})" style="margin-top: 15px;">Delete</button>
+                </div>
+                `;
             }).join('');
         }
 
