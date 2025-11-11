@@ -27,21 +27,3 @@
     }
   ]
 }
-```
-
----
-
-## 📱 **Step 4: Upload Icon Files to Your GitHub Repository**
-
-You need to create/upload these icon files:
-```
-your-repo/
-├── index.html
-├── manifest.json
-├── icon-16x16.png
-├── icon-32x32.png
-├── apple-touch-icon.png (180x180)
-├── apple-touch-icon-152x152.png
-├── apple-touch-icon-120x120.png
-├── android-chrome-192x192.png
-└── android-chrome-512x512.png
