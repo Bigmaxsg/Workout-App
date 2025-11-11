@@ -1,0 +1,47 @@
+{
+  "name": "Workout Tracker Pro",
+  "short_name": "Workout Pro",
+  "description": "Track your workouts, set PRs, and achieve your fitness goals",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#001f3f",
+  "theme_color": "#001f3f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+---
+
+## 📱 **Step 4: Upload Icon Files to Your GitHub Repository**
+
+You need to create/upload these icon files:
+```
+your-repo/
+├── index.html
+├── manifest.json
+├── icon-16x16.png
+├── icon-32x32.png
+├── apple-touch-icon.png (180x180)
+├── apple-touch-icon-152x152.png
+├── apple-touch-icon-120x120.png
+├── android-chrome-192x192.png
+└── android-chrome-512x512.png
