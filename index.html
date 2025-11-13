@@ -71,6 +71,7 @@
         }
 
         .header p {
+            opacity: 0.9;
             font-size: 14px;
         }
 
@@ -6930,9 +6931,20 @@ User's request: ${msg}`;
         }
         
         function updateColorStyles(colors) {
-            // Calculate contrasting text color for background
+            // Calculate contrasting text color for the main background (usually dark gray)
             const textColor = getContrastColor(colors.background);
             
+            // Apply colors using CSS variables
+            document.documentElement.style.setProperty('--primary-color', colors.primary);
+            document.documentElement.style.setProperty('--accent-color', colors.accent);
+            document.documentElement.style.setProperty('--bg-color', colors.background);
+            document.documentElement.style.setProperty('--success-color', colors.success);
+            document.documentElement.style.setProperty('--danger-color', colors.danger);
+            document.documentElement.style.setProperty('--card-color', colors.card);
+            document.documentElement.style.setProperty('--nav-color', colors.nav);
+            document.documentElement.style.setProperty('--nav-text-color', colors.navText);
+            
+            // --- 1. HEADER FIXES ---
             // Update body gradient
             document.body.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%)`;
             
@@ -6940,13 +6952,19 @@ User's request: ${msg}`;
             const header = document.querySelector('.header');
             if (header) {
                 header.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%)`;
-                header.style.color = getContrastColor(colors.primary);
+                // Set header text to ACCENT color (Yellow), not contrast color (White)
+                header.style.color = colors.accent;
                 header.style.borderBottomColor = colors.accent;
-                // Also update h1 and p elements within header
+                
                 const h1 = header.querySelector('h1');
                 const p = header.querySelector('p');
-                if (h1) h1.style.color = getContrastColor(colors.primary);
-                if (p) p.style.color = getContrastColor(colors.primary);
+                
+                // Force H1 and P to use the Accent Color
+                if (h1) h1.style.color = colors.accent;
+                if (p) {
+                    p.style.color = colors.accent;
+                    p.style.opacity = '1'; // Remove transparency so it matches the title
+                }
             }
             
             // Update container
@@ -6963,7 +6981,7 @@ User's request: ${msg}`;
                 nav.style.borderBottomColor = adjustBrightness(colors.nav, -20);
             }
             
-            // Update nav buttons (inactive state) - exclude active buttons
+            // Update nav buttons (inactive state)
             document.querySelectorAll('.nav-btn:not(.active)').forEach(btn => {
                 btn.style.color = colors.navText;
                 btn.style.background = 'none';
@@ -6973,7 +6991,7 @@ User's request: ${msg}`;
             // Update nav buttons (active state)
             document.querySelectorAll('.nav-btn.active').forEach(btn => {
                 btn.style.background = colors.background;
-                btn.style.color = getContrastColor(colors.background);  // Use contrast color for readability
+                btn.style.color = getContrastColor(colors.background);
                 btn.style.borderBottomColor = colors.accent;
             });
             
@@ -6982,15 +7000,27 @@ User's request: ${msg}`;
                 el.style.color = textColor;
             });
             
-            // Update labels in all sections (especially Settings)
+            // Update generic labels/text to use the calculated text color
             document.querySelectorAll('label, h2, h3, h4, h5, h6, p, span, small, .form-group label').forEach(el => {
-                // Don't override nav text colors
-                if (!el.closest('.nav')) {
+                // Don't override nav text colors or header colors
+                if (!el.closest('.nav') && !el.closest('.header')) {
                     el.style.color = textColor;
                 }
             });
             
-            // Fix specific settings text elements
+            // --- 2. WORKOUT TIMER FIX ---
+            document.querySelectorAll('.workout-timer').forEach(timer => {
+                timer.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
+                // The container text should be white (contrast against blue)
+                timer.style.color = getContrastColor(colors.primary);
+                timer.style.borderColor = colors.accent;
+
+                // Force the H3 inside the timer to be White (override the generic H3 rule above)
+                const h3 = timer.querySelector('h3');
+                if (h3) h3.style.color = getContrastColor(colors.primary);
+            });
+            
+            // Update specific settings text elements
             document.querySelectorAll('.color-setting-card label').forEach(label => {
                 label.style.color = textColor;
             });
@@ -7012,7 +7042,6 @@ User's request: ${msg}`;
                 card.style.background = colors.card;
                 card.style.borderLeftColor = colors.primary;
                 card.style.color = getContrastColor(colors.card);
-                // Ensure stat numbers and labels use proper contrast
                 const statNumber = card.querySelector('.stat-number');
                 const statLabel = card.querySelector('.stat-label');
                 if (statNumber) statNumber.style.color = getContrastColor(colors.card);
@@ -7039,19 +7068,17 @@ User's request: ${msg}`;
                 card.style.borderLeftColor = colors.primary;
                 card.style.color = getContrastColor(colors.card);
             });
-            
-            // Update workout timer
-            document.querySelectorAll('.workout-timer').forEach(timer => {
-                timer.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
-                timer.style.color = getContrastColor(colors.primary);
-                timer.style.borderColor = colors.accent;
-            });
-            
+
             // Update recommendation cards
             document.querySelectorAll('.recommendation-card').forEach(card => {
                 card.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
                 card.style.color = colors.accent;
                 card.style.border = `2px solid ${colors.accent}`;
+                 // Ensure text inside recommendation card uses accent color or contrast
+                 const p = card.querySelector('p');
+                 const h3 = card.querySelector('h3');
+                 if(p) p.style.color = getContrastColor(colors.primary); 
+                 if(h3) h3.style.color = colors.accent;
             });
             
             // Update chat messages box
