@@ -166,12 +166,12 @@
             padding: 14px 28px;
             background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
             color: #d4af37;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
             width: 100%;
             margin-top: 10px;
         }
@@ -179,6 +179,7 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 31, 63, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
         }
 
         .btn:active {
@@ -211,6 +212,17 @@
             padding: 15px;
             margin-bottom: 15px;
             border-left: 4px solid #003d5c;
+        }
+        
+        .exercise-equipment {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .exercise-not-found {
+            text-align: center;
+            color: #6c757d;
         }
 
         .exercise-header {
@@ -322,7 +334,8 @@
             background: #e8dcc4;
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 15px;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
             border-left: 4px solid #003d5c;
         }
 
@@ -631,6 +644,7 @@
             width: 100%;
             max-height: 80vh;
             overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .modal-header {
@@ -646,11 +660,32 @@
         }
 
         .modal-close {
-            background: none;
+            background: #dc3545;
             border: none;
-            font-size: 28px;
+            font-size: 32px;
             cursor: pointer;
-            color: #6c757d;
+            color: #ffffff;
+            padding: 8px 12px;
+            line-height: 1;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+            opacity: 0.9;
+        }
+
+        .modal-close:hover {
+            background-color: #c82333;
+            color: #ffffff;
+            opacity: 1;
+        }
+
+        .modal-close:active {
+            background-color: #b81c2e;
+            opacity: 0.95;
         }
 
         #userMessage {
@@ -1961,9 +1996,10 @@
   <!-- Edit Workout Stats Modal -->
     <div id="editStatsModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeEditStatsModal()">&times;</span>
-            <h2>✏️ Edit Workout Stats</h2>
-            <div id="editStatsForm">
+            <div class="modal-header">
+            <h3 class="modal-title">✏️ Edit Workout Stats</h3>
+            <button class="modal-close" onclick="closeEditStatsModal()">&times;</button>
+            </div>
                 <!-- NEW DATE/TIME FIELDS ADDED HERE -->
                 <div class="form-group">
                     <label>📅 Workout Date</label>
@@ -2951,6 +2987,11 @@
             exerciseListDiv.innerHTML = html;
         }
 
+        function removeExerciseFromCustom(index) {
+            currentWorkout.splice(index, 1);
+            updateCustomExerciseList();
+        }
+
         function addExerciseToCustomWorkout() {
             const exerciseList = Object.keys(exerciseDatabase);
             const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
@@ -3605,6 +3646,19 @@ function cancelQuickCardio() {
             currentSet = 1;
             workoutStartTime = Date.now();
 
+            // Initialize audio context for rest timer beeps
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log("Audio Context initialized for traditional/circuit workout rest timers.");
+                } catch (e) {
+                    console.log("Could not initialize audio context:", e);
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             document.getElementById('workoutSetup').style.display = 'none';
             document.getElementById('guidedWorkoutMode').style.display = 'block';
 
@@ -3684,11 +3738,20 @@ function cancelQuickCardio() {
                 restTime--;
                 document.getElementById('restDisplay').textContent = restTime;
 
+                // Play countdown beeps in the last 3 seconds
+                if (restTime === 3) {
+                    playHiitSound('countdown3');
+                } else if (restTime === 2) {
+                    playHiitSound('countdown2');
+                } else if (restTime === 1) {
+                    playHiitSound('countdown1');
+                }
+
                 if (restTime <= 0) {
                     clearInterval(restInterval);
                     document.getElementById('restTimer').style.display = 'none';
                     document.getElementById('completeSetBtn').style.display = 'block';
-                    playBeep();
+                    playHiitSound('rest'); // Final beep when rest is complete
                 }
             }, 1000);
         }
@@ -4222,14 +4285,14 @@ function cancelQuickCardio() {
                                 ${isCustom ? `<button class="delete-btn" onclick="deleteCustomExercise('${name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
                             </div>
                         </div>
-                        <p style="font-size: 13px; color: #6c757d; margin-top: 5px;">
+                        <p class="exercise-equipment">
                             Equipment: ${exercise.equipment}
                         </p>
                     </div>
                 `;
             });
 
-            container.innerHTML = html || '<p style="text-align: center; color: #6c757d;">No exercises found</p>';
+            container.innerHTML = html || '<p class="exercise-not-found">No exercises found</p>';
         }
 
         function showExerciseInfo(exerciseName) {
@@ -5021,8 +5084,9 @@ User's request: ${msg}`;
                 }));
             }
 
+            const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
             aiWorkout.exercises.forEach(ex => {
-                if (!exerciseDatabase[ex.name]) {
+                if (!exerciseDatabase[ex.name] && !customExercises[ex.name]) {
                     const newExerciseData = {
                         equipment: ex.equipment || 'Bodyweight',
                         instructions: ex.description || 'No specific instructions provided by AI.',
@@ -5895,7 +5959,7 @@ User's request: ${msg}`;
                             <div class="history-duration">${minutes}:${String(seconds).padStart(2, '0')}</div>
                         </div>
                         ${workout.heartRate || workout.calories || workout.distance ? `
-                            <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px;">
+                            <div class="history-stats-box">
                                 ${workout.heartRate ? `💓 Avg HR: <strong>${workout.heartRate} BPM</strong> &nbsp;|&nbsp; ` : ''}
                                 ${workout.calories ? `🔥 Calories: <strong>${workout.calories}</strong> &nbsp;|&nbsp; ` : ''}
                                 ${workout.distance ? `📏 Distance: <strong>${workout.distance} ${workout.distanceUnit}</strong>` : ''}
@@ -5957,8 +6021,7 @@ User's request: ${msg}`;
 
                 html += `
                         </div>
-                       </div>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
                             <button class="btn btn-secondary" onclick="editWorkoutStats(${index})" style="flex: 1; padding: 12px 20px; margin-top: 0;">
                                 ✏️ Edit Stats
                             </button>
@@ -5979,11 +6042,12 @@ User's request: ${msg}`;
             currentEditingWorkoutIndex = index;
             const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
             const workout = history[index];
-            
+
             const isoString = workout.date;
             const datePart = isoString.substring(0, 10); // YYYY-MM-DD
-            const timePart = new Date(isoString).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: false}); // HH:MM
-        
+            // Extract time directly from ISO string to avoid timezone conversion issues
+            const timePart = isoString.substring(11, 16); // HH:MM from "YYYY-MM-DDTHH:MM:SS.sssZ"
+
             // Populate the new date/time fields
             document.getElementById('editWorkoutDate').value = datePart;
             document.getElementById('editWorkoutTime').value = timePart; 
@@ -6015,17 +6079,18 @@ User's request: ${msg}`;
 
             const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
             const workout = history[currentEditingWorkoutIndex];
-            // NEW: Get Date and Time and update the workout.date ISO string
+
+            // Get Date and Time and update the workout.date ISO string
             const newDate = document.getElementById('editWorkoutDate').value; // YYYY-MM-DD
             const newTime = document.getElementById('editWorkoutTime').value; // HH:MM
-            
+
             if (newDate && newTime) {
-                 // Create a local date object from the user's date and time
-                 const localDateTimeString = `${newDate}T${newTime}:00`; 
-                 const newWorkoutDate = new Date(localDateTimeString);
-                 if (!isNaN(newWorkoutDate)) {
-                     workout.date = newWorkoutDate.toISOString(); // Save as new ISO string
-                 }
+                 // Preserve the original seconds and milliseconds from the existing date
+                 const oldIsoString = workout.date;
+                 const oldSeconds = oldIsoString.substring(17, 23); // :SS.sssZ or just Z
+
+                 // Reconstruct ISO string directly to avoid timezone conversion
+                 workout.date = `${newDate}T${newTime}${oldSeconds}`;
             }
             workout.workoutName = document.getElementById('editWorkoutName').value.trim() || workout.workoutName;
             
@@ -6930,307 +6995,150 @@ User's request: ${msg}`;
             localStorage.setItem('customColors', JSON.stringify(colors));
         }
         
-        function updateColorStyles(colors) {
-            // Calculate contrasting text color for the main background (usually dark gray)
-            const textColor = getContrastColor(colors.background);
-            
-            // Apply colors using CSS variables
-            document.documentElement.style.setProperty('--primary-color', colors.primary);
-            document.documentElement.style.setProperty('--accent-color', colors.accent);
-            document.documentElement.style.setProperty('--bg-color', colors.background);
-            document.documentElement.style.setProperty('--success-color', colors.success);
-            document.documentElement.style.setProperty('--danger-color', colors.danger);
-            document.documentElement.style.setProperty('--card-color', colors.card);
-            document.documentElement.style.setProperty('--nav-color', colors.nav);
-            document.documentElement.style.setProperty('--nav-text-color', colors.navText);
-            
-            // --- 1. HEADER FIXES ---
-            // Update body gradient
-            document.body.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%)`;
-            
-            // Update header
-            const header = document.querySelector('.header');
-            if (header) {
-                header.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%)`;
-                // Set header text to ACCENT color (Yellow), not contrast color (White)
-                header.style.color = colors.accent;
-                header.style.borderBottomColor = colors.accent;
-                
-                const h1 = header.querySelector('h1');
-                const p = header.querySelector('p');
-                
-                // Force H1 and P to use the Accent Color
-                if (h1) h1.style.color = colors.accent;
-                if (p) {
-                    p.style.color = colors.accent;
-                    p.style.opacity = '1'; // Remove transparency so it matches the title
-                }
-            }
-            
-            // Update container
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.background = colors.background;
-                container.style.borderColor = adjustBrightness(colors.nav, -20);
-            }
-            
-            // Update ALL navigation styling
-            const nav = document.querySelector('.nav');
-            if (nav) {
-                nav.style.background = colors.nav;
-                nav.style.borderBottomColor = adjustBrightness(colors.nav, -20);
-            }
-            
-            // Update nav buttons (inactive state)
-            document.querySelectorAll('.nav-btn:not(.active)').forEach(btn => {
-                btn.style.color = colors.navText;
-                btn.style.background = 'none';
-                btn.style.borderBottom = 'none';
-            });
-            
-            // Update nav buttons (active state)
-            document.querySelectorAll('.nav-btn.active').forEach(btn => {
-                btn.style.background = colors.background;
-                btn.style.color = getContrastColor(colors.background);
-                btn.style.borderBottomColor = colors.accent;
-            });
-            
-            // Update all text in content areas
-            document.querySelectorAll('.content, .section').forEach(el => {
-                el.style.color = textColor;
-            });
-            
-            // Update generic labels/text to use the calculated text color
-            document.querySelectorAll('label, h2, h3, h4, h5, h6, p, span, small, .form-group label').forEach(el => {
-                // Don't override nav text colors or header colors
-                if (!el.closest('.nav') && !el.closest('.header')) {
-                    el.style.color = textColor;
-                }
-            });
-            
-            // --- 2. WORKOUT TIMER FIX ---
-            document.querySelectorAll('.workout-timer').forEach(timer => {
-                timer.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
-                // The container text should be white (contrast against blue)
-                timer.style.color = getContrastColor(colors.primary);
-                timer.style.borderColor = colors.accent;
+       function updateColorStyles(colors) {
+    // Get or create the style tag
+    let themeStyle = document.getElementById('theme-styles');
+    if (!themeStyle) {
+        themeStyle = document.createElement('style');
+        themeStyle.id = 'theme-styles';
+        document.head.appendChild(themeStyle);
+    }
 
-                // Force the H3 inside the timer to be White (override the generic H3 rule above)
-                const h3 = timer.querySelector('h3');
-                if (h3) h3.style.color = getContrastColor(colors.primary);
-            });
-            
-            // Update specific settings text elements
-            document.querySelectorAll('.color-setting-card label').forEach(label => {
-                label.style.color = textColor;
-            });
-            
-            document.querySelectorAll('.color-setting-card small').forEach(small => {
-                small.style.color = textColor;
-                small.style.opacity = '0.7';
-            });
-            
-            // Update exercise cards
-            document.querySelectorAll('.exercise-card').forEach(card => {
-                card.style.background = colors.card;
-                card.style.borderLeftColor = colors.primary;
-                card.style.color = getContrastColor(colors.card);
-            });
-            
-           // Update stat cards
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.style.background = colors.card;
-                card.style.borderLeftColor = colors.primary;
-                card.style.color = getContrastColor(colors.card);
-                const statNumber = card.querySelector('.stat-number');
-                const statLabel = card.querySelector('.stat-label');
-                if (statNumber) statNumber.style.color = getContrastColor(colors.card);
-                if (statLabel) statLabel.style.color = getContrastColor(colors.card);
-            });
-            
-            // Update history items
-            document.querySelectorAll('.history-item').forEach(item => {
-                item.style.background = colors.card;
-                item.style.borderLeftColor = colors.primary;
-                item.style.color = getContrastColor(colors.card);
-            });
-            
-            // Update info boxes
-            document.querySelectorAll('.info-box').forEach(box => {
-                box.style.background = adjustBrightness(colors.card, 10);
-                box.style.borderLeftColor = colors.primary;
-                box.style.color = getContrastColor(colors.card);
-            });
-            
-            // Update color setting cards
-            document.querySelectorAll('.color-setting-card').forEach(card => {
-                card.style.background = colors.card;
-                card.style.borderLeftColor = colors.primary;
-                card.style.color = getContrastColor(colors.card);
-            });
+    const textColor = getContrastColor(colors.background);
+    const cardTextColor = getContrastColor(colors.card);
+    const fadedCardTextColor = adjustBrightness(cardTextColor, -30);
+    const primaryContrast = getContrastColor(colors.primary);
 
-            // Update recommendation cards
-            document.querySelectorAll('.recommendation-card').forEach(card => {
-                card.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
-                card.style.color = colors.accent;
-                card.style.border = `2px solid ${colors.accent}`;
-                 // Ensure text inside recommendation card uses accent color or contrast
-                 const p = card.querySelector('p');
-                 const h3 = card.querySelector('h3');
-                 if(p) p.style.color = getContrastColor(colors.primary); 
-                 if(h3) h3.style.color = colors.accent;
-            });
-            
-            // Update chat messages box
-            document.querySelectorAll('.chat-messages-box').forEach(box => {
-                box.style.background = colors.card;
-                box.style.border = `2px solid ${adjustBrightness(colors.card, -20)}`;
-                box.style.color = getContrastColor(colors.card);
-            });
-            
-            // Update modal content
-            document.querySelectorAll('.modal-content').forEach(modal => {
-                modal.style.background = colors.background;
-                modal.style.borderColor = colors.primary;
-            });
-            
-            // Update modal headers
-            document.querySelectorAll('.modal-header').forEach(header => {
-                header.style.background = adjustBrightness(colors.card, -5);
-                header.style.borderBottomColor = colors.primary;
-            });
-            
-            // Update buttons
-            document.querySelectorAll('.btn:not(.btn-secondary):not(.btn-success):not(.btn-danger)').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%)`;
-                btn.style.color = colors.accent;
-            });
-            
-            document.querySelectorAll('.btn-secondary').forEach(btn => {
-                btn.style.background = adjustBrightness(colors.nav, -10);
-                btn.style.color = getContrastColor(adjustBrightness(colors.nav, -10));
-            });
-            
-            document.querySelectorAll('.btn-success').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${colors.success} 0%, ${adjustBrightness(colors.success, 15)} 100%)`;
-                btn.style.color = '#ffffff';
-            });
-            
-            document.querySelectorAll('.delete-btn, .btn-danger').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${colors.danger} 0%, ${adjustBrightness(colors.danger, 20)} 100%)`;
-                btn.style.color = '#ffffff';
-            });
-            
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%)`;
-                btn.style.color = colors.accent;
-            });
-            
-            // Update status messages
-            document.querySelectorAll('.status-success').forEach(status => {
-                status.style.background = colors.success;
-                status.style.color = '#ffffff';
-                status.style.border = `2px solid ${adjustBrightness(colors.success, -20)}`;
-            });
-            
-            document.querySelectorAll('.status-warning').forEach(status => {
-                status.style.background = adjustBrightness(colors.card, 20);
-                status.style.color = getContrastColor(colors.card);
-                status.style.border = `2px solid ${colors.primary}`;
-            });
-            
-            document.querySelectorAll('.status-error').forEach(status => {
-                status.style.background = colors.danger;
-                status.style.color = '#ffffff';
-                status.style.border = `2px solid ${adjustBrightness(colors.danger, -20)}`;
-            });
-            
-            // Update chart bars
-            document.querySelectorAll('.chart-bar').forEach(bar => {
-                bar.style.background = adjustBrightness(colors.card, -5);
-            });
-            
-            document.querySelectorAll('.chart-fill').forEach(fill => {
-                fill.style.background = `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`;
-            });
-            
-            // Update inputs and selects
-            document.querySelectorAll('input:not([type="color"]):not([type="file"]), select, textarea').forEach(input => {
-                input.style.borderColor = adjustBrightness(colors.card, -20);
-                input.style.background = '#ffffff';
-            });
-            
-            // Update PR badges
-            document.querySelectorAll('.pr-badge').forEach(badge => {
-                badge.style.background = colors.accent;
-                badge.style.color = colors.primary;
-            });
-            
-            // Update calendar view buttons
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.style.background = colors.nav;
-                btn.style.border = `2px solid ${adjustBrightness(colors.nav, -20)}`;
-                btn.style.color = colors.navText;
-            });
-            
-            document.querySelectorAll('.view-btn.active').forEach(btn => {
-                btn.style.background = colors.primary;
-                btn.style.color = colors.accent;
-                btn.style.borderColor = colors.primary;
-            });
-            
-            // Update calendar day headers
-            document.querySelectorAll('.calendar-day-header').forEach(header => {
-                header.style.background = colors.nav;
-                header.style.color = colors.navText;
-            });
-            
-            // Update calendar month/year display
-            const calendarMonthYear = document.getElementById('calendarMonthYear');
-            if (calendarMonthYear) {
-                calendarMonthYear.style.color = textColor;
-            }
-            
-            // Update calendar day cells
-            document.querySelectorAll('.calendar-day').forEach(day => {
-                day.style.background = colors.card;
-                day.style.color = getContrastColor(colors.card);
-                day.style.borderColor = adjustBrightness(colors.card, -30);
-            });
-            
-            document.querySelectorAll('.calendar-day:hover').forEach(day => {
-                day.style.borderColor = colors.primary;
-            });
-            
-            document.querySelectorAll('.calendar-day.today').forEach(day => {
-                day.style.borderColor = colors.accent;
-                day.style.background = adjustBrightness(colors.card, 10);
-            });
-            
-            document.querySelectorAll('.calendar-day.has-workout').forEach(day => {
-                day.style.background = colors.success;
-                day.style.borderColor = adjustBrightness(colors.success, -20);
-                day.style.color = '#ffffff';
-            });
-            
-            document.querySelectorAll('.calendar-day.rest-day').forEach(day => {
-                day.style.background = adjustBrightness(colors.card, 20);
-                day.style.borderColor = colors.primary;
-                day.style.color = getContrastColor(colors.card);
-            });
-            
-            // Update day numbers in calendar
-            document.querySelectorAll('.day-number').forEach(num => {
-                num.style.color = 'inherit';
-            });
-            
-            // Update buttons inside recommendation cards
-            document.querySelectorAll('.recommendation-card .btn').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${colors.success} 0%, ${adjustBrightness(colors.success, 15)} 100%)`;
-                btn.style.color = '#ffffff';
-            });
+    const css = `
+        body {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
         }
-        
+        .container {
+            background: ${colors.background};
+            border-color: ${adjustBrightness(colors.nav, -20)};
+        }
+        .header {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+            color: ${colors.accent};
+            border-bottom-color: ${colors.accent};
+        }
+        .header h1, .header p {
+            color: ${colors.accent};
+        }
+        .nav {
+            background: ${colors.nav};
+            border-bottom-color: ${adjustBrightness(colors.nav, -20)};
+        }
+        .nav-btn {
+            color: ${colors.navText};
+        }
+        .nav-btn.active {
+            background: ${colors.background};
+            color: ${textColor};
+            border-bottom-color: ${colors.accent};
+        }
+        .content, h2, h3, h4, label {
+             color: ${textColor};
+        }
+
+        /* === CARD STYLING (THE KEY FIX IS HERE) === */
+        .exercise-card, .history-item, .measurement-card, .progress-chart, .color-setting-card, .chat-messages-box {
+            background: ${colors.card};
+            border: 1px solid ${adjustBrightness(colors.card, -20)};
+            border-left: 4px solid ${colors.primary};
+            color: ${cardTextColor};
+        }
+        .exercise-name, .history-date, .history-exercise-name, .measurement-label, .chart-title {
+            color: ${cardTextColor};
+        }
+        .exercise-equipment, .history-exercises, .history-exercise-stats {
+            color: ${fadedCardTextColor};
+        }
+        .history-type { color: ${colors.primary}; }
+        .measurement-value { color: ${colors.primary}; }
+        .exercise-not-found { color: ${textColor}; }
+        #exercises .exercise-card {
+            border: 2px solid ${adjustBrightness(colors.card, -35)};
+            border-left: 4px solid ${colors.primary};
+        }
+        /* BUTTONS */
+        .btn {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+            color: ${colors.accent};
+        }
+        .btn-secondary {
+            background: ${adjustBrightness(colors.nav, -10)};
+            color: ${getContrastColor(adjustBrightness(colors.nav, -10))};
+        }
+        .btn-success {
+            background: linear-gradient(135deg, ${colors.success} 0%, ${adjustBrightness(colors.success, 15)} 100%);
+            color: #ffffff;
+        }
+        .btn-danger, .delete-btn {
+            background: linear-gradient(135deg, ${colors.danger} 0%, ${adjustBrightness(colors.danger, 20)} 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .edit-btn {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
+            color: ${colors.accent};
+            border: 1px solid ${colors.accent};
+        }
+        .timer-btn {
+            color: ${colors.accent};
+            border-color: ${colors.accent};
+        }
+
+        /* OTHER COMPONENTS */
+        .workout-timer {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
+            color: ${primaryContrast};
+            border-color: ${colors.accent};
+        }
+        .workout-timer h3 { color: ${primaryContrast}; }
+        .timer-display { color: ${colors.accent}; }
+
+        .stat-card {
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+            border-color: ${colors.accent};
+        }
+        .stat-number { color: ${colors.accent}; }
+        .stat-label { color: ${primaryContrast}; }
+
+        .info-box {
+            background: ${adjustBrightness(colors.card, 10)};
+            border-left-color: ${colors.primary};
+        }
+        .info-box p { color: ${cardTextColor}; }
+        .history-stats-box {
+            background: ${adjustBrightness(colors.card, -10)};
+            color: ${getContrastColor(adjustBrightness(colors.card, -10))};
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .history-stats-box strong {
+            color: ${getContrastColor(adjustBrightness(colors.card, -10))};
+        }
+        .chart-fill {
+            background: linear-gradient(90deg, ${colors.primary}, ${colors.accent});
+        }
+        .chart-value {
+             color: ${getContrastColor(colors.primary)};
+        }
+        .pr-badge {
+            background: ${colors.accent};
+            color: ${colors.primary};
+        }
+        .modal-content {
+            background: ${colors.background};
+            border-color: ${colors.primary};
+        }
+    `;
+    
+    themeStyle.innerHTML = css;
+}           
         function getContrastColor(hexColor) {
             // Convert hex to RGB
             const r = parseInt(hexColor.substr(1, 2), 16);
