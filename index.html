@@ -42,19 +42,21 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
             min-height: 100vh;
-            padding: 10px;
         }
-
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: #f5f5dc;
+            /* background: rgba(245, 245, 220, 0.85); /* 85% opaque beige */
+            background: rgba(255, 255, 255, 0.85); /* 85% opaque white for better visibility */
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
+            overflow-y: auto; /* Allow scrolling within container */
+            padding: 10px;
+            overflow-x: hidden;
             border: 3px solid #8b7355;
+            position: relative;
         }
 
         .header {
@@ -109,8 +111,10 @@
         .content {
             padding: 15px;
             min-height: 400px;
+            background: transparent; /* Ensure content background is transparent */
+            position: relative;
+            z-index: 1;
         }
-
         .section {
             display: none;
         }
@@ -216,7 +220,6 @@
         
         .exercise-equipment {
             font-size: 13px;
-            color: #6c757d;
             margin-top: 5px;
         }
         
@@ -236,7 +239,6 @@
         .exercise-name {
             font-weight: 700;
             font-size: 16px;
-            color: #333;
             flex: 1;
             max-width: 60%;
             word-wrap: break-word;
@@ -262,17 +264,23 @@
         .detail-input {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
-
         .detail-input label {
             font-size: 12px;
             margin-bottom: 5px;
-            color: #6c757d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .detail-input input {
+         .detail-input input,
+        .detail-input select {
             padding: 8px;
             font-size: 14px;
+            width: 100%;
+            min-height: 40px;
+            box-sizing: border-box;
         }
 
         .exercise-image {
@@ -347,17 +355,14 @@
 
         .history-date {
             font-weight: 600;
-            color: #333;
         }
 
         .history-type {
-            color: #003d5c;
             font-weight: 600;
         }
 
         .history-exercises {
             font-size: 14px;
-            color: #6c757d;
         }
 
         .history-details-body {
@@ -379,12 +384,10 @@
 
         .history-exercise-name {
             font-weight: 600;
-            color: #333;
             margin-right: 10px;
         }
 
         .history-exercise-stats {
-            color: #6c757d;
             text-align: right;
             flex-shrink: 0;
         }
@@ -392,23 +395,18 @@
         .history-duration {
             font-size: 18px;
             font-weight: 600;
-            color: #003d5c;
             text-align: right;
         }
 
         .history-notes {
             margin-top: 10px;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.5);
             border-radius: 6px;
             font-size: 13px;
             font-style: italic;
-            color: #555;
         }
 
-        .pr-badge {
-            background: #d4af37;
-            color: #001f3f;
+        .pr-badge {           
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -421,15 +419,6 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
-            color: #d4af37;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 2px solid #8b7355;
         }
 
         .stat-number {
@@ -457,7 +446,6 @@
         .chart-title {
             font-weight: 600;
             margin-bottom: 15px;
-            color: #333;
         }
 
         .chart-bar {
@@ -469,7 +457,6 @@
         .chart-label {
             width: 120px;
             font-size: 14px;
-            color: #6c757d;
         }
 
         .chart-fill {
@@ -592,6 +579,7 @@
             text-align: center;
             margin-bottom: 15px;
             border: 2px solid #d4af37;
+            display: none; 
         }
 
         .timer-display {
@@ -617,34 +605,44 @@
             font-weight: 600;
             font-size: 14px;
         }
-
+        #modal-wrapper {
+            position: relative;
+            z-index: 10000;
+        }
+        .modal.active {
+            display: flex !important;
+        }
         .modal {
-            display: none;
-            position: fixed;
+            position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
             padding: 20px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            overscroll-behavior: contain;
         }
-
-        .modal.active {
-            display: flex;
+            .modal.active {
+            display: flex !important;
         }
-
-        .modal-content {
+            .modal-content {
             background: white;
             border-radius: 16px;
             padding: 20px;
             max-width: 500px;
             width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10001;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            margin: auto; /* ensure perfect viewport centering */
         }
 
         .modal-header {
@@ -785,7 +783,6 @@
 
         #hiitCountdownScreen {
             text-align: center;
-            color: #d4af37;
         }
 
         #hiitCountdownDisplay {
@@ -869,7 +866,11 @@
             gap: 5px;
             margin-top: 15px;
         }
-
+        /* Styling for Today's Date */
+        #calendarContent .calendar-day.today {
+            border-color: var(--accent-color, #d4af37);
+            box-shadow: 0 0 10px var(--accent-color, #d4af37);
+        }
         .calendar-day-header {
             text-align: center;
             font-weight: 600;
@@ -939,10 +940,8 @@
         }
 
         .week-day-card.rest-day {
-            border-left-color: #ffc107;
-            background: #fff3cd;
+            border-left-color: ${colors.accent};
         }
-
         .measurement-card {
             background: #e8dcc4;
             border-radius: 12px;
@@ -967,7 +966,6 @@
         .measurement-value {
             font-size: 24px;
             font-weight: 700;
-            color: #003d5c;
         }
 
         .measurement-trend {
@@ -1191,17 +1189,17 @@
                 </div>
             </div>
 
-            <!-- Workout Section -->
-            <div id="workout" class="section active">
-                <div class="workout-timer">
-                    <h3>⏱️ Workout Duration Timer</h3>
-                    <div class="timer-display" id="timerDisplay">00:00</div>
-                    <div class="timer-controls">
-                        <button class="timer-btn" onclick="startTimer()">▶️ Start</button>
-                        <button class="timer-btn" onclick="pauseTimer()">⏸️ Pause</button>
-                        <button class="timer-btn" onclick="resetTimer()">🔄 Reset</button>
-                    </div>
+            <div id="workout" class="section active">   
+                <!-- Workout Section -->
+            <div class="workout-timer">
+                <h3>⏱️ Workout Duration Timer</h3>
+                <div class="timer-display" id="timerDisplay">00:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" onclick="startTimer()">▶️ Start</button>
+                    <button class="timer-btn" onclick="pauseTimer()">⏸️ Pause</button>
+                    <button class="timer-btn" onclick="resetTimer()">🔄 Reset</button>
                 </div>
+            </div>
                 <div id="workoutSetup">
                     <div class="form-group">
                         <label>Select Workout Type</label>
@@ -1245,45 +1243,43 @@
                             <p><strong>Circuit:</strong> Do one set of each exercise, then repeat for all rounds.</p>
                             <p><strong>HIIT:</strong> Perform exercises for timed work/rest intervals.</p>
                         </div>
-                        <div id="hiitPreWorkoutAdjustments"
-                            style="display:none; margin: 15px -20px; background: rgba(212,175,55,0.2); padding: 12px 20px; border-radius: 0;">
-                            <div
-                                style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 10px; text-align: center;">
+                        <div id="hiitPreWorkoutAdjustments" class="info-box" style="display:none;">
+                            <div style="font-weight: 600; margin-bottom: 10px; text-align: center;">
                                 Adjust HIIT Parameters:</div>
                             <div style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap;">
                                 <div style="text-align: center;">
-                                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Work</div>
+                                    <div style="font-size: 11px; margin-bottom: 6px;">Work</div>
                                     <div
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', -5)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkWorkDisplay"
-                                            style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">30</span>
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">30</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('work', 5)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
                                     </div>
                                 </div>
                                 <div style="text-align: center;">
-                                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Rest</div>
+                                    <div style="font-size: 11px; margin-bottom: 6px;">Rest</div>
                                     <div
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', -5)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkRestDisplay"
-                                            style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">15</span>
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">15</span>
                                         <button class="btn btn-secondary" onclick="adjustHiitParamPreWorkout('rest', 5)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
                                     </div>
                                 </div>
                                 <div style="text-align: center;">
-                                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 6px;">Rounds</div>
+                                    <div style="font-size: 11px; margin-bottom: 6px;">Rounds</div>
                                     <div
                                         style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                         <button class="btn btn-secondary"
                                             onclick="adjustHiitParamPreWorkout('rounds', -1)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
                                         <span id="hiitPreWorkRoundsDisplay"
-                                            style="min-width: 40px; text-align: center; color: #001f3f; font-weight: bold; font-size: 14px;">4</span>
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">4</span>
                                         <button class="btn btn-secondary"
                                             onclick="adjustHiitParamPreWorkout('rounds', 1)"
                                             style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
@@ -1375,9 +1371,9 @@
 
                 <!-- HIIT Workout Mode -->
                 <div id="hiitWorkoutMode"
-                    style="display:none; background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%); padding: 12px; border-radius: 12px;">
+                    style="display:none; padding: 12px; border-radius: 12px;">
                     <div id="hiitCountdownScreen">
-                        <h2 style="color: #f5f5dc;">Get Ready!</h2>
+                        <h2>Get Ready!</h2>
                         <div id="hiitCountdownDisplay">5</div>
                     </div>
                     <div id="hiitActiveScreen" style="display: none;">
@@ -1386,6 +1382,10 @@
                         <h3 id="hiitExerciseName">Jumping Jacks</h3>
                         <p id="hiitNextExerciseName">Next Up: Rest</p>
                         <div id="hiitRoundDisplay">Round 1 of 4</div>
+                         <button class="btn btn-secondary" onclick="showCurrentHiitExerciseInfo()"
+                            style="margin-bottom: 10px; margin-top: 10px;">
+                            📋 View Form Instructions
+                        </button>
                         <div
                             style="margin: 10px -12px 0 -12px; background: rgba(212,175,55,0.2); padding: 8px 12px; border-radius: 0;">
                             <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px; text-align: center;">Adjust
@@ -1850,204 +1850,21 @@
                         <h4 style="margin-bottom: 15px;">🎨 Quick Themes</h4>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                             <button class="btn btn-secondary" onclick="applyTheme('default')" style="margin-top: 0; padding: 10px;">🏛️ Classic (Default)</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('dark')" style="margin-top: 0; padding: 10px;">🌙 Dark Mode</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('nike')" style="margin-top: 0; padding: 10px;">✔️ Nike Style</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('adidas')" style="margin-top: 0; padding: 10px;">⚫ Adidas Style</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('kentucky')" style="margin-top: 0; padding: 10px;">🏀 UK Wildcats</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('ocean')" style="margin-top: 0; padding: 10px;">🌊 Ocean Blue</button>
+                            <button class="btn btn-secondary" onclick="applyTheme('kentucky')" style="margin-top: 0; padding: 10px;">🏀 Wildcat</button>
+                            <button class="btn btn-secondary" onclick="applyTheme('ocean')" style="margin-top: 0; padding: 10px;">🌊 Ocean</button>
                             <button class="btn btn-secondary" onclick="applyTheme('forest')" style="margin-top: 0; padding: 10px;">🌲 Forest Green</button>
                             <button class="btn btn-secondary" onclick="applyTheme('sunset')" style="margin-top: 0; padding: 10px;">🌅 Sunset Orange</button>
-                            <button class="btn btn-secondary" onclick="applyTheme('purple')" style="margin-top: 0; padding: 10px;">💜 Purple Haze</button>
+                            <button class="btn btn-secondary" onclick="applyTheme('purple')" style="margin-top: 0; padding: 10px;">💜 Deep Purple</button>
+                            <button class="btn btn-secondary" onclick="applyTheme('gympak')" style="margin-top: 0; padding: 10px;">🌙 Dark Mode</button>
+                            <button class="btn btn-secondary" onclick="applyTheme('crimson')" style="margin-top: 0; padding: 10px;">🔴 Crimson Night</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-    <!-- Exercise Info Modal -->
-    <div id="exerciseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalExerciseName"></h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div id="modalExerciseContent"></div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Custom Exercise Modal -->
-    <div id="addExerciseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="addExerciseModalTitle">➕ Add Custom Exercise</h3>
-                <button class="modal-close" onclick="closeAddExerciseModal()">&times;</button>
-            </div>
-            <div>
-                <input type="hidden" id="originalExerciseName">
-                <div class="form-group">
-                    <label>Exercise Name *</label>
-                    <input type="text" id="newExerciseName" placeholder="e.g., Dumbbell Chest Fly">
-                </div>
-                <button class="btn btn-secondary" onclick="generateExerciseDetailsWithAI()" id="aiGenerateBtn"
-                    style="width: auto; padding: 10px 15px; font-size: 14px; margin-bottom: 20px;">
-                    🤖 Generate with AI
-                </button>
-                <div class="form-group">
-                    <label>Equipment *</label>
-                    <input type="text" id="newExerciseEquipment" placeholder="e.g., Dumbbells">
-                </div>
-                <div class="form-group">
-                    <label>Instructions *</label>
-                    <textarea id="newExerciseInstructions" rows="4"
-                        placeholder="Describe how to perform this exercise..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Target Muscles/Description</label>
-                    <input type="text" id="newExerciseImage" placeholder="e.g., Targets: Chest, Shoulders">
-                </div>
-                <div class="form-group">
-                    <label>YouTube Video Link (optional)</label>
-                    <input type="url" id="newExerciseYouTubeLink" placeholder="e.g., https://www.youtube.com/watch?v=...">
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
-                    <div class="form-group">
-                        <label>Default Weight (lbs)</label>
-                        <input type="number" id="newExerciseWeight" value="25">
-                    </div>
-                    <div class="form-group">
-                        <label>Default Sets</label>
-                        <input type="number" id="newExerciseSets" value="3">
-                    </div>
-                    <div class="form-group">
-                        <label>Default Reps</label>
-                        <input type="number" id="newExerciseReps" value="12">
-                    </div>
-                </div>
-                <button class="btn" id="saveExerciseBtn" onclick="saveNewExercise()">💾 Add Exercise to Database</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Measurement Update Modal -->
-    <div id="measurementModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="measurementModalTitle">Update Measurement</h3>
-                <button class="modal-close" onclick="closeMeasurementModal()">&times;</button>
-            </div>
-            <div>
-                <input type="hidden" id="measurementType">
-                <div class="form-group">
-                    <label id="measurementLabel">Value</label>
-                    <input type="number" step="0.1" id="measurementValue" placeholder="Enter value">
-                </div>
-                <div class="form-group">
-                    <label>Date (optional)</label>
-                    <input type="date" id="measurementDate">
-                </div>
-                <button class="btn" onclick="saveMeasurement()">💾 Save Measurement</button>
-            </div>
-        </div>
-    </div>
-<!-- Calorie Tracking Modal -->
-    <div id="calorieModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">🔥 Configure Calorie Tracking</h3>
-                <button class="modal-close" onclick="closeCalorieModal()">&times;</button>
-            </div>
-            <div>
-                <div class="info-box" style="margin-bottom: 20px;">
-                    <p><strong>How it works:</strong> Choose between automatic estimation based on workout data or manual input from your fitness tracker.</p>
-                </div>
-                
-                <div class="form-group">
-                    <label>Tracking Method</label>
-                    <select id="calorieTrackingMethod" onchange="toggleCalorieInputMethod()">
-                        <option value="automatic">Automatic Estimation</option>
-                        <option value="manual">Manual Input from Tracker</option>
-                    </select>
-                </div>
-
-                <div id="automaticCalorieInfo" style="display: block;">
-                    <div class="info-box">
-                        <p><strong>Automatic Estimation Formula:</strong></p>
-                        <p>• Strength Training: ~5 calories per minute</p>
-                        <p>• HIIT Training: ~10 calories per minute</p>
-                        <p>Adjust the multiplier based on your intensity level:</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Intensity Multiplier (0.5 - 2.0)</label>
-                        <input type="number" id="calorieMultiplier" step="0.1" min="0.5" max="2.0" value="1.0" placeholder="1.0 = Average">
-                        <small style="color: #6c757d;">Lower intensity: 0.5-0.8 | Average: 1.0 | High intensity: 1.2-2.0</small>
-                    </div>
-                </div>
-
-                <div id="manualCalorieInfo" style="display: none;">
-                    <div class="info-box">
-                        <p><strong>Manual Entry:</strong> After each workout, you'll be prompted to enter calories burned from your fitness tracker.</p>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="saveCalorieSettings()">💾 Save Settings</button>
-            </div>
-        </div>
-    </div>
-  <!-- Edit Workout Stats Modal -->
-    <div id="editStatsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h3 class="modal-title">✏️ Edit Workout Stats</h3>
-            <button class="modal-close" onclick="closeEditStatsModal()">&times;</button>
-            </div>
-                <!-- NEW DATE/TIME FIELDS ADDED HERE -->
-                <div class="form-group">
-                    <label>📅 Workout Date</label>
-                    <input type="date" id="editWorkoutDate">
-                </div>
-                <div class="form-group">
-                    <label>⏱️ Workout Time (HH:MM)</label>
-                    <input type="time" id="editWorkoutTime">
-                </div>
-                <div class="form-group">
-                    <label>Workout Name</label>
-                    <input type="text" id="editWorkoutName" placeholder="e.g., Morning Run">
-                </div>
-                <div class="form-group">
-                    <label>💓 Average Heart Rate (BPM)</label>
-                    <input type="number" id="editHeartRate" placeholder="e.g., 145">
-                </div>
-                <div class="form-group">
-                    <label>🔥 Total Calories Burned</label>
-                    <input type="number" id="editCalories" placeholder="e.g., 350">
-                </div>
-                <div class="form-group">
-                    <label>⏱️ Duration (Minutes)</label>
-                    <input type="number" id="editDurationMinutes" placeholder="e.g., 60">
-                    <small style="color: #6c757d;">Primary workout length in minutes.</small>
-                </div>
-                <div class="form-group">
-                    <label>📏 Distance</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="number" id="editDistance" placeholder="0.0" step="0.1" style="flex: 2;">
-                        <select id="editDistanceUnit" style="flex: 1;">
-                            <option value="">-- Select Unit --</option>
-                            <option value="miles">Miles</option>
-                            <option value="km">Kilometers</option>
-                            <option value="meters">Meters</option>
-                        </select>
-                    </div>
-                    <small style="color: #6c757d;">Use miles for walks/runs, km for rows/bikes</small>
-                </div>
-                <div class="form-group">
-                    <label>📝 Notes (Optional)</label>
-                    <textarea id="editWorkoutNotes" rows="3" placeholder="How did you feel? Any achievements?"></textarea>
-                </div>
-                <button class="btn btn-success" onclick="saveWorkoutStats()">💾 Save Changes</button>
-            </div>
-        </div>
-    </div>
     <script>
+        // ==================== GLOBAL THEME VARIABLES ====================
+        let currentCardTextColor = '#333'; // Default text color for cards
+
         // ==================== EXERCISE DATABASE (FROM WORKING FILE) ====================
         const exerciseDatabase = {
             
@@ -2235,7 +2052,20 @@
             'Interval Sprints - Bike': 'https://www.youtube.com/results?search_query=hiit+interval+sprints+bike',
             'Interval Sprints - Rowing': 'https://www.youtube.com/results?search_query=hiit+rowing+machine+intervals'
         };
-        
+                // ==================== TAB BACKGROUND IMAGES ====================
+         // ==================== TAB BACKGROUND IMAGES ====================
+        const tabBackgrounds = {
+            'workout': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'exercises': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'progress': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Body%20Stats%20Image.png?raw=true',
+            'body-stats': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Body%20Stats%20Image.png?raw=true',
+            'recommend': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'ai-coach': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'history': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'calendar': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'share-workout': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true',
+            'settings': 'https://github.com/Bigmaxsg/Enhanced-Workout-App/blob/main/Workout%20Background%20Image.png?raw=true'
+        };
         // This holds AI-generated or custom instructions. It MUST be declared here at the top.
         let exerciseDescriptions = JSON.parse(localStorage.getItem('exerciseDescriptions')) || {};
 
@@ -2313,6 +2143,15 @@
 
         // ==================== NAVIGATION ====================
         function showSection(sectionId) {
+            // *** THE FIX STARTS HERE ***
+            // Before changing tabs, check if the currently active tab is the 'share-workout' tab.
+            const currentActiveSection = document.querySelector('.section.active');
+            if (currentActiveSection && currentActiveSection.id === 'share-workout') {
+                // If we are navigating away from the share tab, reset its view.
+                resetShareTabView();
+            }
+            // *** THE FIX ENDS HERE ***
+
             // Get current colors
             const colors = {
                 primary: document.getElementById('primaryColor')?.value || '#001f3f',
@@ -2343,10 +2182,19 @@
                     btn.classList.add('active');
                     // Apply active styling immediately
                     btn.style.background = colors.background;
-                    btn.style.color = getContrastColor(colors.background);  // Use contrast color instead of accent
+                    btn.style.color = getContrastColor(colors.background);
                     btn.style.borderBottom = `3px solid ${colors.accent}`;
                 }
             });
+        
+            const newBgUrl = tabBackgrounds[sectionId];
+            if (newBgUrl) {
+                applyBackgroundImage(newBgUrl);
+            } else {
+                document.body.style.backgroundImage = ''; 
+                document.body.style.background = ''; 
+                updateColors(); 
+            }
 
             if (sectionId === 'exercises') {
                 renderExerciseList();
@@ -2364,7 +2212,22 @@
                 loadBodyStats();
             }
         }
-
+        function resetShareTabView() {
+                    const qrContainer = document.getElementById('qrCodeContainer');
+                    if (qrContainer) {
+                        qrContainer.style.display = 'none';
+                    }
+        
+                    const qrCodeOutput = document.getElementById('qrCodeOutput');
+                    if (qrCodeOutput) {
+                        qrCodeOutput.innerHTML = '';
+                    }
+        
+                    const shareSelect = document.getElementById('qrShareWorkoutSelect');
+                    if (shareSelect) {
+                        shareSelect.value = '';
+                    }
+                }
         // ==================== TIMER FUNCTIONS ====================
         function startTimer() {
             // Check if it's for starting a HIIT workout
@@ -2504,7 +2367,13 @@
                 'Recumbent Bike': 'Air_Bike',
                 'Rowing Machine': 'Seated_Cable_Row',
                 'Interval Sprints - Bike': 'Air_Bike',
-                'Interval Sprints - Rowing': 'Seated_Cable_Row'
+                'Interval Sprints - Rowing': 'Seated_Cable_Row',
+                'Treadmill Walking': 'Treadmill_Walk',
+                'Treadmill Running': 'Treadmill_Run',
+                'Outdoor Walking': 'Walking',
+                'Outdoor Running': 'Running',
+                'Indoor Cycling': 'Stationary_Bike',
+                'Outdoor Cycling': 'Cycling'
             };
 
             const mappedName = exerciseMapping[exerciseName] || exerciseName.replace(/ /g, '_');
@@ -2551,7 +2420,7 @@
                         ${currentWorkout.map(ex => `
                           <div class="exercise-card">
                             <div class="exercise-name">${ex.name}</div>
-                            <div style="font-size: 12px; color: #6c757d; margin: 5px 0;">${ex.equipment || 'Bodyweight'}</div>
+                            <div class="exercise-equipment">${ex.equipment || 'Bodyweight'}</div>
                              <button class="btn btn-secondary" onclick="showExerciseInfo('${ex.name.replace(/'/g, "\\'")}')" style="margin-top: 12px; padding: 8px; font-size: 14px;">
                                 View Instructions
                              </button>
@@ -3636,6 +3505,7 @@ function cancelQuickCardio() {
 }
        // ==================== GUIDED WORKOUT MODE ====================
         function startGuidedWorkout(mode) {
+            document.querySelector('.workout-timer').style.display = 'block';
             if (currentWorkout.length === 0 || !currentWorkout[0].name) {
                 alert('Please select or create a workout first!');
                 return;
@@ -3790,7 +3660,12 @@ function cancelQuickCardio() {
             const exercise = currentWorkout[currentExerciseIndex];
             showExerciseInfo(exercise.name);
         }
-
+        function showCurrentHiitExerciseInfo() {
+            const exerciseName = hiitWorkoutParams.exercises[hiitCurrentExerciseIndex];
+            if (exerciseName && hiitCurrentMode === 'work') {
+                showExerciseInfo(exerciseName);
+            }
+        }
         function endWorkout() {
             if (confirm('Are you sure you want to end this workout early?')) {
                 finishWorkout();
@@ -3800,44 +3675,32 @@ function cancelQuickCardio() {
         function finishWorkout() {
             pauseTimer();
             const workoutDuration = timerSeconds;
-            
+
             const workoutData = {
-                    date: new Date().toISOString(),
-                    exercises: currentWorkout,
-                    duration: workoutDuration,
-                    type: workoutStyle === 'hiit' && currentWorkout[0] && exerciseDatabase[currentWorkout[0].name]?.exerciseType === 'cardio' ? 'Interval Cardio' : workoutStyle,
-                    workoutName: document.getElementById('workoutType').value || 'Custom',
-                    notes: document.getElementById('workoutNotes')?.value || ''
-                };
-            
-                let history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
-                history.unshift(workoutData);
-                localStorage.setItem('workoutHistory', JSON.stringify(history));
-            
-                updatePersonalRecords(currentWorkout);
-            
-                // Check if this was interval cardio - prompt for stats
-                if (workoutData.type === 'Interval Cardio') {
-                    promptForCardioStats(workoutData);
-                } else {
-                    alert(`🎉 Workout Complete!\n\nDuration: ${Math.floor(workoutDuration / 60)} minutes ${workoutDuration % 60} seconds\n\nGreat job!`);
-                }
-            
-                resetTimer();
-                document.getElementById('guidedWorkoutMode').style.display = 'none';
-                document.getElementById('hiitWorkoutMode').style.display = 'none';
-                document.getElementById('workoutSetup').style.display = 'block';
-                document.getElementById('workoutType').value = '';
-                document.getElementById('workoutContainer').innerHTML = '';
-                document.getElementById('workoutModeSelection').style.display = 'none';
-                if (document.getElementById('workoutNotes')) {
-                    document.getElementById('workoutNotes').value = '';
-                }
-            
-                updateProgress();
-                loadHistory();
-                renderCalendar();
+                date: new Date().toISOString(),
+                exercises: currentWorkout,
+                duration: workoutDuration,
+                type: workoutStyle === 'hiit' && currentWorkout[0] && exerciseDatabase[currentWorkout[0].name]?.exerciseType === 'cardio' ? 'Interval Cardio' : workoutStyle,
+                workoutName: document.getElementById('workoutType').value || 'Custom',
+                notes: document.getElementById('workoutNotes')?.value || ''
+            };
+
+            let history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+            history.unshift(workoutData);
+            localStorage.setItem('workoutHistory', JSON.stringify(history));
+
+            updatePersonalRecords(currentWorkout);
+
+            // Check for interval cardio stats, otherwise show the standard completion message
+            if (workoutData.type === 'Interval Cardio') {
+                promptForCardioStats(workoutData);
+            } else {
+                alert(`🎉 Workout Complete!\n\nDuration: ${Math.floor(workoutDuration / 60)} minutes ${workoutDuration % 60} seconds\n\nGreat job!`);
             }
+
+            // *** THE FIX: Call the central reset function to properly clean up the UI ***
+            resetWorkoutState();
+        }
             
             function promptForCardioStats(workoutData) {
                 const distance = prompt('📏 Distance (leave blank to skip):\n\nEnter distance completed:');
@@ -3905,42 +3768,43 @@ function cancelQuickCardio() {
         }
 
         function startHiitWorkout() {
-            // This now sources the parameters directly from the UI/state
             if (!currentWorkout || currentWorkout.length === 0) {
                 alert("No HIIT exercises are loaded. Please create or load a custom HIIT workout first.");
                 return;
             }
-
-            // Initialize audio context on user interaction (required for beeps to work)
+        
+            // This is the user interaction needed for sound.
+            // We prepare everything but wait for the user to click the main timer's start button.
             if (!window.audioCtx) {
                 try {
                     window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    console.log("Audio context initialized");
+                    console.log("Audio context initialized by HIIT start button.");
                 } catch (e) {
                     console.log("Could not initialize audio context:", e);
                 }
             }
-
+        
             hiitWorkoutParams.exercises = currentWorkout.map(ex => ex.name);
-            // Parameters are already set in hiitWorkoutParams by the load function or pre-workout adjustments
-
+        
             hiitCurrentRound = 1;
             hiitCurrentExerciseIndex = 0;
-            hiitCurrentMode = 'countdown'; // Start with countdown
+            hiitCurrentMode = 'countdown';
             hiitIsPaused = false;
-
+        
+            // Show the necessary UI components
             document.getElementById('workoutSetup').style.display = 'none';
             document.getElementById('guidedWorkoutMode').style.display = 'none';
             document.getElementById('hiitWorkoutMode').style.display = 'block';
-            document.querySelector('.nav').style.display = 'none'; // Hide nav bar
-
+            document.querySelector('.nav').style.display = 'none';
+            document.querySelector('.workout-timer').style.display = 'block'; // <-- KEY CHANGE: Show the main timer
+        
+            // Prepare the HIIT screen
             document.getElementById('hiitCountdownScreen').style.display = 'block';
             document.getElementById('hiitActiveScreen').style.display = 'none';
             document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
-
-            // Show message to user to press Start button
-            alert("HIIT Workout ready! Now click the 'Start' button on the Workout Timer above to begin your workout.");
-        }
+        
+            // DO NOT call startTimer() here. We wait for the user.
+            }
 
         function startHiitCountdown() {
             let hiitCountdown = 5;
@@ -4189,37 +4053,39 @@ function cancelQuickCardio() {
             }, 1500);
         }
         function resetWorkoutState() {
-            // Reset flags and UI
-            guidedMode = false;
-            window.hiitActive = false;
-            document.getElementById('workoutSetup').style.display = 'block';
-            document.getElementById('guidedWorkoutMode').style.display = 'none';
-            document.getElementById('hiitWorkoutMode').style.display = 'none';
-            document.getElementById('workoutType').value = '';
-            document.getElementById('workoutContainer').innerHTML = '';
-            document.getElementById('workoutModeSelection').style.display = 'none';
-            if (document.querySelector('.nav')) {
-                document.querySelector('.nav').style.display = 'flex';
+                // Reset flags and UI
+                document.querySelector('.workout-timer').style.display = 'none'; // <-- THIS IS THE CRITICAL FIX
+            
+                guidedMode = false;
+                window.hiitActive = false;
+                document.getElementById('workoutSetup').style.display = 'block';
+                document.getElementById('guidedWorkoutMode').style.display = 'none';
+                document.getElementById('hiitWorkoutMode').style.display = 'none';
+                document.getElementById('workoutType').value = '';
+                document.getElementById('workoutContainer').innerHTML = '';
+                document.getElementById('workoutModeSelection').style.display = 'none';
+                if (document.querySelector('.nav')) {
+                    document.querySelector('.nav').style.display = 'flex';
+                }
+            
+                // Reset all state variables to their defaults
+                currentWorkout = [];
+                completedSets = [];
+                currentExerciseIndex = 0;
+                currentSetNumber = 1;
+                currentRound = 1;
+                workoutStyle = 'traditional';
+                restTimeRemaining = 0;
+                
+                // Reset timers and update other sections
+                resetTimer();
+                loadRecommendation();
+                updateProgress();
+                loadHistory();
+                
+                // Go to a neutral tab after workout completion
+                showSection('history');
             }
-
-            // Reset all state variables to their defaults
-            currentWorkout = [];
-            completedSets = [];
-            currentExerciseIndex = 0;
-            currentSetNumber = 1;
-            currentRound = 1;
-            workoutStyle = 'traditional';
-            restTimeRemaining = 0;
-            
-            // Reset timers and update other sections
-            resetTimer();
-            loadRecommendation();
-            updateProgress();
-            loadHistory();
-            
-            // Go to a neutral tab after workout completion
-            showSection('history');
-        }
         function playHiitSound(type) {
             // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
             if (!audioCtx) return;
@@ -4303,8 +4169,7 @@ function cancelQuickCardio() {
                 alert('Exercise not found!');
                 return;
             }
-
-            const modal = document.getElementById('exerciseModal');
+            
             const modalName = document.getElementById('modalExerciseName');
             const modalContent = document.getElementById('modalExerciseContent');
 
@@ -4312,7 +4177,6 @@ function cancelQuickCardio() {
 
             const imageUrl = getExerciseImageUrl(exerciseName);
             
-            // --- YouTube Link Logic ---
             const customYouTubeLinks = JSON.parse(localStorage.getItem('customYouTubeLinks') || '{}');
             let youtubeLink = customYouTubeLinks[exerciseName] || youtubeVideoLinks[exerciseName];
             if (!youtubeLink) {
@@ -4321,24 +4185,20 @@ function cancelQuickCardio() {
             
             const displayInstructions = exerciseDescriptions[exerciseName] || exercise.instructions;
 
-            modalContent.innerHTML = `
+           modalContent.innerHTML = `
                 <p><strong>Equipment:</strong> ${exercise.equipment}</p>
-                
                 <div class="exercise-image">
                     <img src="${imageUrl}" 
                          alt="${exerciseName}" 
                          onerror="this.parentElement.innerHTML='<div class=\\'exercise-image-fallback\\'>${exercise.image || 'Image not found'}<br><small>Image preview not available</small></div>'">
                 </div>
-
                 <div style="margin-top: 15px;">
                     <strong>[TIP] Detailed Instructions</strong>
                     <p style="line-height: 1.6; margin-top: 10px;">${displayInstructions}</p>
                 </div>
-
-                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <div class="exercise-card" style="margin-top: 15px; margin-bottom: 15px;">
                     <strong>Suggested:</strong> ${exercise.sets} sets, ${exercise.reps} reps @ ${exercise.weight} lbs
                 </div>
-
                 <div style="margin-top: 15px;">
                     <a href="${youtubeLink}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 0;">
                         [VIDEO] Watch Video
@@ -4346,12 +4206,35 @@ function cancelQuickCardio() {
                 </div>
             `;
 
+            // It now correctly uses our new master function
+            showModalById('exerciseModal');
+        }
+
+        function showModalById(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                console.error(`Modal with ID "${modalId}" not found.`);
+                return;
+            }
+
             modal.classList.add('active');
+            document.body.classList.add('modal-open');
+
+            // FIX: Use setTimeout to delay the scroll reset. This gives the
+            // browser a moment to render the modal before we try to scroll it,
+            // fixing the "invisible modal" bug.
+            setTimeout(() => {
+                modal.scrollTop = 0;
+            }, 0);
         }
-       
-        function closeModal() {
-            document.getElementById('exerciseModal').classList.remove('active');
+
+        function closeModal(modalElement) {
+            if (modalElement) {
+                modalElement.classList.remove('active');
+                document.body.classList.remove('modal-open');
+            }
         }
+
 
         // ==================== CUSTOM EXERCISES ====================
         function openAddExerciseModal(isNew = true) {
@@ -4372,9 +4255,10 @@ function cancelQuickCardio() {
                 document.getElementById('newExerciseReps').value = 12;
             }
 
-            document.getElementById('addExerciseModal').classList.add('active');
+            // Simply call the new helper function
+            showModalById('addExerciseModal');
         }
-
+        
         function editCustomExercise(exerciseName) {
             const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
             const exercise = customExercises[exerciseName];
@@ -4415,10 +4299,6 @@ function cancelQuickCardio() {
 
             alert('Exercise deleted successfully!');
             renderExerciseList();
-        }
-
-        function closeAddExerciseModal() {
-            document.getElementById('addExerciseModal').classList.remove('active');
         }
 
         function saveNewExercise() {
@@ -4469,7 +4349,7 @@ function cancelQuickCardio() {
             }
 
             alert(originalName ? 'Exercise updated successfully!' : 'Exercise added successfully!');
-            closeAddExerciseModal();
+            closeModal(document.getElementById('addExerciseModal'));
             renderExerciseList();
         }
 
@@ -5203,7 +5083,7 @@ User's request: ${msg}`;
                         <p>${recommendation.message}</p>
                         ${recommendation.reasoning ? `<p class="info-box" style="margin-top: 10px; font-size: 14px;"><strong>💡 Why?</strong> ${recommendation.reasoning}</p>` : ''}
                         ${recommendation.workoutType ? `
-                            <button class="btn" onclick="document.querySelector('.nav-btn[onclick*=\\'workout\\']').click(); document.getElementById('workoutType').value='${recommendation.workoutType}'; loadWorkout();">
+                            <button class="btn" onclick="document.querySelector('.nav-btn[onclick*=\'workout\']').click(); document.getElementById('workoutType').value='${recommendation.workoutType}'; loadWorkout();">
                                 Load ${recommendation.workoutName} Workout
                             </button>
                         ` : `
@@ -5813,7 +5693,7 @@ User's request: ${msg}`;
             container.innerHTML = `
                 <div style="text-align: center; padding: 20px;">
                     <div style="font-size: 32px; font-weight: bold; color: ${varietyColor};">${varietyRating}</div>
-                    <div style="font-size: 48px; margin-top: 10px; font-weight: bold; color: #003d5c;">${varietyCount}</div>
+                    <div style="font-size: 48px; margin-top: 10px; font-weight: bold; color: ${currentCardTextColor};">${varietyCount}</div>
                     <p style="margin-top: 10px; color: #6c757d;">Unique exercises performed (${varietyPercentage}% of available)</p>
                 </div>
             `;
@@ -5862,7 +5742,7 @@ User's request: ${msg}`;
 
             container.innerHTML = `
                 <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 48px; font-weight: bold; color: #003d5c;">${avgRest}</div>
+                    <div style="font-size: 48px; font-weight: bold; color: ${currentCardTextColor};">${avgRest}</div>
                     <p style="margin-top: 10px; color: #6c757d;">Average days between workouts</p>
                     <div style="font-size: 20px; margin-top: 10px; font-weight: bold; color: ${restColor};">${restRating}</div>
                 </div>
@@ -5872,18 +5752,13 @@ User's request: ${msg}`;
         // ==================== CALORIE MODAL FUNCTIONS ====================
         
         function openCalorieModal() {
-            const modal = document.getElementById('calorieModal');
             const settings = JSON.parse(localStorage.getItem('calorieSettings') || '{"method": "automatic", "multiplier": 1.0}');
             
             document.getElementById('calorieTrackingMethod').value = settings.method || 'automatic';
             document.getElementById('calorieMultiplier').value = settings.multiplier || 1.0;
             
             toggleCalorieInputMethod();
-            modal.style.display = 'block';
-        }
-
-        function closeCalorieModal() {
-            document.getElementById('calorieModal').style.display = 'none';
+            showModalById('calorieModal');
         }
 
         function toggleCalorieInputMethod() {
@@ -5899,7 +5774,7 @@ User's request: ${msg}`;
                 manualDiv.style.display = 'block';
             }
         }
-
+        
         function saveCalorieSettings() {
             const method = document.getElementById('calorieTrackingMethod').value;
             const multiplier = document.getElementById('calorieMultiplier').value;
@@ -5911,18 +5786,10 @@ User's request: ${msg}`;
             
             localStorage.setItem('calorieSettings', JSON.stringify(settings));
             alert('Calorie tracking settings saved!');
-            closeCalorieModal();
+            closeModal(document.getElementById('calorieModal'));
             updateProgress(); // Refresh the progress display
         }
 
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            const calorieModal = document.getElementById('calorieModal');
-            if (event.target === calorieModal) {
-                closeCalorieModal();
-            }
-        };
-        
         // ==================== WORKOUT HISTORY ====================
         function loadHistory() {
             const container = document.getElementById('historyContainer');
@@ -6035,7 +5902,7 @@ User's request: ${msg}`;
 
             container.innerHTML = html;
         }
- // ==================== EDIT WORKOUT STATS ====================
+        // ==================== EDIT WORKOUT STATS ====================
         let currentEditingWorkoutIndex = null;
 
         function editWorkoutStats(index) {
@@ -6045,19 +5912,15 @@ User's request: ${msg}`;
 
             const isoString = workout.date;
             const datePart = isoString.substring(0, 10); // YYYY-MM-DD
-            // Extract time directly from ISO string to avoid timezone conversion issues
             const timePart = isoString.substring(11, 16); // HH:MM from "YYYY-MM-DDTHH:MM:SS.sssZ"
 
-            // Populate the new date/time fields
             document.getElementById('editWorkoutDate').value = datePart;
             document.getElementById('editWorkoutTime').value = timePart; 
-            // Populate the form with existing data
             document.getElementById('editWorkoutName').value = workout.workoutName || '';
             
-            // NEW: Duration in minutes
             const durationInMinutes = Math.round((workout.duration || 0) / 60);
             
-            document.getElementById('editDurationMinutes').value = durationInMinutes || ''; // Use the new ID
+            document.getElementById('editDurationMinutes').value = durationInMinutes || '';
             
             document.getElementById('editHeartRate').value = workout.heartRate || '';
             document.getElementById('editCalories').value = workout.calories || '';
@@ -6065,13 +5928,7 @@ User's request: ${msg}`;
             document.getElementById('editDistanceUnit').value = workout.distanceUnit || '';
             document.getElementById('editWorkoutNotes').value = workout.notes || '';
 
-            // Show the modal
-            document.getElementById('editStatsModal').style.display = 'block';
-        }
-
-        function closeEditStatsModal() {
-            document.getElementById('editStatsModal').style.display = 'none';
-            currentEditingWorkoutIndex = null;
+            showModalById('editStatsModal');
         }
 
         function saveWorkoutStats() {
@@ -6080,27 +5937,22 @@ User's request: ${msg}`;
             const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
             const workout = history[currentEditingWorkoutIndex];
 
-            // Get Date and Time and update the workout.date ISO string
-            const newDate = document.getElementById('editWorkoutDate').value; // YYYY-MM-DD
-            const newTime = document.getElementById('editWorkoutTime').value; // HH:MM
+            const newDate = document.getElementById('editWorkoutDate').value;
+            const newTime = document.getElementById('editWorkoutTime').value;
 
             if (newDate && newTime) {
-                 // Preserve the original seconds and milliseconds from the existing date
                  const oldIsoString = workout.date;
-                 const oldSeconds = oldIsoString.substring(17, 23); // :SS.sssZ or just Z
-
-                 // Reconstruct ISO string directly to avoid timezone conversion
+                 const oldSeconds = oldIsoString.substring(17, 23);
                  workout.date = `${newDate}T${newTime}${oldSeconds}`;
             }
             workout.workoutName = document.getElementById('editWorkoutName').value.trim() || workout.workoutName;
             
             const durationMinutes = parseInt(document.getElementById('editDurationMinutes').value);
             if (!isNaN(durationMinutes) && durationMinutes > 0) {
-                workout.duration = durationMinutes * 60; // Convert minutes to seconds
+                workout.duration = durationMinutes * 60;
             } else {
                 workout.duration = 0;
             }
-             // Update workout with new stats
             workout.heartRate = parseInt(document.getElementById('editHeartRate').value) || null;
             workout.calories = parseInt(document.getElementById('editCalories').value) || null;
             
@@ -6111,10 +5963,8 @@ User's request: ${msg}`;
                 workout.distance = distance;
                 workout.distanceUnit = distanceUnit;
                 
-                // SYNC: Update distance in exercise objects as well (for cardio exercises)
                 if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
                     workout.exercises.forEach(exercise => {
-                        // Only update if this exercise has a distance property (cardio)
                         if (exercise.distance !== undefined) {
                             exercise.distance = distance;
                             exercise.distanceUnit = distanceUnit;
@@ -6125,7 +5975,6 @@ User's request: ${msg}`;
                 workout.distance = null;
                 workout.distanceUnit = null;
                 
-                // SYNC: Remove distance from exercise objects as well
                 if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
                     workout.exercises.forEach(exercise => {
                         if (exercise.distance !== undefined) {
@@ -6138,29 +5987,17 @@ User's request: ${msg}`;
             
             workout.notes = document.getElementById('editWorkoutNotes').value.trim() || '';
 
-            // Save back to localStorage
             localStorage.setItem('workoutHistory', JSON.stringify(history));
-
-            // Update the global workoutHistory variable
             workoutHistory = history;
 
-            // Refresh displays
             loadHistory();
             renderCalendar();
 
-            // Close modal
-            closeEditStatsModal();
-
+            closeModal(document.getElementById('editStatsModal'));
+            currentEditingWorkoutIndex = null;
             alert('✅ Workout stats updated successfully!');
         }
 
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('editStatsModal');
-            if (event.target === modal) {
-                closeEditStatsModal();
-            }
-        });
         function deleteWorkout(index) {
             if (!confirm('Are you sure you want to delete this workout? This cannot be undone.')) {
                 return;
@@ -6206,20 +6043,17 @@ User's request: ${msg}`;
 
             let html = '<div class="calendar-grid">';
             
-            // Day headers
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             dayNames.forEach(day => {
                 html += `<div class="calendar-day-header">${day}</div>`;
             });
 
-            // Previous month's trailing days
             const prevMonthLastDay = new Date(year, month, 0).getDate();
             for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                 const day = prevMonthLastDay - i;
                 html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
             }
 
-            // Current month's days
             const today = new Date();
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
@@ -6242,7 +6076,6 @@ User's request: ${msg}`;
                 `;
             }
 
-            // Next month's leading days
             const remainingCells = 42 - (startingDayOfWeek + daysInMonth);
             for (let day = 1; day <= remainingCells; day++) {
                 html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
@@ -6278,19 +6111,19 @@ User's request: ${msg}`;
                 if (isRestDay && workoutCount === 0) classes += ' rest-day';
 
                 html += `
-                    <div class="${classes}" onclick="showDayDetail('${dateString}')">
+                     <div class="${classes}" onclick="showDayDetail('${dateString}')">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 700; font-size: 16px; color: #333;">
+                                <div style="font-weight: 700; font-size: 16px;">
                                     ${date.toLocaleDateString('default', { weekday: 'long' })}
                                     ${isToday ? ' (Today)' : ''}
                                 </div>
-                                <div style="font-size: 14px; color: #6c757d;">${date.toLocaleDateString()}</div>
+                                <div style="font-size: 14px;">${date.toLocaleDateString()}</div>
                             </div>
                             <div style="text-align: right;">
-                                ${workoutCount > 0 ? `<div style="font-size: 20px; font-weight: 700; color: #4a6741;">${workoutCount} workout${workoutCount > 1 ? 's' : ''}</div>` : ''}
-                                ${isRestDay && workoutCount === 0 ? '<div style="font-size: 14px; color: #856404;">Rest Day</div>' : ''}
-                                ${workoutCount === 0 && !isRestDay ? '<div style="font-size: 14px; color: #6c757d;">No workout</div>' : ''}
+                                ${workoutCount > 0 ? `<div style="font-size: 20px; font-weight: 700;">${workoutCount} workout${workoutCount > 1 ? 's' : ''}</div>` : ''}
+                                ${isRestDay && workoutCount === 0 ? '<div style="font-size: 14px;">Rest Day</div>' : ''}
+                                ${workoutCount === 0 && !isRestDay ? '<div style="font-size: 14px;">No workout</div>' : ''}
                             </div>
                         </div>
                     </div>
@@ -6618,13 +6451,9 @@ User's request: ${msg}`;
             document.getElementById('measurementValue').value = '';
             document.getElementById('measurementDate').value = new Date().toISOString().split('T')[0];
 
-            document.getElementById('measurementModal').classList.add('active');
+            showModalById('measurementModal');
         }
-
-        function closeMeasurementModal() {
-            document.getElementById('measurementModal').classList.remove('active');
-        }
-
+        
         function saveMeasurement() {
             const type = document.getElementById('measurementType').value;
             const value = parseFloat(document.getElementById('measurementValue').value);
@@ -6652,7 +6481,7 @@ User's request: ${msg}`;
             localStorage.setItem('bodyMeasurements', JSON.stringify(measurements));
 
             alert('Measurement saved successfully!');
-            closeMeasurementModal();
+            closeModal(document.getElementById('measurementModal'));
             loadBodyStats();
         }
 
@@ -6690,7 +6519,7 @@ User's request: ${msg}`;
 
                 // Collect custom exercises used in this workout
                 const customExercisesData = [];
-                const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
+                const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || '{}';
                 
                 // Determine workout type and extract exercises
                 let exercisesInWorkout = [];
@@ -6994,151 +6823,216 @@ User's request: ${msg}`;
             // Save to localStorage
             localStorage.setItem('customColors', JSON.stringify(colors));
         }
-        
-       function updateColorStyles(colors) {
-    // Get or create the style tag
-    let themeStyle = document.getElementById('theme-styles');
-    if (!themeStyle) {
-        themeStyle = document.createElement('style');
-        themeStyle.id = 'theme-styles';
-        document.head.appendChild(themeStyle);
-    }
+        function updateColorStyles(colors) {
+            // Get or create the style tag
+            let themeStyle = document.getElementById('theme-styles');
+            if (!themeStyle) {
+                themeStyle = document.createElement('style');
+                themeStyle.id = 'theme-styles';
+                document.head.appendChild(themeStyle);
+            }
 
-    const textColor = getContrastColor(colors.background);
-    const cardTextColor = getContrastColor(colors.card);
-    const fadedCardTextColor = adjustBrightness(cardTextColor, -30);
-    const primaryContrast = getContrastColor(colors.primary);
+            const textColor = getContrastColor(colors.background);
+            const cardTextColor = getContrastColor(colors.card);
+            currentCardTextColor = cardTextColor;
+            const fadedCardTextColor = adjustBrightness(cardTextColor, -30);
+            const primaryContrast = getContrastColor(colors.primary);
 
-    const css = `
-        body {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
-        }
-        .container {
-            background: ${colors.background};
-            border-color: ${adjustBrightness(colors.nav, -20)};
-        }
-        .header {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
-            color: ${colors.accent};
-            border-bottom-color: ${colors.accent};
-        }
-        .header h1, .header p {
-            color: ${colors.accent};
-        }
-        .nav {
-            background: ${colors.nav};
-            border-bottom-color: ${adjustBrightness(colors.nav, -20)};
-        }
-        .nav-btn {
-            color: ${colors.navText};
-        }
-        .nav-btn.active {
-            background: ${colors.background};
-            color: ${textColor};
-            border-bottom-color: ${colors.accent};
-        }
-        .content, h2, h3, h4, label {
-             color: ${textColor};
-        }
+            const backgroundRgb = hexToRgb(colors.background);
+            const cardRgb = hexToRgb(colors.card);
+            const primaryRgb = hexToRgb(colors.primary);
+            const navRgb = hexToRgb(colors.nav);
+            const css = `
+                body {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+                }
+                .container {
+                    background: transparent;
+                    border-color: ${adjustBrightness(colors.nav, -20)};
+                    -webkit-backdrop-filter: none;
+                    backdrop-filter: none;
+                }
+                .header {
+                    background: rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.75);
+                    color: ${colors.accent};
+                    border-bottom-color: ${colors.accent};
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                }
+                .header h1, .header p { color: ${colors.accent}; }
+                .nav {
+                    background: rgba(${navRgb.r}, ${navRgb.g}, ${navRgb.b}, 0.80);
+                    border-bottom-color: ${adjustBrightness(colors.nav, -20)};
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                }
+                .nav-btn { color: ${colors.navText}; }
+                .nav-btn.active {
+                    background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.85);
+                    color: ${textColor};
+                    border-bottom-color: ${colors.accent};
+                }
+                .content, h2, h3, h4, label {
+                     color: ${textColor} !important;
+                     opacity: 1 !important;
+                     font-weight: 600 !important;
+                }
+                h2 {
+                     font-size: 26px !important;
+                     font-weight: 800 !important;
+                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                     padding: 10px;
+                     background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.9);
+                     border-radius: 8px;
+                     margin-bottom: 15px;
+                }
+                label {
+                     font-weight: 800 !important;
+                     font-size: 16px !important;
+                     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+                     padding: 5px 8px;
+                     background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.85);
+                     border-radius: 5px;
+                     display: inline-block;
+                }
 
-        /* === CARD STYLING (THE KEY FIX IS HERE) === */
-        .exercise-card, .history-item, .measurement-card, .progress-chart, .color-setting-card, .chat-messages-box {
-            background: ${colors.card};
-            border: 1px solid ${adjustBrightness(colors.card, -20)};
-            border-left: 4px solid ${colors.primary};
-            color: ${cardTextColor};
-        }
-        .exercise-name, .history-date, .history-exercise-name, .measurement-label, .chart-title {
-            color: ${cardTextColor};
-        }
-        .exercise-equipment, .history-exercises, .history-exercise-stats {
-            color: ${fadedCardTextColor};
-        }
-        .history-type { color: ${colors.primary}; }
-        .measurement-value { color: ${colors.primary}; }
-        .exercise-not-found { color: ${textColor}; }
-        #exercises .exercise-card {
-            border: 2px solid ${adjustBrightness(colors.card, -35)};
-            border-left: 4px solid ${colors.primary};
-        }
-        /* BUTTONS */
-        .btn {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
-            color: ${colors.accent};
-        }
-        .btn-secondary {
-            background: ${adjustBrightness(colors.nav, -10)};
-            color: ${getContrastColor(adjustBrightness(colors.nav, -10))};
-        }
-        .btn-success {
-            background: linear-gradient(135deg, ${colors.success} 0%, ${adjustBrightness(colors.success, 15)} 100%);
-            color: #ffffff;
-        }
-        .btn-danger, .delete-btn {
-            background: linear-gradient(135deg, ${colors.danger} 0%, ${adjustBrightness(colors.danger, 20)} 100%);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-        .edit-btn {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
-            color: ${colors.accent};
-            border: 1px solid ${colors.accent};
-        }
-        .timer-btn {
-            color: ${colors.accent};
-            border-color: ${colors.accent};
-        }
+                /* ==================== FIX STARTS HERE ==================== */
+                /* This single rule now applies a uniform accent border to ALL card types */
+                .exercise-card, .history-item, .measurement-card, .progress-chart, .color-setting-card, .chat-messages-box, .info-box, .recommendation-card, .week-day-card {
+                    background: rgba(${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}, 0.75);
+                    border: 3px solid ${colors.accent}; /* UNIFORM BORDER */
+                    color: ${cardTextColor};
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+                /* ===================== FIX ENDS HERE ===================== */
 
-        /* OTHER COMPONENTS */
-        .workout-timer {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
-            color: ${primaryContrast};
-            border-color: ${colors.accent};
-        }
-        .workout-timer h3 { color: ${primaryContrast}; }
-        .timer-display { color: ${colors.accent}; }
+                .stat-card {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+                    border: 2px solid ${colors.accent};
+                    color: ${primaryContrast};
+                    border-radius: 12px;
+                    padding: 20px;
+                    text-align: center;
+                }
+                .week-day-card.has-workout {
+                    border-color: ${colors.success}; /* Changed from border-left-color to affect the whole border */
+                }
 
-        .stat-card {
-            background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
-            border-color: ${colors.accent};
-        }
-        .stat-number { color: ${colors.accent}; }
-        .stat-label { color: ${primaryContrast}; }
+                .calendar-day, .calendar-day-header {
+                    background: rgba(${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}, 0.85);
+                    color: ${cardTextColor};
+                    border-radius: 6px;
+                    border: 1px solid ${colors.accent};
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                }
+                .calendar-day.today {
+                    border: 2px solid ${colors.accent};
+                    box-shadow: 0 0 5px ${colors.accent};
+                }
+                
+                .info-box p, .info-box strong { color: ${cardTextColor} !important; }
+                .exercise-name, .history-date, .history-exercise-name, .measurement-label, .chart-title { color: ${cardTextColor}; }
+                .exercise-equipment, .history-exercises, .history-exercise-stats, .day-workout-count, .rest-indicator { color: ${fadedCardTextColor}; }
+                .exercise-not-found { color: ${textColor}; }
+                
+                .btn {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+                    color: ${colors.accent};
+                }
+                .btn-secondary {
+                    background: ${adjustBrightness(colors.nav, -10)};
+                    color: ${getContrastColor(adjustBrightness(colors.nav, -10))};
+                }
+                .btn-success {
+                    background: linear-gradient(135deg, ${colors.success} 0%, ${adjustBrightness(colors.success, 15)} 100%);
+                    color: #ffffff;
+                }
+                .btn-danger, .delete-btn {
+                    background: linear-gradient(135deg, ${colors.danger} 0%, ${adjustBrightness(colors.danger, 20)} 100%);
+                    color: #ffffff;
+                    border: 1px solid rgba(255, 255, 255, 0.6);
+                }
+                .edit-btn {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
+                    color: ${colors.accent};
+                    border: 1px solid ${colors.accent};
+                }
+                .timer-btn {
+                    color: ${colors.accent};
+                    border-color: ${colors.accent};
+                }
+                .workout-timer {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
+                    color: ${primaryContrast};
+                    border-color: ${colors.accent};
+                }
+                .workout-timer h3 { color: ${primaryContrast}; }
+                .timer-display { color: ${colors.accent}; }
 
-        .info-box {
-            background: ${adjustBrightness(colors.card, 10)};
-            border-left-color: ${colors.primary};
-        }
-        .info-box p { color: ${cardTextColor}; }
-        .history-stats-box {
-            background: ${adjustBrightness(colors.card, -10)};
-            color: ${getContrastColor(adjustBrightness(colors.card, -10))};
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-        .history-stats-box strong {
-            color: ${getContrastColor(adjustBrightness(colors.card, -10))};
-        }
-        .chart-fill {
-            background: linear-gradient(90deg, ${colors.primary}, ${colors.accent});
-        }
-        .chart-value {
-             color: ${getContrastColor(colors.primary)};
-        }
-        .pr-badge {
-            background: ${colors.accent};
-            color: ${colors.primary};
-        }
-        .modal-content {
-            background: ${colors.background};
-            border-color: ${colors.primary};
-        }
-    `;
-    
-    themeStyle.innerHTML = css;
-}           
+                /* START: HIIT Theme Rules */
+                #hiitWorkoutMode {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 25)} 100%);
+                    color: ${primaryContrast};
+                }
+                #hiitWorkoutMode h2, #hiitWorkoutMode p, #hiitWorkoutMode #hiitRoundDisplay, #hiitModeDisplay, #hiitExerciseName, #hiitNextExerciseName {
+                    color: ${primaryContrast} !important;
+                }
+                #hiitTimerDisplay, #hiitCountdownDisplay { 
+                    color: ${colors.accent} !important; 
+                }
+                /* END: HIIT Theme Rules */
+
+                .stat-number { color: ${colors.accent}; }
+                .stat-label { color: ${primaryContrast}; }
+                .history-stats-box {
+                    background: rgba(${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}, 0.4);
+                    color: ${getContrastColor(adjustBrightness(colors.card, -10))};
+                    padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px;
+                }
+                .history-stats-box strong { color: ${getContrastColor(adjustBrightness(colors.card, -10))}; }
+                .chart-fill { background: linear-gradient(90deg, ${colors.primary}, ${colors.accent}); }
+                .chart-value { color: ${getContrastColor(colors.primary)}; }
+                .pr-badge { background: ${colors.accent}; color: ${colors.primary}; }
+                .modal { z-index: 10000 !important; }
+                .modal-content {
+                    background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.98) !important;
+                    border: 2px solid ${colors.primary};
+                    opacity: 1 !important;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                }
+                .modal-content, .modal-content label, .modal-content h3, .modal-content p, .modal-content strong, .modal-content div, .modal-content input, .modal-content textarea, .modal-content select, .modal-content a {
+                    color: ${textColor} !important;
+                    opacity: 1 !important;
+                }
+                .modal-content a {
+                    color: ${colors.primary} !important;
+                    text-decoration: underline;
+                }
+                .modal-content .btn {
+                    color: ${colors.accent} !important;
+                    text-decoration: none !important;
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%) !important;
+                }
+            `;
+             themeStyle.innerHTML = css;
+             
+                if (colors.background === '#000000' && colors.accent === '#dfff00') {
+                    const glassCSS = `
+                        .exercise-card, .history-item, .measurement-card, .progress-chart, .color-setting-card, .chat-messages-box, .info-box, .week-day-card, .stat-card, #currentExerciseCard {
+                            background: rgba(42, 42, 42, 0.75);
+                            border: 2px solid ${colors.accent}; /* Ensure uniform border for glass theme too */
+                        }
+                        .btn-success { color: #000000; }
+                        .nav-btn.active { background: #2a2a2a; }
+                    `;
+                    themeStyle.innerHTML += glassCSS;
+                }
+            }
         function getContrastColor(hexColor) {
             // Convert hex to RGB
             const r = parseInt(hexColor.substr(1, 2), 16);
@@ -7151,9 +7045,8 @@ User's request: ${msg}`;
             // Return black or white based on luminance - pure white for dark themes
             return luminance > 0.5 ? '#333333' : '#ffffff';
         }
-        
-        function adjustBrightness(hex, percent) {
             // Convert hex to RGB
+        function adjustBrightness(hex, percent) {            
             const num = parseInt(hex.replace('#', ''), 16);
             const r = (num >> 16) + percent;
             const g = ((num >> 8) & 0x00FF) + percent;
@@ -7217,36 +7110,6 @@ User's request: ${msg}`;
                     nav: '#d9c7a5',
                     navText: '#3e3024'
                 },
-                dark: {
-                    primary: '#1a1a1a',
-                    accent: '#ffffff',
-                    background: '#1e1e1e',
-                    success: '#4caf50',
-                    danger: '#f44336',
-                    card: '#2d2d2d',
-                    nav: '#0d0d0d',
-                    navText: '#ffffff'
-                },
-                nike: {
-                    primary: '#111111',
-                    accent: '#ff6b35',
-                    background: '#f5f5f5',
-                    success: '#00c853',
-                    danger: '#ff1744',
-                    card: '#e0e0e0',
-                    nav: '#111111',
-                    navText: '#ffffff'
-                },
-                adidas: {
-                    primary: '#000000',
-                    accent: '#00a0df',
-                    background: '#ffffff',
-                    success: '#00a650',
-                    danger: '#e30613',
-                    card: '#f0f0f0',
-                    nav: '#000000',
-                    navText: '#ffffff'
-                },
                 ocean: {
                     primary: '#006064',
                     accent: '#00e5ff',
@@ -7296,6 +7159,26 @@ User's request: ${msg}`;
                     card: '#e6f0ff',
                     nav: '#0033A0',
                     navText: '#ffffff'
+                },
+                gympak: { // <-- PASTE THE NEW THEME OBJECT HERE
+                    primary: '#1c1c1c',
+                    accent: '#dfff00',
+                    background: '#000000',
+                    success: '#dfff00',
+                    danger: '#e53935',
+                    card: '#2a2a2a',
+                    nav: '#111111',
+                    navText: '#ffffff'
+                },
+                crimson: {
+                    primary: '#1a1a1a', // Near Black
+                    accent: '#ff4d4d', // Bright Crimson Red
+                    background: '#212121', // Dark Gray
+                    success: '#ff4d4d',
+                    danger: '#ff1744',
+                    card: '#2c2c2c', // Slightly Lighter Gray
+                    nav: '#111111', // Pure Black
+                    navText: '#FFFFFF'
                 }
             };
             
@@ -7329,6 +7212,91 @@ User's request: ${msg}`;
                 updateColors();
             }
         }
+        function hexToRgb(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+        
+        function applyBackgroundImage(imageData) {
+            // Detect if user is on mobile/iOS
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Mobile approach: Apply background to a fixed pseudo-element
+                // Create or update a style element for the fixed background
+                let bgStyle = document.getElementById('mobile-bg-style');
+                if (!bgStyle) {
+                    bgStyle = document.createElement('style');
+                    bgStyle.id = 'mobile-bg-style';
+                    document.head.appendChild(bgStyle);
+                }
+                
+                bgStyle.textContent = `
+                    body::before {
+                        content: '';
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-image: url('${imageData}');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        z-index: -1;
+                    }
+                `;
+                
+                // Clear body background since we're using ::before
+                document.body.style.backgroundImage = 'none';
+            } else {
+                // Desktop approach: Use background-attachment: fixed with !important
+                document.body.style.setProperty('background-image', `url('${imageData}')`, 'important');
+                document.body.style.setProperty('background-size', 'cover', 'important');
+                document.body.style.setProperty('background-attachment', 'fixed', 'important');
+                document.body.style.setProperty('background-position', 'center', 'important');
+                document.body.style.setProperty('background-repeat', 'no-repeat', 'important');
+            }
+            
+            // Make container more transparent to show the background image (both mobile and desktop)
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.background = 'rgba(255, 255, 255, 0.1)';
+                container.style.backdropFilter = 'blur(.05px)';
+                container.style.webkitBackdropFilter = 'blur(.05px)';
+            }
+        }
+
+function removeBackgroundImage() {
+    if (!confirm('Are you sure you want to remove the custom background image?')) return;
+    localStorage.removeItem('backgroundImage');
+    
+    // Remove mobile background style if it exists
+    const bgStyle = document.getElementById('mobile-bg-style');
+    if (bgStyle) {
+        bgStyle.remove();
+    }
+    
+    const activeSectionId = document.querySelector('.section.active')?.id;
+    if (activeSectionId) {
+        showSection(activeSectionId);
+    } else {
+        document.body.style.backgroundImage = '';
+        updateColors();
+    }
+    alert('Background image removed.');
+}
+
+function loadBackgroundImage() {
+    const savedImage = localStorage.getItem('backgroundImage');
+    if (savedImage) {
+        applyBackgroundImage(savedImage);
+    }
+}
         // ==================== INITIALIZATION (MOVED TO THE END) ====================
         document.addEventListener('DOMContentLoaded', function() {
             checkApiKey();
@@ -7342,8 +7310,203 @@ User's request: ${msg}`;
             loadBodyStats();
             loadCustomWorkoutsIntoDropdown();
             loadSavedColors();
+            loadBackgroundImage();
+            
+            // Load the initial tab's background image (workout tab is active by default)
+            showSection('workout');
         });
        
     </script>
-</body>
+             <!-- Exercise Info Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalExerciseName"></h3>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))">&times;</button>
+            </div>
+            <div id="modalExerciseContent"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Custom Exercise Modal -->
+    <div id="addExerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="addExerciseModalTitle">➕ Add Custom Exercise</h3>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))">&times;</button>
+            </div>
+            <input type="hidden" id="originalExerciseName">
+            <div class="form-group">
+                <label>Exercise Name *</label>
+                <input type="text" id="newExerciseName" placeholder="e.g., Dumbbell Chest Fly">
+            </div>
+            <button class="btn btn-secondary" onclick="generateExerciseDetailsWithAI()" id="aiGenerateBtn"
+                style="width: auto; padding: 10px 15px; font-size: 14px; margin-bottom: 20px;">
+                🤖 Generate with AI
+            </button>
+            <div class="form-group">
+                <label>Equipment *</label>
+                <input type="text" id="newExerciseEquipment" placeholder="e.g., Dumbbells">
+            </div>
+            <div class="form-group">
+                <label>Instructions *</label>
+                <textarea id="newExerciseInstructions" rows="4"
+                    placeholder="Describe how to perform this exercise..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Target Muscles/Description</label>
+                <input type="text" id="newExerciseImage" placeholder="e.g., Targets: Chest, Shoulders">
+            </div>
+            <div class="form-group">
+                <label>YouTube Video Link (optional)</label>
+                <input type="url" id="newExerciseYouTubeLink" placeholder="e.g., https://www.youtube.com/watch?v=...">
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>Default Weight (lbs)</label>
+                    <input type="number" id="newExerciseWeight" value="25">
+                </div>
+                <div class="form-group">
+                    <label>Default Sets</label>
+                    <input type="number" id="newExerciseSets" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Default Reps</label>
+                    <input type="number" id="newExerciseReps" value="12">
+                </div>
+            </div>
+            <button class="btn" id="saveExerciseBtn" onclick="saveNewExercise()">💾 Add Exercise to Database</button>
+        </div>
+    </div>
+
+    <!-- Measurement Update Modal -->
+    <div id="measurementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="measurementModalTitle">Update Measurement</h3>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))">&times;</button>
+            </div>
+            <input type="hidden" id="measurementType">
+            <div class="form-group">
+                <label id="measurementLabel">Value</label>
+                <input type="number" step="0.1" id="measurementValue" placeholder="Enter value">
+            </div>
+            <div class="form-group">
+                <label>Date (optional)</label>
+                <input type="date" id="measurementDate">
+            </div>
+            <button class="btn" onclick="saveMeasurement()">💾 Save Measurement</button>
+        </div>
+    </div>
+<!-- Calorie Tracking Modal -->
+    <div id="calorieModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🔥 Configure Calorie Tracking</h3>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))">&times;</button>
+            </div>
+            <div>
+                <div class="info-box" style="margin-bottom: 20px;">
+                    <p><strong>How it works:</strong> Choose between automatic estimation based on workout data or manual input from your fitness tracker.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tracking Method</label>
+                    <select id="calorieTrackingMethod" onchange="toggleCalorieInputMethod()">
+                        <option value="automatic">Automatic Estimation</option>
+                        <option value="manual">Manual Input from Tracker</option>
+                    </select>
+                </div>
+
+                <div id="automaticCalorieInfo" style="display: block;">
+                    <div class="info-box">
+                        <p><strong>Automatic Estimation Formula:</strong></p>
+                        <p>• Strength Training: ~5 calories per minute</p>
+                        <p>• HIIT Training: ~10 calories per minute</p>
+                        <p>Adjust the multiplier based on your intensity level:</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Intensity Multiplier (0.5 - 2.0)</label>
+                        <input type="number" id="calorieMultiplier" step="0.1" min="0.5" max="2.0" value="1.0" placeholder="1.0 = Average">
+                        <small style="color: #6c757d;">Lower intensity: 0.5-0.8 | Average: 1.0 | High intensity: 1.2-2.0</small>
+                    </div>
+                </div>
+
+                <div id="manualCalorieInfo" style="display: none;">
+                    <div class="info-box">
+                        <p><strong>Manual Entry:</strong> After each workout, you'll be prompted to enter calories burned from your fitness tracker.</p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="saveCalorieSettings()">💾 Save Settings</button>
+            </div>
+        </div>
+    </div>
+  <!-- Edit Workout Stats Modal -->
+    <div id="editStatsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3 class="modal-title">✏️ Edit Workout Stats</h3>
+            <button class="modal-close" onclick="closeModal(this.closest('.modal'))">&times;</button>
+            </div>
+                <!-- NEW DATE/TIME FIELDS ADDED HERE -->
+                <div class="form-group">
+                    <label>📅 Workout Date</label>
+                    <input type="date" id="editWorkoutDate">
+                </div>
+                <div class="form-group">
+                    <label>⏱️ Workout Time (HH:MM)</label>
+                    <input type="time" id="editWorkoutTime">
+                </div>
+                <div class="form-group">
+                    <label>Workout Name</label>
+                    <input type="text" id="editWorkoutName" placeholder="e.g., Morning Run">
+                </div>
+                <div class="form-group">
+                    <label>💓 Average Heart Rate (BPM)</label>
+                    <input type="number" id="editHeartRate" placeholder="e.g., 145">
+                </div>
+                <div class="form-group">
+                    <label>🔥 Total Calories Burned</label>
+                    <input type="number" id="editCalories" placeholder="e.g., 350">
+                </div>
+                <div class="form-group">
+                    <label>⏱️ Duration (Minutes)</label>
+                    <input type="number" id="editDurationMinutes" placeholder="e.g., 60">
+                    <small style="color: #6c757d;">Primary workout length in minutes.</small>
+                </div>
+                <div class="form-group">
+                    <label>📏 Distance</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="editDistance" placeholder="0.0" step="0.1" style="flex: 2;">
+                        <select id="editDistanceUnit" style="flex: 1;">
+                            <option value="">-- Select Unit --</option>
+                            <option value="miles">Miles</option>
+                            <option value="km">Kilometers</option>
+                            <option value="meters">Meters</option>
+                        </select>
+                    </div>
+                    <small style="color: #6c757d;">Use miles for walks/runs, km for rows/bikes</small>
+                </div>
+                <div class="form-group">
+                    <label>📝 Notes (Optional)</label>
+                    <textarea id="editWorkoutNotes" rows="3" placeholder="How did you feel? Any achievements?"></textarea>
+                </div>
+                <button class="btn btn-success" onclick="saveWorkoutStats()">💾 Save Changes</button>
+            </div>
+        </div>
+    </div>
+        <script>
+        // Move modals out of scrolling container so they center on screen correctly
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('.modal').forEach(modal => {
+            if (modal.parentElement !== document.body) {
+              document.body.appendChild(modal);
+            }
+          });
+        });
+        </script>
+    </body>
 </html>
+    
