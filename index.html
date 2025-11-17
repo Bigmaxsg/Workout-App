@@ -781,6 +781,9 @@
             border-radius: 6px;
         }
 
+        #hiitPreWorkoutAdjustments {           
+        }
+
         #hiitCountdownScreen {
             text-align: center;
         }
@@ -792,6 +795,10 @@
 
         #hiitActiveScreen {
             text-align: center;
+        }
+
+        .hiit-adjust-params {
+            background: rgba(var(--card-color-rgb), 0.3) !important;
         }
 
         #hiitTimerDisplay {
@@ -1386,8 +1393,8 @@
                             style="margin-bottom: 10px; margin-top: 10px;">
                             📋 View Form Instructions
                         </button>
-                        <div
-                            style="margin: 10px -12px 0 -12px; background: rgba(212,175,55,0.2); padding: 8px 12px; border-radius: 0;">
+                        <div class="hiit-adjust-params"
+                            style="margin: 10px -12px 0 -12px; padding: 8px 12px; border-radius: 0;">
                             <div style="font-size: 10px; color: #f5f5dc; margin-bottom: 6px; text-align: center;">Adjust
                                 Parameters:</div>
                             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
@@ -3224,8 +3231,8 @@
                         </select>
                     </div>
                     
-                    <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <h4 style="margin-bottom: 15px; color: #856404;">⏱️ Interval Settings</h4>
+                    <div class="info-box">
+                            <h4 style="margin-bottom: 15px;">⏱️ Interval Settings</h4>
                         
                         <div class="form-group">
                             <label>Work Time (seconds)</label>
@@ -3259,43 +3266,72 @@
             }
             
             function startIntervalCardio() {
-                const activity = document.getElementById('intervalCardioActivity').value;
-                const workTime = parseInt(document.getElementById('intervalWorkTime').value);
-                const restTime = parseInt(document.getElementById('intervalRestTime').value);
-                const rounds = parseInt(document.getElementById('intervalRounds').value);
-                
-                if (!activity) {
-                    alert('Please select a cardio activity!');
-                    return;
-                }
-                
-                if (workTime < 15 || restTime < 10 || rounds < 1) {
-                    alert('Please set valid interval times (work ≥15s, rest ≥10s, rounds ≥1)');
-                    return;
-                }
-                
-                // Set up as HIIT workout with single exercise
-                currentWorkout = [{
-                    name: activity,
-                    duration: 0,
-                    distance: 0,
-                    distanceUnit: 'miles'
-                }];
-                
-                hiitWorkoutParams = {
-                    workTime: workTime,
-                    restTime: restTime,
-                    totalRounds: rounds
-                };
-                
-                workoutStyle = 'hiit';
-                
-                // Start the main workout timer
-                startTimer();
-                
-                // Start HIIT mode
-                startHiitWorkout();
-} 
+    const activity = document.getElementById('intervalCardioActivity').value;
+    const workTime = parseInt(document.getElementById('intervalWorkTime').value);
+    const restTime = parseInt(document.getElementById('intervalRestTime').value);
+    const rounds = parseInt(document.getElementById('intervalRounds').value);
+    
+    if (!activity) {
+        alert('Please select a cardio activity!');
+        return;
+    }
+    
+    if (workTime < 15 || restTime < 10 || rounds < 1) {
+        alert('Please set valid interval times (work ≥15s, rest ≥10s, rounds ≥1)');
+        return;
+    }
+    
+    // Set up as HIIT workout with single exercise
+    currentWorkout = [{
+        name: activity,
+        duration: 0,
+        distance: 0,
+        distanceUnit: 'miles'
+    }];
+    
+    hiitWorkoutParams = {
+        workTime: workTime,
+        restTime: restTime,
+        totalRounds: rounds,
+        exercises: [activity]
+    };
+    
+    workoutStyle = 'hiit';
+    
+    // Hide workout setup and show HIIT mode
+    document.getElementById('workoutSetup').style.display = 'none';
+    document.getElementById('guidedWorkoutMode').style.display = 'none';
+    document.getElementById('hiitWorkoutMode').style.display = 'block';
+    document.querySelector('.nav').style.display = 'none';
+    document.querySelector('.workout-timer').style.display = 'block';
+    
+    // Initialize HIIT state
+    hiitCurrentRound = 1;
+    hiitCurrentExerciseIndex = 0;
+    hiitCurrentMode = 'countdown';
+    hiitIsPaused = false;
+    
+    // Show countdown screen
+    document.getElementById('hiitCountdownScreen').style.display = 'block';
+    document.getElementById('hiitActiveScreen').style.display = 'none';
+    document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
+    
+    // Initialize audio context if needed
+    if (!window.audioCtx) {
+        try {
+            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log("Audio context initialized for interval cardio.");
+        } catch (e) {
+            console.log("Could not initialize audio context:", e);
+        }
+    }
+    
+    // Start the main workout timer
+    startTimer();
+    
+    // Start HIIT countdown
+    startHiitCountdown();
+}
         // ==================== QUICK CARDIO LOGGER ====================
 function showQuickCardioLogger() {
     const container = document.getElementById('workoutContainer');
@@ -3326,9 +3362,9 @@ function showQuickCardioLogger() {
         </div>
         
         <div id="quickCardioDetails" style="display: none;">
-            <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <div class="info-box" style="padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
                 <h3>⏱️ Session Timer</h3>
-                <div style="font-size: 48px; font-weight: bold; color: #1565C0; margin: 15px 0;" id="quickCardioTimer">00:00</div>
+                <div style="font-size: 48px; font-weight: bold; margin: 15px 0;" id="quickCardioTimer">00:00</div>
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                     <button class="btn btn-success" id="quickCardioStartBtn" onclick="startQuickCardioTimer()">▶️ Start</button>
                     <button class="btn btn-secondary" id="quickCardioPauseBtn" onclick="pauseQuickCardioTimer()" style="display: none;">⏸️ Pause</button>
@@ -3803,7 +3839,11 @@ function cancelQuickCardio() {
             document.getElementById('hiitActiveScreen').style.display = 'none';
             document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
         
-            // DO NOT call startTimer() here. We wait for the user.
+            // Start the main workout timer
+            startTimer();
+            
+            // Start HIIT countdown
+            startHiitCountdown();
             }
 
         function startHiitCountdown() {
@@ -6816,6 +6856,7 @@ User's request: ${msg}`;
             document.documentElement.style.setProperty('--card-color', colors.card);
             document.documentElement.style.setProperty('--nav-color', colors.nav);
             document.documentElement.style.setProperty('--nav-text-color', colors.navText);
+           
             
             // Update specific elements
             updateColorStyles(colors);
@@ -6842,6 +6883,10 @@ User's request: ${msg}`;
             const cardRgb = hexToRgb(colors.card);
             const primaryRgb = hexToRgb(colors.primary);
             const navRgb = hexToRgb(colors.nav);
+            
+            // Set CSS variables for RGB card color
+            document.documentElement.style.setProperty('--card-color-rgb', `${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}`);
+            
             const css = `
                 body {
                     background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
@@ -7509,4 +7554,3 @@ function loadBackgroundImage() {
         </script>
     </body>
 </html>
-    
