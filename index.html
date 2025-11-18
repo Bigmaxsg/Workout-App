@@ -2645,6 +2645,14 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
 
     if (!newName) {
         alert("Save canceled. The workout was not started.");
+        // --- FIX STARTS HERE ---
+        // 1. Reset the dropdown selection to the default
+        document.getElementById('workoutType').value = "";
+        
+        // 2. Trigger loadWorkout() which detects the empty value
+        // and clears the workout container/buttons automatically
+        loadWorkout();
+        // --- FIX ENDS HERE ---
         return;
     }
 
