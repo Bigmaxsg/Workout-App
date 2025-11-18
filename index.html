@@ -63,8 +63,12 @@
             background: linear-gradient(135deg, #001f3f 0%, #003d5c 100%);
             color: #d4af37;
             padding: 20px;
-            text-align: center;
             border-bottom: 3px solid #d4af37;
+            /* --- New styles for alignment --- */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px; /* Adds a little space between items */
         }
 
         .header h1 {
@@ -2161,23 +2165,7 @@
                 // If we are navigating away from the share tab, reset its view.
                 resetShareTabView();
             }
-            function forceRefreshActiveTab() {
-            const activeSectionId = document.querySelector('.section.active')?.id;
-            if (activeSectionId) {
-                console.log(`Force refreshing tab: ${activeSectionId}`);
-                showSection(activeSectionId);
-                
-                // Give user feedback
-                const refreshBtn = document.querySelector('.header button');
-                if(refreshBtn) {
-                    refreshBtn.style.transform = 'rotate(360deg)';
-                    refreshBtn.style.transition = 'transform 0.5s';
-                    setTimeout(() => {
-                        refreshBtn.style.transform = 'rotate(0deg)';
-                    }, 500);
-                }
-            }
-        }
+           
             // *** THE FIX ENDS HERE ***
 
             // Get current colors
@@ -2238,6 +2226,23 @@
                 renderCalendar();
             } else if (sectionId === 'body-stats') {
                 loadBodyStats();
+            }
+        }
+         function forceRefreshActiveTab() {
+            const activeSectionId = document.querySelector('.section.active')?.id;
+            if (activeSectionId) {
+                console.log(`Force refreshing tab: ${activeSectionId}`);
+                showSection(activeSectionId);
+                
+                // Give user feedback
+                const refreshBtn = document.querySelector('.header button');
+                if(refreshBtn) {
+                    refreshBtn.style.transform = 'rotate(360deg)';
+                    refreshBtn.style.transition = 'transform 0.5s';
+                    setTimeout(() => {
+                        refreshBtn.style.transform = 'rotate(0deg)';
+                    }, 500);
+                }
             }
         }
         function resetShareTabView() {
