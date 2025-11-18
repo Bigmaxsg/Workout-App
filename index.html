@@ -5837,7 +5837,25 @@ User's request: ${msg}`;
         // ==================== WORKOUT HISTORY ====================
         function loadHistory() {
             const container = document.getElementById('historyContainer');
-            const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+            let history = JSON.parse(localStorage.getItem('workoutHistory') || '[]'); // Changed to let
+        
+            // ---- START: New Data Update Code ----
+            // This block will check for old workouts and give them a unique ID.
+            let needsUpdate = false;
+            history.forEach((workout, index) => {
+                if (!workout.id) {
+                    // Create a unique ID from the timestamp and index for old entries
+                    workout.id = new Date(workout.date).getTime() + index;
+                    needsUpdate = true;
+                }
+            });
+        
+            // If we updated any old workouts, save the changes back to local storage.
+            if (needsUpdate) {
+                localStorage.setItem('workoutHistory', JSON.stringify(history));
+                console.log('Updated old workout entries with unique IDs.');
+            }
+            // ---- END: New Data Update Code ----
             
             history.sort((a, b) => new Date(b.date) - new Date(a.date));
 
