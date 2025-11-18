@@ -4583,11 +4583,11 @@ function cancelQuickCardio() {
 Respond with a JSON object in this EXACT format:
 {
   "workoutName": "Exercise type (e.g., Outdoor Run, Strength Training, HIIT, etc.)",
-  "Workout Time": "Workout Time duration in minutes as a number",
-  "Total calories": "Calories burned as a number",
-  "date": "Workout date in Day, Month date format assume current year (use MM-DD-YEAR fromat today's date if not visible)",
-  "heartRate": "Average heart rate if visible, otherwise null",
-  "distance": "Distance if visible should have MI or KM (for running/cycling,rowing), otherwise null",
+  "duration": "Workout Time duration in minutes as a number",
+  "calories": "Total Calories burned as a number",
+  "date": "Workout date in example Mon, Nov 17 assume current year (use MM-DD-YY format today's date if not visible)",
+  "heartRate": "Avg. heart rate if visible, otherwise null",
+  "distance": "Distance if visible MI or KM (for running/cycling,rowing), otherwise null",
   "exercises": [
     {
       "name": "Exercise name if detailed workout shown",
