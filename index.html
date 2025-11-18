@@ -6056,22 +6056,32 @@ User's request: ${msg}`;
         // ==================== EDIT WORKOUT STATS ====================
         let currentEditingWorkoutIndex = null;
 
-        function editWorkoutStats(id) {
+       function editWorkoutStats(id) {
     const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
     const workoutIndex = history.findIndex(w => w.id === id);
     if (workoutIndex === -1) {
         alert('Workout not found!');
         return;
     }
-    currentEditingWorkoutIndex = workoutIndex; // Keep using index for saving
+    currentEditingWorkoutIndex = workoutIndex; 
     const workout = history[workoutIndex];
     
-    // ... the rest of the function remains exactly the same
-    const isoString = workout.date;
-    const datePart = isoString.substring(0, 10);
-    const timePart = isoString.substring(11, 16);
-    document.getElementById('editWorkoutDate').value = datePart;
-    document.getElementById('editWorkoutTime').value = timePart; 
+    // --- FIX: Use Date object to get correct local time from ISO string ---
+    const dateObj = new Date(workout.date);
+    
+    // Format to YYYY-MM-DD for the date input
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    
+    // Format to HH:MM for the time input
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('editWorkoutDate').value = `${year}-${month}-${day}`;
+    document.getElementById('editWorkoutTime').value = `${hours}:${minutes}`; 
+    // --- END FIX ---
+
     document.getElementById('editWorkoutName').value = workout.workoutName || '';
     const durationInMinutes = Math.round((workout.duration || 0) / 60);
     document.getElementById('editDurationMinutes').value = durationInMinutes || '';
@@ -6083,73 +6093,83 @@ User's request: ${msg}`;
 
     showModalById('editStatsModal');
 }
+       function saveWorkoutStats() {
+    if (currentEditingWorkoutIndex === null) return;
 
-        function saveWorkoutStats() {
-            if (currentEditingWorkoutIndex === null) return;
+    const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+    const workout = history[currentEditingWorkoutIndex];
 
-            const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
-            const workout = history[currentEditingWorkoutIndex];
+    const newDate = document.getElementById('editWorkoutDate').value;
+    const newTime = document.getElementById('editWorkoutTime').value;
 
-            const newDate = document.getElementById('editWorkoutDate').value;
-            const newTime = document.getElementById('editWorkoutTime').value;
-
-            if (newDate && newTime) {
-                 const oldIsoString = workout.date;
-                 const oldSeconds = oldIsoString.substring(17, 23);
-                 workout.date = `${newDate}T${newTime}${oldSeconds}`;
-            }
-            workout.workoutName = document.getElementById('editWorkoutName').value.trim() || workout.workoutName;
-            
-            const durationMinutes = parseInt(document.getElementById('editDurationMinutes').value);
-            if (!isNaN(durationMinutes) && durationMinutes > 0) {
-                workout.duration = durationMinutes * 60;
-            } else {
-                workout.duration = 0;
-            }
-            workout.heartRate = parseInt(document.getElementById('editHeartRate').value) || null;
-            workout.calories = parseInt(document.getElementById('editCalories').value) || null;
-            
-            const distance = parseFloat(document.getElementById('editDistance').value);
-            const distanceUnit = document.getElementById('editDistanceUnit').value;
-            
-            if (distance && distanceUnit) {
-                workout.distance = distance;
-                workout.distanceUnit = distanceUnit;
-                
-                if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
-                    workout.exercises.forEach(exercise => {
-                        if (exercise.distance !== undefined) {
-                            exercise.distance = distance;
-                            exercise.distanceUnit = distanceUnit;
-                        }
-                    });
-                }
-            } else {
-                workout.distance = null;
-                workout.distanceUnit = null;
-                
-                if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
-                    workout.exercises.forEach(exercise => {
-                        if (exercise.distance !== undefined) {
-                            exercise.distance = null;
-                            exercise.distanceUnit = null;
-                        }
-                    });
-                }
-            }
-            
-            workout.notes = document.getElementById('editWorkoutNotes').value.trim() || '';
-
-            localStorage.setItem('workoutHistory', JSON.stringify(history));
-            workoutHistory = history;
-
-            loadHistory();
-            renderCalendar();
-
-            closeModal(document.getElementById('editStatsModal'));
-            currentEditingWorkoutIndex = null;
-            alert('✅ Workout stats updated successfully!');
+    // --- FIX: Properly construct a new Date object and save as ISO ---
+    if (newDate && newTime) {
+        // Create a date object from the local inputs (e.g., "2023-11-19" and "14:30")
+        // The Date constructor automatically handles local timezone conversion
+        const newDateTime = new Date(`${newDate}T${newTime}`);
+        
+        // Check if date is valid before saving
+        if (!isNaN(newDateTime.getTime())) {
+            workout.date = newDateTime.toISOString();
+        } else {
+            alert("Invalid Date/Time format.");
+            return;
         }
+    }
+    // --- END FIX ---
+
+    workout.workoutName = document.getElementById('editWorkoutName').value.trim() || workout.workoutName;
+    
+    const durationMinutes = parseInt(document.getElementById('editDurationMinutes').value);
+    if (!isNaN(durationMinutes) && durationMinutes > 0) {
+        workout.duration = durationMinutes * 60;
+    } else {
+        workout.duration = 0;
+    }
+    workout.heartRate = parseInt(document.getElementById('editHeartRate').value) || null;
+    workout.calories = parseInt(document.getElementById('editCalories').value) || null;
+    
+    const distance = parseFloat(document.getElementById('editDistance').value);
+    const distanceUnit = document.getElementById('editDistanceUnit').value;
+    
+    if (distance && distanceUnit) {
+        workout.distance = distance;
+        workout.distanceUnit = distanceUnit;
+        
+        if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
+            workout.exercises.forEach(exercise => {
+                if (exercise.distance !== undefined) {
+                    exercise.distance = distance;
+                    exercise.distanceUnit = distanceUnit;
+                }
+            });
+        }
+    } else {
+        workout.distance = null;
+        workout.distanceUnit = null;
+        
+        if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
+            workout.exercises.forEach(exercise => {
+                if (exercise.distance !== undefined) {
+                    exercise.distance = null;
+                    exercise.distanceUnit = null;
+                }
+            });
+        }
+    }
+    
+    workout.notes = document.getElementById('editWorkoutNotes').value.trim() || '';
+
+    localStorage.setItem('workoutHistory', JSON.stringify(history));
+    workoutHistory = history;
+
+    loadHistory();
+    renderCalendar();
+
+    closeModal(document.getElementById('editStatsModal'));
+    currentEditingWorkoutIndex = null;
+    alert('✅ Workout stats updated successfully!');
+}
 
         // ==================== ADD MANUAL WORKOUT ====================
         function openAddManualWorkoutModal() {
