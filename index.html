@@ -2234,23 +2234,28 @@
                 loadBodyStats();
             }
         }
-         function forceRefreshActiveTab() {
-            const activeSectionId = document.querySelector('.section.active')?.id;
-            if (activeSectionId) {
-                console.log(`Force refreshing tab: ${activeSectionId}`);
-                showSection(activeSectionId);
-                
-                // Give user feedback
-                const refreshBtn = document.querySelector('.header button');
-                if(refreshBtn) {
-                    refreshBtn.style.transform = 'rotate(360deg)';
-                    refreshBtn.style.transition = 'transform 0.5s';
-                    setTimeout(() => {
-                        refreshBtn.style.transform = 'rotate(0deg)';
-                    }, 500);
-                }
-            }
+        function forceRefreshActiveTab() {
+    // Visual feedback
+    const refreshBtn = document.querySelector('.header button');
+    if(refreshBtn) {
+        refreshBtn.style.transform = 'rotate(360deg)';
+        refreshBtn.style.transition = 'transform 0.5s';
+    }
+
+    // The Logic: Force the browser to think this is a "new" page 
+    // by adding a random number to the URL. This bypasses the iOS cache.
+    setTimeout(() => {
+        if(confirm("Download latest update? This will reload the app.")) {
+            const url = new URL(window.location.href);
+            // Add a timestamp to force the browser to fetch a fresh copy
+            url.searchParams.set('v', Date.now()); 
+            window.location.href = url.toString();
+        } else {
+            // Just reset the animation if they cancel
+            if(refreshBtn) refreshBtn.style.transform = 'rotate(0deg)';
         }
+    }, 500);
+}
         function resetShareTabView() {
                     const qrContainer = document.getElementById('qrCodeContainer');
                     if (qrContainer) {
