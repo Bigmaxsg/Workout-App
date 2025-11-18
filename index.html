@@ -6056,22 +6056,32 @@ User's request: ${msg}`;
         // ==================== EDIT WORKOUT STATS ====================
         let currentEditingWorkoutIndex = null;
 
-        function editWorkoutStats(id) {
+       function editWorkoutStats(id) {
     const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
     const workoutIndex = history.findIndex(w => w.id === id);
     if (workoutIndex === -1) {
         alert('Workout not found!');
         return;
     }
-    currentEditingWorkoutIndex = workoutIndex; // Keep using index for saving
+    currentEditingWorkoutIndex = workoutIndex; 
     const workout = history[workoutIndex];
     
-    // ... the rest of the function remains exactly the same
-    const isoString = workout.date;
-    const datePart = isoString.substring(0, 10);
-    const timePart = isoString.substring(11, 16);
-    document.getElementById('editWorkoutDate').value = datePart;
-    document.getElementById('editWorkoutTime').value = timePart; 
+    // --- FIX: Use Date object to get correct local time from ISO string ---
+    const dateObj = new Date(workout.date);
+    
+    // Format to YYYY-MM-DD for the date input
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    
+    // Format to HH:MM for the time input
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('editWorkoutDate').value = `${year}-${month}-${day}`;
+    document.getElementById('editWorkoutTime').value = `${hours}:${minutes}`; 
+    // --- END FIX ---
+
     document.getElementById('editWorkoutName').value = workout.workoutName || '';
     const durationInMinutes = Math.round((workout.duration || 0) / 60);
     document.getElementById('editDurationMinutes').value = durationInMinutes || '';
@@ -6083,7 +6093,6 @@ User's request: ${msg}`;
 
     showModalById('editStatsModal');
 }
-
         function saveWorkoutStats() {
             if (currentEditingWorkoutIndex === null) return;
 
