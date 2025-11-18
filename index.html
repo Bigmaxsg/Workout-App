@@ -1132,10 +1132,12 @@
 
 <body>
     <div class="container">
-        <div class="header">
-            <button onclick="forceRefreshActiveTab()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; color: #d4af37; cursor: pointer;">🔄</button>
-            <h1>💪 Workout Tracker Pro</h1>
-            <p>Your Personal Fitness Companion</p>
+       <div class="header">
+            <div> <!-- This new div groups the text together -->
+                <h1>💪 Workout Tracker Pro</h1>
+                <p>Your Personal Fitness Companion</p>
+            </div>
+            <button onclick="forceRefreshActiveTab()" style="background: none; border: none; font-size: 28px; color: #d4af37; cursor: pointer; padding: 0 10px;">🔄</button>
         </div>
         <div class="nav">
             <button class="nav-btn" onclick="showSection('ai-coach')">AI Coach</button>
