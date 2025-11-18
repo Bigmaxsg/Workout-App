@@ -64,11 +64,15 @@
             color: #d4af37;
             padding: 20px;
             border-bottom: 3px solid #d4af37;
-            /* --- New styles for alignment --- */
+            /* --- Styles for alignment --- */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px; /* Adds a little space between items */
+            gap: 15px;
+        }
+        
+        .header .header-spacer {
+            width: 48px; 
         }
 
         .header h1 {
@@ -1136,8 +1140,9 @@
 
 <body>
     <div class="container">
-       <div class="header">
-            <div> <!-- This new div groups the text together -->
+      <div class="header">
+            <div class="header-spacer"></div> <!-- Spacer Div -->
+            <div> 
                 <h1>💪 Workout Tracker Pro</h1>
                 <p>Your Personal Fitness Companion</p>
             </div>
