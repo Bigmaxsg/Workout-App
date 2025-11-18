@@ -5892,26 +5892,9 @@ User's request: ${msg}`;
         // ==================== WORKOUT HISTORY ====================
         function loadHistory() {
             const container = document.getElementById('historyContainer');
-            let history = JSON.parse(localStorage.getItem('workoutHistory') || '[]'); // Changed to let
-        
-            // ---- START: New Data Update Code ----
-            // This block will check for old workouts and give them a unique ID.
-            let needsUpdate = false;
-            history.forEach((workout, index) => {
-                if (!workout.id) {
-                    // Create a unique ID from the timestamp and index for old entries
-                    workout.id = new Date(workout.date).getTime() + index;
-                    needsUpdate = true;
-                }
-            });
-        
-            // If we updated any old workouts, save the changes back to local storage.
-            if (needsUpdate) {
-                localStorage.setItem('workoutHistory', JSON.stringify(history));
-                console.log('Updated old workout entries with unique IDs.');
-            }
-            // ---- END: New Data Update Code ----
-            
+            let history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+
+            // 1. Enforce Sorting: Newest Date First
             history.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (history.length === 0) {
@@ -5924,14 +5907,16 @@ User's request: ${msg}`;
             let html = '';
             history.forEach((workout, index) => {
                 const date = new Date(workout.date);
-                const duration = workout.duration;
+                const duration = workout.duration || 0;
+                
+                // FIX: Round seconds down to remove .2000000045 artifacts
                 const minutes = Math.floor(duration / 60);
-                const seconds = Math.floor(duration % 60); // <--- Fix: Math.floor removes decimals
+                const seconds = Math.floor(duration % 60); 
 
                 let exercisesSummary = '';
                 if (workout.type === 'HIIT') {
                     exercisesSummary = `${workout.exercises.length} exercises × ${workout.hiitParams?.rounds || 'N/A'} rounds`;
-                } else {
+                } else if (Array.isArray(workout.exercises)) {
                     exercisesSummary = workout.exercises.map(e => e.name).join(', ');
                 }
 
@@ -5939,7 +5924,7 @@ User's request: ${msg}`;
                     <div class="history-item">
                         <div class="history-header">
                             <div>
-                                <div class="history-date">${date.toLocaleDateString()} - ${date.toLocaleTimeString()}</div>
+                                <div class="history-date">${date.toLocaleDateString()} - ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                 <div class="history-type">${workout.workoutName || 'Custom'} (${workout.type})</div>
                             </div>
                             <div class="history-duration">${minutes}:${String(seconds).padStart(2, '0')}</div>
@@ -5948,7 +5933,7 @@ User's request: ${msg}`;
                             <div class="history-stats-box">
                                 ${workout.heartRate ? `💓 Avg HR: <strong>${workout.heartRate} BPM</strong> &nbsp;|&nbsp; ` : ''}
                                 ${workout.calories ? `🔥 Calories: <strong>${workout.calories}</strong> &nbsp;|&nbsp; ` : ''}
-                                ${workout.distance ? `📏 Distance: <strong>${workout.distance} ${workout.distanceUnit}</strong>` : ''}
+                                ${workout.distance ? `📏 Distance: <strong>${workout.distance} ${workout.distanceUnit || 'mi'}</strong>` : ''}
                             </div>
                         ` : ''}
                         <div class="history-exercises">
@@ -5958,15 +5943,12 @@ User's request: ${msg}`;
                         <div class="history-details-body">
                 `;
 
-                // Check if exercises exist and determine type
+                // (Rest of the exercise rendering logic remains the same...)
                if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
-                    // Check if the first exercise item is an object (strength or single cardio log)
                     if (typeof workout.exercises[0] === 'object' && workout.exercises[0] !== null && workout.exercises[0].name) {
                         workout.exercises.forEach(exercise => {
                             const isPR = isPersonalRecord(exercise.name, exercise.weight) && exercise.weight > 0;
-                            
-                            // NEW CHECK: Use property existence to determine cardio vs. strength
-                            const isCardioLog = exercise.duration !== undefined; // If it has a duration property, treat it as a logged cardio exercise.
+                            const isCardioLog = exercise.duration !== undefined; 
 
                             html += `
                                 <div class="history-exercise-detail">
@@ -5976,29 +5958,21 @@ User's request: ${msg}`;
                                     </span>
                                     <span class="history-exercise-stats">
                                         ${isCardioLog ? 
-                                            // FIX: Prioritize exercise.distanceUnit, then the workout's top-level unit, then 'mi'
                                             `${exercise.duration || 0} min${exercise.distance ? ` | ${exercise.distance} ${exercise.distanceUnit || workout.distanceUnit || 'mi'}` : ''}` :
-                                            // Displays strength stats
                                             `${exercise.sets || 0}x${exercise.reps || 0} @ ${exercise.weight || 0}lbs`
                                         }
                                     </span>
                                 </div>
                             `;
                         });
-                    }  
-                    // Case 2: HIIT workout - exercises are just strings (exercise names)
-                    else {
+                    } else {
                         html += `
                             <div class="history-exercise-detail">
                                 <strong>Exercises:</strong> ${workout.exercises.join(', ')}
                             </div>
                         `;
-                        if (workout.rounds) {
-                            html += `
-                                <div class="history-exercise-detail">
-                                    <strong>Rounds Completed:</strong> ${workout.rounds}
-                                </div>
-                            `;
+                         if (workout.rounds) {
+                            html += `<div class="history-exercise-detail"><strong>Rounds:</strong> ${workout.rounds}</div>`;
                         }
                     }
                 } else {
