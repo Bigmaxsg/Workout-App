@@ -4747,7 +4747,7 @@ Respond with this EXACT JSON structure (no markdown):
             const workoutEntry = {
                 id: Date.now(),
                 date: workoutDate.toISOString(),
-                duration: (workoutData.duration || 0) * 60, // Convert minutes to seconds
+                duration: Math.round((workoutData.duration || 0) * 60),
                 totalVolume: 0,
                 exercises: [],
                 workoutName: workoutData.workoutName,
@@ -5926,7 +5926,7 @@ User's request: ${msg}`;
                 const date = new Date(workout.date);
                 const duration = workout.duration;
                 const minutes = Math.floor(duration / 60);
-                const seconds = duration % 60;
+                const seconds = Math.floor(duration % 60); // <--- Fix: Math.floor removes decimals
 
                 let exercisesSummary = '';
                 if (workout.type === 'HIIT') {
