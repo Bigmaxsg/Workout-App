@@ -4578,27 +4578,40 @@ function cancelQuickCardio() {
                     try {
                         const base64Data = reader.result.split(',')[1]; // Remove data:image/png;base64, prefix
 
-                        const prompt = `You are analyzing an Apple Fitness or workout screenshot. Extract ALL workout data visible in the image.
+                         const prompt = `You are analyzing an Apple Fitness or workout tracker screenshot. Extract ALL data accurately.
 
-Respond with a JSON object in this EXACT format:
-{
-  "workoutName": "Exercise type (e.g., Outdoor Run, Strength Training, HIIT, etc.)",
-  "duration": "Workout Time duration in minutes as a number",
-  "calories": "Total Calories burned as a number",
-  "date": "Workout date in example Mon, Nov 17 assume current year (use MM-DD-YY format today's date if not visible)",
-  "heartRate": "Avg. heart rate if visible, otherwise null",
-  "distance": "Distance if visible MI or KM (for running/cycling,rowing), otherwise null",
-  "exercises": [
-    {
-      "name": "Exercise name if detailed workout shown",
-      "sets": 3,
-      "reps": 12,
-      "weight": 0
-    }
-  ]
-}
+            SPECIFIC INSTRUCTIONS:
+            1. **Date:** Look for the date at the top (e.g., "Mon, Nov 17"). If year is missing, use current year. Format: YYYY-MM-DD.
+            2. **Duration:** Parse "0:28:40" as total minutes (e.g., 28.67).
+            3. **Calories:** Prefer "Total Calories". If missing, use "Active".
+            4. **Distance:** Extract value and unit separately (e.g. "5.53" and "km").
+            5. **Heart Rate:** Use "Avg. Heart Rate".
+            
+            Respond with a valid JSON object (no markdown, no comments) in this format:
+            {
+              "workoutName": "Exercise type",
+              "duration": 0,
+              "calories": 0,
+              "date": "YYYY-MM-DD",
+              "heartRate": 0,
+              "distance": 0,
+              "distanceUnit": "km",
+              "exercises": [
+                {
+                  "name": "Exercise Name",
+                  "sets": 3,
+                  "reps": 12,
+                  "weight": 0
+                }
+              ]
+            }
+            
+            Notes:
+            - duration should be a number in minutes (decimals allowed).
+            - distanceUnit should be 'km', 'miles', 'mi', 'm', or 'yds'.
+            - If this is just a summary screen (cardio), leave the "exercises" array empty.
+            `;
 
-If this is just a summary screen (showing duration/calories only), leave exercises array empty. If detailed exercises are shown, populate the exercises array.`;
 
                         // Use retry logic
                         const data = await apiCallWithRetry(
