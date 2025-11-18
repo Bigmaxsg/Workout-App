@@ -7488,7 +7488,20 @@ function loadBackgroundImage() {
             loadCustomWorkoutsIntoDropdown();
             loadSavedColors();
             loadBackgroundImage();
-            
+
+            // Add this new block of code
+        document.addEventListener('visibilitychange', () => {
+            // Check if the page has become visible
+            if (document.visibilityState === 'visible') {
+                console.log('App re-focused. Refreshing active tab data.');
+                const activeSectionId = document.querySelector('.section.active')?.id;
+                if (activeSectionId) {
+                    // Re-run the showSection function for the current tab.
+                    // This will trigger the specific data refresh function for that tab.
+                    showSection(activeSectionId);
+                }
+            }
+        });
             // Load the initial tab's background image (workout tab is active by default)
             showSection('workout');
         });
