@@ -1133,6 +1133,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <button onclick="forceRefreshActiveTab()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; color: #d4af37; cursor: pointer;">🔄</button>
             <h1>💪 Workout Tracker Pro</h1>
             <p>Your Personal Fitness Companion</p>
         </div>
@@ -2158,6 +2159,23 @@
                 // If we are navigating away from the share tab, reset its view.
                 resetShareTabView();
             }
+            function forceRefreshActiveTab() {
+            const activeSectionId = document.querySelector('.section.active')?.id;
+            if (activeSectionId) {
+                console.log(`Force refreshing tab: ${activeSectionId}`);
+                showSection(activeSectionId);
+                
+                // Give user feedback
+                const refreshBtn = document.querySelector('.header button');
+                if(refreshBtn) {
+                    refreshBtn.style.transform = 'rotate(360deg)';
+                    refreshBtn.style.transition = 'transform 0.5s';
+                    setTimeout(() => {
+                        refreshBtn.style.transform = 'rotate(0deg)';
+                    }, 500);
+                }
+            }
+        }
             // *** THE FIX ENDS HERE ***
 
             // Get current colors
