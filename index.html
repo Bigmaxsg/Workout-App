@@ -4657,49 +4657,97 @@ Respond with this EXACT JSON structure (no markdown):
         
         function confirmAppleWorkoutImport(workoutData) {
             
-            // --- STEP 1: PREPARE DEFAULTS FROM AI DATA ---
+            // --- 1. PREPARE DEFAULTS (Use AI data if available, else defaults to Now) ---
             const now = new Date();
-            let defaultDateString = now.toLocaleDateString('en-US').replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$1-$2-$3'); // Default to today
-            let defaultTimeString = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: true}); // Default to now
-
-            // If AI found a date (YYYY-MM-DD), convert to MM-DD-YYYY for the prompt
+            
+            // Default Date: Try to use AI's YYYY-MM-DD, convert to MM-DD-YYYY for prompt
+            let defaultDate = now.toLocaleDateString('en-US').replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$1-$2-$3');
             if (workoutData.date) {
-                const parts = workoutData.date.split('-');
-                if (parts.length === 3) defaultDateString = `${parts[1]}-${parts[2]}-${parts[0]}`;
+                const parts = workoutData.date.split('-'); // YYYY-MM-DD
+                if (parts.length === 3) defaultDate = `${parts[1]}-${parts[2]}-${parts[0]}`;
             }
 
-            // If AI found a start time, use it
+            // Default Time: Try to use AI's HH:MM AM/PM
+            let defaultTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: true});
             if (workoutData.startTime) {
-                defaultTimeString = workoutData.startTime;
+                defaultTime = workoutData.startTime;
             }
 
-            // --- STEP 2: PROMPT USER (Pre-filled with AI data) ---
-            const userDate = prompt('Confirm Date (MM-DD-YYYY):', defaultDateString);
+            // --- 2. PROMPT USER ---
+            const userDate = prompt('Please confirm the workout date (MM-DD-YYYY):', defaultDate);
             if (!userDate) {
+                alert('Workout logging canceled.');
                 document.getElementById('imageProcessingStatus').style.display = 'none';
                 return;
             }
 
-            const userTime = prompt('Confirm Start Time (HH:MM AM/PM):', defaultTimeString);
+            const userTime = prompt('Please confirm the workout time (HH:MM AM/PM, e.g., 5:22 PM):', defaultTime);
             if (!userTime) {
+                alert('Workout logging canceled.');
                 document.getElementById('imageProcessingStatus').style.display = 'none';
                 return;
             }
 
-            // Create Date object
+            // Combine and validate date
             const localDateTimeString = `${userDate.replace(/-/g, '/')} ${userTime}`;
             const workoutDate = new Date(localDateTimeString);
             
             if (isNaN(workoutDate)) {
-                alert('Invalid Date/Time. Use MM-DD-YYYY and HH:MM AM/PM.');
+                alert('Invalid Date or Time entered. Workout logging canceled.');
+                document.getElementById('imageProcessingStatus').style.display = 'none';
                 return;
             }
+            
+            // ==================== DUPLICATE DETECTION (RESTORED) ====================
+            // Check if a workout already exists within 5 minutes of this time
+            const existingWorkoutIndex = workoutHistory.findIndex(w => {
+                const existingDate = new Date(w.date);
+                const timeDiff = Math.abs(existingDate - workoutDate);
+                const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+                
+                // Consider it a match if within 5 minutes AND same workout name
+                return timeDiff < fiveMinutes && 
+                       (w.workoutName === workoutData.workoutName || 
+                        w.type === workoutData.workoutName);
+            });
 
-            // --- STEP 3: CREATE WORKOUT ENTRY ---
+            if (existingWorkoutIndex !== -1) {
+                // Workout already exists - ASK USER what to do
+                const existingWorkout = workoutHistory[existingWorkoutIndex];
+                const existingTimeStr = new Date(existingWorkout.date).toLocaleTimeString();
+                
+                if (confirm(`⚠️ Found existing workout:\n\n"${existingWorkout.workoutName || existingWorkout.type}" at ${existingTimeStr}\n\nDo you want to UPDATE this workout with Fitness Tracker data?\n\n✅ Click OK to update existing workout\n❌ Click Cancel to create a new separate entry`)) {
+                    
+                    // UPDATE existing workout
+                    const target = workoutHistory[existingWorkoutIndex];
+                    target.date = workoutDate.toISOString(); // Update timestamp
+                    target.heartRate = workoutData.heartRate || target.heartRate;
+                    target.calories = workoutData.calories || target.calories;
+                    target.distance = workoutData.distance || target.distance;
+                    target.distanceUnit = workoutData.distanceUnit || target.distanceUnit;
+                    
+                    localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+                    
+                    // UI Cleanup
+                    document.getElementById('imageProcessingStatus').innerHTML = `<div class="status-success">✅ Workout updated successfully!</div>`;
+                    setTimeout(() => {
+                        document.getElementById('imageProcessingStatus').style.display = 'none';
+                        document.getElementById('appleWorkoutImage').value = '';
+                    }, 3000);
+                    
+                    loadHistory();
+                    renderCalendar();
+                    return; // Stop here, do not create new entry
+                }
+            }
+
+            // ==================== CREATE NEW WORKOUT ====================
+            // Logic reaches here only if no duplicate found OR user clicked Cancel on duplicate prompt
+            
             const workoutEntry = {
                 id: Date.now(),
                 date: workoutDate.toISOString(),
-                duration: (workoutData.duration || 0) * 60, // Convert to seconds
+                duration: (workoutData.duration || 0) * 60, // Convert minutes to seconds
                 totalVolume: 0,
                 exercises: [],
                 workoutName: workoutData.workoutName,
@@ -4711,149 +4759,21 @@ Respond with this EXACT JSON structure (no markdown):
                 source: 'Fitness Tracker Import'
             };
 
-            // Add Exercises or Fallback
-            if (workoutData.exercises && workoutData.exercises.length > 0) {
-                // (Logic for detailed strength exercises remains the same)
-                 workoutData.exercises.forEach(ex => {
-                    workoutEntry.exercises.push({
-                        name: ex.name,
-                        sets: ex.sets || 3,
-                        reps: ex.reps || 12,
-                        weight: ex.weight || 0
-                    });
-                });
-            } else {
-                // Cardio fallback
-                workoutEntry.exercises.push({
-                    name: workoutData.workoutName,
-                    duration: workoutData.duration || 0,
-                    distance: workoutData.distance || 0,
-                    distanceUnit: workoutData.distanceUnit || 'miles'
-                });
-            }
-
-            // Save
-            workoutHistory.push(workoutEntry);
-            localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
-            
-            // Cleanup
-            document.getElementById('imageProcessingStatus').innerHTML = `<div class="status-success">✅ Saved! View in History tab.</div>`;
-            setTimeout(() => {
-                document.getElementById('imageProcessingStatus').style.display = 'none';
-                document.getElementById('appleWorkoutImage').value = '';
-            }, 3000);
-
-            loadHistory();
-            renderCalendar();
-        }
-        // --- NEW: USER PROMPT FOR DATE AND TIME (FRIENDLIER FORMAT) ---
-
-const now = new Date();
-// 1. Get Date from user (pre-fill with MM-DD-YYYY)
-const defaultDate = now.toLocaleDateString('en-US').replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$1-$2-$3'); // MM-DD-YYYY or M-D-YYYY
-const userDate = prompt('Please confirm the workout date (MM-DD-YYYY):', defaultDate);
-
-if (!userDate) {
-    alert('Workout logging canceled.');
-    document.getElementById('imageProcessingStatus').style.display = 'none';
-    return;
-}
-
-// 2. Get Time from user (pre-fill with a common time, ask for HH:MM AM/PM)
-const defaultTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: true});
-const userTime = prompt('Please confirm the workout time (HH:MM AM/PM, e.g., 5:22 PM):', defaultTime);
-
-if (!userTime) {
-    alert('Workout logging canceled.');
-    document.getElementById('imageProcessingStatus').style.display = 'none';
-    return;
-}
-
-// Combine user date and time into a correct local date string
-// Example: "11/14/2023 5:22 PM"
-const localDateTimeString = `${userDate.replace(/-/g, '/')} ${userTime}`;
-
-// The Date constructor correctly handles local time when given a full date string like "11/14/2023 5:22 PM"
-const workoutDate = new Date(localDateTimeString);
-
-// Check for "Invalid Date"
-if (isNaN(workoutDate)) {
-    alert('Invalid Date or Time entered. Workout logging canceled. Please use MM-DD-YYYY and HH:MM AM/PM format.');
-    document.getElementById('imageProcessingStatus').style.display = 'none';
-    return;
-}
-        
-        // ==================== DUPLICATE DETECTION ====================
-// Check if a workout already exists within 5 minutes of this time
-const existingWorkoutIndex = workoutHistory.findIndex(w => {
-    const existingDate = new Date(w.date);
-    const timeDiff = Math.abs(existingDate - workoutDate);
-    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
-    
-    // Consider it a match if within 5 minutes and same workout name
-    return timeDiff < fiveMinutes && 
-           (w.workoutName === workoutData.workoutName || 
-            w.type === workoutData.workoutName);
-});
-
-if (existingWorkoutIndex !== -1) {
-    // Workout already exists - ASK USER what to do
-    const existingWorkout = workoutHistory[existingWorkoutIndex];
-    const existingTime = new Date(existingWorkout.date).toLocaleTimeString();
-    
-    if (confirm(`⚠️ Found existing workout:\n\n"${existingWorkout.workoutName || existingWorkout.type}" at ${existingTime}\n\nDo you want to UPDATE this workout with Fitness Tracker data?\n\n✅ Click OK to update existing workout\n❌ Click Cancel to create a new separate entry`)) {
-        // UPDATE existing workout with Fitness Tracker data
-        workoutHistory[existingWorkoutIndex].date = workoutDate.toISOString(); // FIX: Update date on the existing entry too!
-        workoutHistory[existingWorkoutIndex].heartRate = workoutData.heartRate || existingWorkout.heartRate;
-        workoutHistory[existingWorkoutIndex].calories = workoutData.calories || existingWorkout.calories;
-        workoutHistory[existingWorkoutIndex].distance = workoutData.distance || existingWorkout.distance;
-        workoutHistory[existingWorkoutIndex].distanceUnit = workoutData.distanceUnit || existingWorkout.distanceUnit;
-        
-        // If Fitness Tracker has exercise details, add/update them
-        if (workoutData.exercises && workoutData.exercises.length > 0) {
-             // ... (existing logic to update exercises remains unchanged)
-        }
-
-        localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
-        
-        // ... (rest of update logic remains unchanged)
-        return;
-    }
-}
-
-    // ==================== CREATE NEW WORKOUT ====================
-    // Either no duplicate found, or user chose to create new entry
-    
-    const workoutEntry = {
-        id: Date.now(),
-        date: workoutDate.toISOString(), // FIX: Use the new correct local time ISO string
-        duration: (workoutData.duration || 0) * 60,
-        totalVolume: 0,
-        exercises: [],
-        workoutName: workoutData.workoutName,
-        type: workoutData.workoutName,
-        heartRate: workoutData.heartRate || null,
-        calories: workoutData.calories || null,
-        distance: workoutData.distance || null,
-        distanceUnit: workoutData.distanceUnit || null,
-        source: 'Fitness Tracker Import'
-    };
-            // Add exercises if available
+            // Add exercises if available (Strength) or generic entry (Cardio)
             if (workoutData.exercises && workoutData.exercises.length > 0) {
                 workoutData.exercises.forEach(ex => {
-                    const exerciseData = exerciseDatabase[ex.name] || {};
-                    const isCardio = exerciseData.exerciseType === "cardio";
-                    
+                    // Check DB to see if exercise is typically cardio
+                    const dbEx = exerciseDatabase[ex.name] || {};
+                    const isCardio = dbEx.exerciseType === 'cardio';
+
                     if (isCardio) {
-                        // Cardio exercise
-                        workoutEntry.exercises.push({
+                         workoutEntry.exercises.push({
                             name: ex.name,
                             duration: ex.duration || workoutData.duration || 0,
                             distance: ex.distance || workoutData.distance || 0,
-                            distanceUnit: ex.distanceUnit || workoutData.distanceUnit || 'miles'
+                            distanceUnit: ex.distanceUnit || workoutData.distanceUnit || 'km'
                         });
                     } else {
-                        // Strength exercise
                         workoutEntry.exercises.push({
                             name: ex.name,
                             sets: ex.sets || 3,
@@ -4863,16 +4783,16 @@ if (existingWorkoutIndex !== -1) {
                     }
                 });
             } else {
-                // If no detailed exercises, create a generic cardio entry
+                // If no detailed exercises, create a generic entry matching the workout name
                 workoutEntry.exercises.push({
                     name: workoutData.workoutName,
                     duration: workoutData.duration || 0,
                     distance: workoutData.distance || 0,
-                    distanceUnit: workoutData.distanceUnit || 'miles'
+                    distanceUnit: workoutData.distanceUnit || 'km'
                 });
             }
 
-            // Add to workout history
+            // Save to history
             workoutHistory.push(workoutEntry);
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
             
@@ -4892,9 +4812,10 @@ if (existingWorkoutIndex !== -1) {
 
             loadHistory();
             renderCalendar();
-
-            alert(`✅ ${workoutData.workoutName} imported successfully!\n\nDuration: ${workoutData.duration} min\nCalories: ${workoutData.calories || 'N/A'}\nDistance: ${workoutData.distance ? workoutData.distance + ' ' + workoutData.distanceUnit : 'N/A'}\n\nCheck your History and Calendar tabs!`);
-        } 
+            
+            // Alert with details
+            alert(`✅ ${workoutData.workoutName} imported successfully!\n\nDuration: ${workoutData.duration.toFixed(1)} min\nCalories: ${workoutData.calories || 'N/A'}\nDistance: ${workoutData.distance ? workoutData.distance + ' ' + workoutData.distanceUnit : 'N/A'}`);
+        }
         
         // ==================== RETRY LOGIC FOR API RATE LIMITS ====================
         async function apiCallWithRetry(url, options, retryCount = 0) {
