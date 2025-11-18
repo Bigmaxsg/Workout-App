@@ -3587,43 +3587,49 @@ function cancelQuickCardio() {
 }
        // ==================== GUIDED WORKOUT MODE ====================
         function startGuidedWorkout(mode, bypassSavePrompt = false) {
-            window.scrollTo(0, 0); // <-- ADD THIS LINE
-             document.querySelector('.nav').style.display = 'none'; // <-- ADD THIS LINE
-            if (isWorkoutModified && !bypassSavePrompt) {
-                promptToSaveModifiedWorkout(() => startGuidedWorkout(mode, true));
-                return; // Stop here, the prompt will handle the rest
-            }
-        
-            document.querySelector('.workout-timer').style.display = 'block';
-            if (currentWorkout.length === 0 || !currentWorkout[0].name) {
-                alert('Please select or create a workout first!');
-                return;
-            }
+    window.scrollTo(0, 0); 
+    // REMOVED: document.querySelector('.nav').style.display = 'none'; FROM HERE
 
-            workoutMode = mode;
-            currentExerciseIndex = 0;
-            currentSet = 1;
-            workoutStartTime = Date.now();
+    if (isWorkoutModified && !bypassSavePrompt) {
+        promptToSaveModifiedWorkout(() => startGuidedWorkout(mode, true));
+        return; // Stop here, the prompt will handle the rest
+    }
 
-            // Initialize audio context for rest timer beeps
-            if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    console.log("Audio Context initialized for traditional/circuit workout rest timers.");
-                } catch (e) {
-                    console.log("Could not initialize audio context:", e);
-                }
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+    // ADDED: Only hide nav if we proceed past the check
+    document.querySelector('.nav').style.display = 'none'; 
 
-            document.getElementById('workoutSetup').style.display = 'none';
-            document.getElementById('guidedWorkoutMode').style.display = 'block';
+    document.querySelector('.workout-timer').style.display = 'block';
+    if (currentWorkout.length === 0 || !currentWorkout[0].name) {
+        alert('Please select or create a workout first!');
+        // Restore nav if we error out here
+        document.querySelector('.nav').style.display = 'flex'; 
+        return;
+    }
 
-            startTimer();
-            displayCurrentExercise();
+    workoutMode = mode;
+    currentExerciseIndex = 0;
+    currentSet = 1;
+    workoutStartTime = Date.now();
+
+    // Initialize audio context for rest timer beeps
+    if (!audioCtx) {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log("Audio Context initialized for traditional/circuit workout rest timers.");
+        } catch (e) {
+            console.log("Could not initialize audio context:", e);
         }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    document.getElementById('workoutSetup').style.display = 'none';
+    document.getElementById('guidedWorkoutMode').style.display = 'block';
+
+    startTimer();
+    displayCurrentExercise();
+}
 
         function displayCurrentExercise() {
             const exercise = currentWorkout[currentExerciseIndex];
@@ -3858,53 +3864,59 @@ function cancelQuickCardio() {
         }
 
        function startHiitWorkout(bypassSavePrompt = false) {
-                window.scrollTo(0, 0); // <-- ADD THIS LINE
-                document.querySelector('.nav').style.display = 'none'; // <-- ADD THIS LINE
-            if (isWorkoutModified && !bypassSavePrompt) {
-                promptToSaveModifiedWorkout(() => startHiitWorkout(true));
-                return; // Stop here
-            }
-            if (!currentWorkout || currentWorkout.length === 0) {
-                alert("No HIIT exercises are loaded. Please create or load a custom HIIT workout first.");
-                return;
-            }
-        
-            // This is the user interaction needed for sound.
-            // We prepare everything but wait for the user to click the main timer's start button.
-            if (!window.audioCtx) {
-                try {
-                    window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    console.log("Audio context initialized by HIIT start button.");
-                } catch (e) {
-                    console.log("Could not initialize audio context:", e);
-                }
-            }
-        
-            hiitWorkoutParams.exercises = currentWorkout.map(ex => ex.name);
-        
-            hiitCurrentRound = 1;
-            hiitCurrentExerciseIndex = 0;
-            hiitCurrentMode = 'countdown';
-            hiitIsPaused = false;
-        
-            // Show the necessary UI components
-            document.getElementById('workoutSetup').style.display = 'none';
-            document.getElementById('guidedWorkoutMode').style.display = 'none';
-            document.getElementById('hiitWorkoutMode').style.display = 'block';
-            document.querySelector('.nav').style.display = 'none';
-            document.querySelector('.workout-timer').style.display = 'block'; // <-- KEY CHANGE: Show the main timer
-        
-            // Prepare the HIIT screen
-            document.getElementById('hiitCountdownScreen').style.display = 'block';
-            document.getElementById('hiitActiveScreen').style.display = 'none';
-            document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
-        
-            // Start the main workout timer
-            startTimer();
-            
-            // Start HIIT countdown
-            startHiitCountdown();
-            }
+    window.scrollTo(0, 0); 
+    // REMOVED: document.querySelector('.nav').style.display = 'none'; FROM HERE
+
+    if (isWorkoutModified && !bypassSavePrompt) {
+        promptToSaveModifiedWorkout(() => startHiitWorkout(true));
+        return; // Stop here
+    }
+
+    // ADDED: Only hide nav if we proceed past the check
+    document.querySelector('.nav').style.display = 'none';
+
+    if (!currentWorkout || currentWorkout.length === 0) {
+        alert("No HIIT exercises are loaded. Please create or load a custom HIIT workout first.");
+        // Restore nav if we error out here
+        document.querySelector('.nav').style.display = 'flex';
+        return;
+    }
+
+    // This is the user interaction needed for sound.
+    // We prepare everything but wait for the user to click the main timer's start button.
+    if (!window.audioCtx) {
+        try {
+            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log("Audio context initialized by HIIT start button.");
+        } catch (e) {
+            console.log("Could not initialize audio context:", e);
+        }
+    }
+
+    hiitWorkoutParams.exercises = currentWorkout.map(ex => ex.name);
+
+    hiitCurrentRound = 1;
+    hiitCurrentExerciseIndex = 0;
+    hiitCurrentMode = 'countdown';
+    hiitIsPaused = false;
+
+    // Show the necessary UI components
+    document.getElementById('workoutSetup').style.display = 'none';
+    document.getElementById('guidedWorkoutMode').style.display = 'none';
+    document.getElementById('hiitWorkoutMode').style.display = 'block';
+    document.querySelector('.workout-timer').style.display = 'block'; 
+
+    // Prepare the HIIT screen
+    document.getElementById('hiitCountdownScreen').style.display = 'block';
+    document.getElementById('hiitActiveScreen').style.display = 'none';
+    document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
+
+    // Start the main workout timer
+    startTimer();
+    
+    // Start HIIT countdown
+    startHiitCountdown();
+}
 
         function startHiitCountdown() {
             let hiitCountdown = 5;
