@@ -882,6 +882,9 @@
             grid-template-columns: repeat(7, 1fr);
             gap: 5px;
             margin-top: 15px;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
         /* Styling for Today's Date */
         #calendarContent .calendar-day.today {
@@ -894,6 +897,8 @@
             padding: 10px 5px;
             border-radius: 6px;
             font-size: 12px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .calendar-day {
@@ -903,6 +908,9 @@
             border: 1px solid;
             cursor: pointer;
             transition: all 0.2s;
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
         }
 
         .calendar-day:hover {
@@ -1014,6 +1022,32 @@
                 padding: 12px;
             }
 
+            #calendar.section {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .calendar-controls {
+                margin-left: 0;
+                margin-right: 0;
+                width: 100%;
+            }
+
+            #calendarMonthYear {
+                font-size: 16px !important;
+                padding: 8px 12px !important;
+            }
+
+            .calendar-view-buttons {
+                justify-content: center;
+                padding: 0 5px;
+            }
+
+            .view-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
             .chat-input-container {
                 flex-direction: column;
                 align-items: stretch;
@@ -1054,15 +1088,33 @@
 
             .calendar-grid {
                 gap: 3px;
+                margin-left: 0;
+                margin-right: 0;
+                padding: 0;
             }
 
             .calendar-day {
                 min-height: 60px;
-                padding: 5px;
+                padding: 4px;
+                font-size: 11px;
+            }
+
+            .calendar-day-header {
+                padding: 8px 2px;
+                font-size: 11px;
             }
 
             .day-number {
                 font-size: 12px;
+                margin-bottom: 2px;
+            }
+
+            .day-workout-count {
+                font-size: 10px;
+            }
+
+            .rest-indicator {
+                font-size: 10px;
             }
         }
 
@@ -7356,6 +7408,39 @@ User's request: ${msg}`;
                 .calendar-day.today {
                     border: 2px solid ${colors.accent};
                     box-shadow: 0 0 5px ${colors.accent};
+                }
+
+                /* Calendar month/year header */
+                #calendarMonthYear {
+                    color: ${textColor} !important;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                    font-weight: 700 !important;
+                    background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.9);
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    border: 2px solid ${colors.accent};
+                }
+
+                /* Calendar view buttons */
+                .view-btn {
+                    background: rgba(${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}, 0.85);
+                    color: ${cardTextColor};
+                    border: 2px solid ${colors.accent};
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    transition: all 0.3s ease;
+                }
+                .view-btn:hover {
+                    background: rgba(${cardRgb.r}, ${cardRgb.g}, ${cardRgb.b}, 1);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                }
+                .view-btn.active {
+                    background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
+                    color: ${colors.accent};
+                    border-color: ${colors.accent};
+                    font-weight: 700;
+                    box-shadow: 0 0 10px ${colors.accent};
                 }
                 
                 .info-box p, .info-box strong { color: ${cardTextColor} !important; }
