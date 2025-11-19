@@ -7224,7 +7224,7 @@ User's request: ${msg}`;
 
                 // Collect custom exercises used in this workout
                 const customExercisesData = [];
-                const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || '{}';
+                const allCustomExercises = JSON.parse(localStorage.getItem('customExercises')) || {};
                 
                 // Determine workout type and extract exercises
                 let exercisesInWorkout = [];
