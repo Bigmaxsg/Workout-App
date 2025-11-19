@@ -226,8 +226,39 @@
             padding: 15px;
             margin-bottom: 15px;
             border-left: 4px solid #003d5c;
+            cursor: move;
+            transition: all 0.2s ease;
         }
-        
+
+        .exercise-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .exercise-card.drag-over {
+            border-top: 3px solid #003d5c;
+            margin-top: 10px;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            font-size: 18px;
+            color: #003d5c;
+            padding: 8px 12px;
+            user-select: none;
+            touch-action: none; /* Prevent default touch behaviors */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+            min-width: 40px; /* Larger touch target */
+            min-height: 40px; /* Larger touch target */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
         .exercise-equipment {
             font-size: 13px;
             margin-top: 5px;
@@ -1495,60 +1526,6 @@
                         </button>
                     </div>
 
-                    <!-- Rest Time Adjustments During Workout -->
-                    <div id="activeWorkoutRestAdjustments" style="margin-top: 20px; padding: 12px; background: rgba(0, 61, 92, 0.1); border-radius: 10px;">
-                        <div style="font-weight: 600; margin-bottom: 10px; text-align: center; font-size: 13px;">
-                            Adjust Rest Times (seconds):</div>
-                        <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 10px; margin-bottom: 4px;">Between Sets</div>
-                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenSets', -5)"
-                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
-                                    <span id="activeRestBetweenSetsDisplay"
-                                        style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">60</span>
-                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenSets', 5)"
-                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
-                                </div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 10px; margin-bottom: 4px;">Between Exercises</div>
-                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenExercises', -5)"
-                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
-                                    <span id="activeRestBetweenExercisesDisplay"
-                                        style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">90</span>
-                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenExercises', 5)"
-                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
-                                </div>
-                            </div>
-                            <div id="activeCircuitRestControls" style="display: none;">
-                                <div style="text-align: center; margin-right: 12px;">
-                                    <div style="font-size: 10px; margin-bottom: 4px;">Circuit: Between Ex</div>
-                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenExercises', -5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
-                                        <span id="activeCircuitRestBetweenExercisesDisplay"
-                                            style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">30</span>
-                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenExercises', 5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
-                                    </div>
-                                </div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 10px; margin-bottom: 4px;">Circuit: Between Rounds</div>
-                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenRounds', -5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
-                                        <span id="activeCircuitRestBetweenRoundsDisplay"
-                                            style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">60</span>
-                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenRounds', 5)"
-                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="progress-chart" style="margin-top: 20px;">
                         <h3 class="chart-title">📊 Workout Progress</h3>
                         <div id="workoutProgressList"></div>
@@ -2276,6 +2253,7 @@
 
 // HIIT State
         let hiitTimerInterval = null;
+        let countdownInterval = null;
         let hiitTimeRemaining = 0;
         let hiitCurrentMode = 'work';
         let hiitCurrentRound = 1;
@@ -2636,6 +2614,7 @@
                 weight: ex.weight,
                 sets: ex.sets,
                 reps: ex.reps,
+                restTime: ex.restTime !== undefined ? ex.restTime : workoutRestParams.restBetweenSets
             };
         });
 
@@ -2649,6 +2628,7 @@
                     exercise.weight = savedPrefs.weight ?? exercise.weight;
                     exercise.sets = savedPrefs.sets ?? exercise.sets;
                     exercise.reps = savedPrefs.reps ?? exercise.reps;
+                    exercise.restTime = savedPrefs.restTime !== undefined ? savedPrefs.restTime : exercise.restTime;
                 }
             });
         }
@@ -2696,7 +2676,11 @@
             
             // This part now only runs for BUILT-IN workouts
             const program = workoutPrograms[workoutType];
-            currentWorkout = program.exercises.map(name => ({ name, ...exerciseDatabase[name] }));
+            currentWorkout = program.exercises.map(name => ({
+                name,
+                ...exerciseDatabase[name],
+                restTime: exerciseDatabase[name]?.restTime !== undefined ? exerciseDatabase[name].restTime : workoutRestParams.restBetweenSets
+            }));
 
             const preferences = JSON.parse(localStorage.getItem('workoutPreferences') || '{}');
             const workoutKey = workoutType;
@@ -2707,6 +2691,7 @@
                         exercise.weight = savedPrefs.weight ?? exercise.weight;
                         exercise.sets = savedPrefs.sets ?? exercise.sets;
                         exercise.reps = savedPrefs.reps ?? exercise.reps;
+                        exercise.restTime = savedPrefs.restTime !== undefined ? savedPrefs.restTime : exercise.restTime;
                     }
                 });
             }
@@ -2716,15 +2701,20 @@
 
         function displayWorkout(isHiit = false) {
     const container = document.getElementById('workoutContainer');
-    let html = '<h3>Today\'s Workout</h3>';
+    let html = '<h3 class="workout-title">Today\'s Workout</h3>';
 
     if (isHiit) {
         // This part for HIIT workouts remains mostly the same
         html += `<div class="info-box"><p><strong>HIIT Workout:</strong> ${hiitWorkoutParams.workTime}s Work / ${hiitWorkoutParams.restTime}s Rest / ${hiitWorkoutParams.totalRounds} Rounds</p></div>`;
         currentWorkout.forEach((exercise, index) => {
             html += `
-                <div class="exercise-card">
+                <div class="exercise-card" draggable="true" data-index="${index}"
+                     ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)"
+                     ondragover="handleDragOver(event)" ondrop="handleDrop(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
                     <div class="exercise-header">
+                        <span class="drag-handle">☰</span>
                         <div class="exercise-name">${exercise.name}</div>
                         <button class="delete-btn" onclick="removeExerciseFromCurrentWorkout(${index})">✖</button>
                     </div>
@@ -2735,26 +2725,36 @@
         // This is the updated part for STRENGTH workouts
         currentWorkout.forEach((exercise, index) => {
             html += `
-                <div class="exercise-card">
+                <div class="exercise-card" draggable="true" data-index="${index}"
+                     ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)"
+                     ondragover="handleDragOver(event)" ondrop="handleDrop(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
                     <div class="exercise-header">
+                        <span class="drag-handle">☰</span>
                         <div class="exercise-name">${exercise.name}</div>
                         <button class="delete-btn" onclick="removeExerciseFromCurrentWorkout(${index})">✖</button>
                     </div>
                     <div class="exercise-details">
                         <div class="detail-input">
                             <label>Weight (lbs)</label>
-                            <input type="number" value="${exercise.weight || 0}" 
+                            <input type="number" value="${exercise.weight || 0}"
                                 onchange="updateExerciseValue(${index}, 'weight', this.value)">
                         </div>
                         <div class="detail-input">
                             <label>Sets</label>
-                            <input type="number" value="${exercise.sets || 3}" 
+                            <input type="number" value="${exercise.sets || 3}"
                                 onchange="updateExerciseValue(${index}, 'sets', this.value)">
                         </div>
                         <div class="detail-input">
                             <label>Reps</label>
-                            <input type="number" value="${exercise.reps || 12}" 
+                            <input type="number" value="${exercise.reps || 12}"
                                 onchange="updateExerciseValue(${index}, 'reps', this.value)">
+                        </div>
+                        <div class="detail-input">
+                            <label>Rest (sec)</label>
+                            <input type="number" value="${exercise.restTime !== undefined ? exercise.restTime : workoutRestParams.restBetweenSets}"
+                                onchange="updateExerciseValue(${index}, 'restTime', this.value)">
                         </div>
                     </div>
                 </div>
@@ -2772,6 +2772,243 @@
     document.getElementById('traditionalRestAdjustments').style.display = isHiit ? 'none' : 'block';
     document.getElementById('circuitRestAdjustments').style.display = isHiit ? 'none' : 'block';
 }
+
+        // Drag and drop functions for exercise reordering
+        let draggedIndex = null;
+        let touchDraggedElement = null;
+        let touchClone = null;
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+
+        // Auto-scroll configuration
+        let autoScrollInterval = null;
+        const AUTO_SCROLL_THRESHOLD = 100; // pixels from top/bottom to trigger scroll
+        const AUTO_SCROLL_SPEED = 10; // pixels per interval
+
+        // Auto-scroll function - checks if drag is near viewport edges and scrolls accordingly
+        function handleAutoScroll(clientY) {
+            // Clear any existing interval
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+
+            const viewportHeight = window.innerHeight;
+            const distanceFromTop = clientY;
+            const distanceFromBottom = viewportHeight - clientY;
+
+            // Check if we should scroll up
+            if (distanceFromTop < AUTO_SCROLL_THRESHOLD && distanceFromTop > 0) {
+                const scrollSpeed = Math.max(5, AUTO_SCROLL_SPEED * (1 - distanceFromTop / AUTO_SCROLL_THRESHOLD));
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, -scrollSpeed);
+                }, 16); // ~60fps
+            }
+            // Check if we should scroll down
+            else if (distanceFromBottom < AUTO_SCROLL_THRESHOLD && distanceFromBottom > 0) {
+                const scrollSpeed = Math.max(5, AUTO_SCROLL_SPEED * (1 - distanceFromBottom / AUTO_SCROLL_THRESHOLD));
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, scrollSpeed);
+                }, 16); // ~60fps
+            }
+        }
+
+        // Stop auto-scroll
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+
+        function handleDragStart(event) {
+            draggedIndex = parseInt(event.target.dataset.index);
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(event) {
+            event.target.classList.remove('dragging');
+            // Remove drag-over class from all cards
+            document.querySelectorAll('.exercise-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+            // Stop auto-scrolling
+            stopAutoScroll();
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+
+            // Trigger auto-scroll based on cursor position
+            handleAutoScroll(event.clientY);
+
+            const target = event.target.closest('.exercise-card');
+            if (target && !target.classList.contains('dragging')) {
+                target.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDragLeave(event) {
+            const target = event.target.closest('.exercise-card');
+            if (target) {
+                target.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const target = event.target.closest('.exercise-card');
+            if (!target) return;
+
+            const dropIndex = parseInt(target.dataset.index);
+
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                // Reorder the currentWorkout array
+                const draggedExercise = currentWorkout[draggedIndex];
+                currentWorkout.splice(draggedIndex, 1);
+                currentWorkout.splice(dropIndex, 0, draggedExercise);
+
+                // Mark workout as modified
+                isWorkoutModified = true;
+
+                // Re-render the workout - detect which context we're in
+                if (document.getElementById('customExerciseList')) {
+                    // We're in the custom workout builder
+                    updateCustomExerciseList();
+                } else {
+                    // We're in the main workout display
+                    displayWorkout(workoutStyle === 'hiit');
+                }
+            }
+
+            draggedIndex = null;
+            return false;
+        }
+
+        // Touch event handlers for mobile drag and drop
+        function handleTouchStart(event) {
+            const dragHandle = event.target.closest('.drag-handle');
+            if (!dragHandle) return;
+
+            const card = event.target.closest('.exercise-card');
+            if (!card) return;
+
+            touchDraggedElement = card;
+            draggedIndex = parseInt(card.dataset.index);
+
+            const touch = event.touches[0];
+            touchStartY = touch.clientY;
+
+            // Create a visual clone for dragging
+            touchClone = card.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.left = card.getBoundingClientRect().left + 'px';
+            touchClone.style.top = card.getBoundingClientRect().top + 'px';
+            touchClone.style.width = card.offsetWidth + 'px';
+            touchClone.style.opacity = '0.8';
+            touchClone.style.zIndex = '1000';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.classList.add('dragging');
+            document.body.appendChild(touchClone);
+
+            card.style.opacity = '0.3';
+
+            event.preventDefault();
+        }
+
+        function handleTouchMove(event) {
+            if (!touchDraggedElement || !touchClone) return;
+
+            const touch = event.touches[0];
+            touchCurrentY = touch.clientY;
+
+            // Trigger auto-scroll based on touch position
+            handleAutoScroll(touch.clientY);
+
+            // Move the clone with the touch
+            const deltaY = touchCurrentY - touchStartY;
+            const originalTop = touchDraggedElement.getBoundingClientRect().top;
+            touchClone.style.top = (originalTop + deltaY) + 'px';
+
+            // Find the element under the touch point
+            touchClone.style.pointerEvents = 'none';
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            touchClone.style.pointerEvents = 'none';
+
+            // Clear all drag-over states
+            document.querySelectorAll('.exercise-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+
+            // Add drag-over to the card we're hovering over
+            if (elementBelow) {
+                const targetCard = elementBelow.closest('.exercise-card');
+                if (targetCard && targetCard !== touchDraggedElement) {
+                    targetCard.classList.add('drag-over');
+                }
+            }
+
+            event.preventDefault();
+        }
+
+        function handleTouchEnd(event) {
+            if (!touchDraggedElement) return;
+
+            // Stop auto-scrolling
+            stopAutoScroll();
+
+            // Find the element at the touch end position
+            const touch = event.changedTouches[0];
+            touchClone.style.pointerEvents = 'none';
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            if (elementBelow) {
+                const targetCard = elementBelow.closest('.exercise-card');
+                if (targetCard) {
+                    const dropIndex = parseInt(targetCard.dataset.index);
+
+                    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                        // Reorder the currentWorkout array
+                        const draggedExercise = currentWorkout[draggedIndex];
+                        currentWorkout.splice(draggedIndex, 1);
+                        currentWorkout.splice(dropIndex, 0, draggedExercise);
+
+                        // Mark workout as modified
+                        isWorkoutModified = true;
+
+                        // Re-render the workout
+                        if (document.getElementById('customExerciseList')) {
+                            updateCustomExerciseList();
+                        } else {
+                            displayWorkout(workoutStyle === 'hiit');
+                        }
+                    }
+                }
+            }
+
+            // Clean up
+            if (touchClone && touchClone.parentNode) {
+                touchClone.parentNode.removeChild(touchClone);
+            }
+            if (touchDraggedElement) {
+                touchDraggedElement.style.opacity = '';
+            }
+            document.querySelectorAll('.exercise-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+
+            touchDraggedElement = null;
+            touchClone = null;
+            draggedIndex = null;
+
+            event.preventDefault();
+        }
+
         function removeExerciseFromCurrentWorkout(index) {
     if (!confirm('Are you sure you want to remove this exercise from the workout?')) return;
     currentWorkout.splice(index, 1);
@@ -2830,7 +3067,8 @@ function selectExerciseToAdd(exerciseName) {
             weight: exerciseData.weight || 0,
             sets: exerciseData.sets || 3,
             reps: exerciseData.reps || 12,
-            equipment: exerciseData.equipment
+            equipment: exerciseData.equipment,
+            restTime: exerciseData.restTime !== undefined ? exerciseData.restTime : workoutRestParams.restBetweenSets
         });
         isWorkoutModified = true;
         displayWorkout(workoutStyle === 'hiit'); // Re-render the workout list
@@ -3085,29 +3323,34 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         function updateCustomExerciseList() {
             const exerciseListDiv = document.getElementById('customExerciseList');
             if (!exerciseListDiv) return;
-            
+
             let html = '';
             currentWorkout.forEach((exercise, index) => {
                 html += `
-                    <div class="exercise-card">
+                    <div class="exercise-card" draggable="true" data-index="${index}"
+                         ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)"
+                         ondragover="handleDragOver(event)" ondrop="handleDrop(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
                         <div class="exercise-header">
+                            <span class="drag-handle">☰</span>
                             <div class="exercise-name">${exercise.name}</div>
                             <button class="delete-btn" onclick="removeExerciseFromCustom(${index})">✖</button>
                         </div>
                         <div class="exercise-details">
                             <div class="detail-input">
                                 <label>Weight (lbs)</label>
-                                <input type="number" value="${exercise.weight || 0}" 
+                                <input type="number" value="${exercise.weight || 0}"
                                     onchange="updateCustomExercise(${index}, 'weight', this.value)">
                             </div>
                             <div class="detail-input">
                                 <label>Sets</label>
-                                <input type="number" value="${exercise.sets || 3}" 
+                                <input type="number" value="${exercise.sets || 3}"
                                     onchange="updateCustomExercise(${index}, 'sets', this.value)">
                             </div>
                             <div class="detail-input">
                                 <label>Reps</label>
-                                <input type="number" value="${exercise.reps || 12}" 
+                                <input type="number" value="${exercise.reps || 12}"
                                     onchange="updateCustomExercise(${index}, 'reps', this.value)">
                             </div>
                         </div>
@@ -3832,21 +4075,6 @@ function cancelQuickCardio() {
         audioCtx.resume();
     }
 
-    // Initialize rest time displays for active workout
-    document.getElementById('activeRestBetweenSetsDisplay').textContent = workoutRestParams.restBetweenSets;
-    document.getElementById('activeRestBetweenExercisesDisplay').textContent = workoutRestParams.restBetweenExercises;
-    document.getElementById('activeCircuitRestBetweenExercisesDisplay').textContent = workoutRestParams.circuitRestBetweenExercises;
-    document.getElementById('activeCircuitRestBetweenRoundsDisplay').textContent = workoutRestParams.circuitRestBetweenRounds;
-
-    // Show/hide circuit controls based on workout mode
-    const circuitControls = document.getElementById('activeCircuitRestControls');
-    if (mode === 'circuit') {
-        circuitControls.style.display = 'flex';
-        circuitControls.style.gap = '12px';
-    } else {
-        circuitControls.style.display = 'none';
-    }
-
     document.getElementById('workoutSetup').style.display = 'none';
     document.getElementById('guidedWorkoutMode').style.display = 'block';
 
@@ -3882,22 +4110,32 @@ function cancelQuickCardio() {
                 if (currentSet < exercise.sets) {
                     currentSet++;
                     displayCurrentExercise();
-                    startRestTimer(workoutRestParams.restBetweenSets);
+                    // Use per-exercise rest time, or fall back to global rest between sets
+                    const restTime = exercise.restTime !== undefined ? exercise.restTime : workoutRestParams.restBetweenSets;
+                    startRestTimer(restTime);
                 } else {
                     moveToNextExercise();
                 }
             } else if (workoutMode === 'circuit') {
                 if (currentExerciseIndex < currentWorkout.length - 1) {
+                    // Use current (just completed) exercise's rest time, or fall back to global circuit rest
+                    const currentExercise = currentWorkout[currentExerciseIndex];
+                    const restTime = currentExercise.restTime !== undefined ? currentExercise.restTime : workoutRestParams.circuitRestBetweenExercises;
+
                     currentExerciseIndex++;
                     displayCurrentExercise();
-                    startRestTimer(workoutRestParams.circuitRestBetweenExercises);
+                    startRestTimer(restTime);
                 } else {
                     const totalSets = currentWorkout[0].sets;
                     if (currentSet < totalSets) {
+                        // Use the last exercise's rest time (just completed), or fall back to global circuit rest between rounds
+                        const lastExercise = currentWorkout[currentExerciseIndex];
+                        const restTime = lastExercise.restTime !== undefined ? lastExercise.restTime : workoutRestParams.circuitRestBetweenRounds;
+
                         currentSet++;
                         currentExerciseIndex = 0;
                         displayCurrentExercise();
-                        startRestTimer(workoutRestParams.circuitRestBetweenRounds);
+                        startRestTimer(restTime);
                     } else {
                         finishWorkout();
                     }
@@ -3907,16 +4145,27 @@ function cancelQuickCardio() {
 
         function moveToNextExercise() {
             if (currentExerciseIndex < currentWorkout.length - 1) {
+                // Use the CURRENT (just completed) exercise's rest time
+                const currentExercise = currentWorkout[currentExerciseIndex];
+                const restTime = currentExercise.restTime !== undefined ? currentExercise.restTime : workoutRestParams.restBetweenExercises;
+
                 currentExerciseIndex++;
                 currentSet = 1;
                 displayCurrentExercise();
-                startRestTimer(workoutRestParams.restBetweenExercises);
+                startRestTimer(restTime);
             } else {
                 finishWorkout();
             }
         }
 
         function startRestTimer(seconds) {
+            // If rest time is 0 or negative, skip the rest timer entirely
+            if (seconds <= 0) {
+                document.getElementById('restTimer').style.display = 'none';
+                document.getElementById('completeSetBtn').style.display = 'block';
+                return;
+            }
+
             let restTime = seconds;
             document.getElementById('restTimer').style.display = 'block';
             document.getElementById('completeSetBtn').style.display = 'none';
@@ -3992,6 +4241,9 @@ function cancelQuickCardio() {
 
         function finishWorkout() {
             pauseTimer();
+            clearInterval(restInterval);
+            clearInterval(hiitTimerInterval);
+            clearInterval(countdownInterval);
             const workoutDuration = timerSeconds;
 
             const workoutData = {
@@ -4147,7 +4399,7 @@ function cancelQuickCardio() {
 
             console.log("=== HIIT Countdown Starting ===");
 
-            let countdownInterval = setInterval(() => {
+            countdownInterval = setInterval(() => {
                 hiitCountdown--;
                 console.log("Countdown:", hiitCountdown);
                 document.getElementById('hiitCountdownDisplay').textContent = hiitCountdown;
@@ -4317,28 +4569,6 @@ function cancelQuickCardio() {
             localStorage.setItem('workoutRestParams', JSON.stringify(workoutRestParams));
         }
 
-        // Adjust rest time parameters during active Traditional/Circuit workout
-        function adjustRestParamDuringWorkout(param, change) {
-            if (param === 'setBetweenSets') {
-                workoutRestParams.restBetweenSets = Math.max(5, workoutRestParams.restBetweenSets + change);
-                document.getElementById('activeRestBetweenSetsDisplay').textContent = workoutRestParams.restBetweenSets;
-                console.log("During workout: Rest between sets adjusted to:", workoutRestParams.restBetweenSets);
-            } else if (param === 'setBetweenExercises') {
-                workoutRestParams.restBetweenExercises = Math.max(5, workoutRestParams.restBetweenExercises + change);
-                document.getElementById('activeRestBetweenExercisesDisplay').textContent = workoutRestParams.restBetweenExercises;
-                console.log("During workout: Rest between exercises adjusted to:", workoutRestParams.restBetweenExercises);
-            } else if (param === 'circuitBetweenExercises') {
-                workoutRestParams.circuitRestBetweenExercises = Math.max(5, workoutRestParams.circuitRestBetweenExercises + change);
-                document.getElementById('activeCircuitRestBetweenExercisesDisplay').textContent = workoutRestParams.circuitRestBetweenExercises;
-                console.log("During workout: Circuit rest between exercises adjusted to:", workoutRestParams.circuitRestBetweenExercises);
-            } else if (param === 'circuitBetweenRounds') {
-                workoutRestParams.circuitRestBetweenRounds = Math.max(5, workoutRestParams.circuitRestBetweenRounds + change);
-                document.getElementById('activeCircuitRestBetweenRoundsDisplay').textContent = workoutRestParams.circuitRestBetweenRounds;
-                console.log("During workout: Circuit rest between rounds adjusted to:", workoutRestParams.circuitRestBetweenRounds);
-            }
-            // Save to localStorage
-            localStorage.setItem('workoutRestParams', JSON.stringify(workoutRestParams));
-        }
 
         function pauseResumeHiit() {
             const btn = document.getElementById('hiitPauseResumeBtn');
@@ -4461,6 +4691,9 @@ function cancelQuickCardio() {
                 
                 // Reset timers and update other sections
                 resetTimer();
+                clearInterval(restInterval);
+                clearInterval(hiitTimerInterval);
+                clearInterval(countdownInterval);
                 loadRecommendation();
                 updateProgress();
                 loadHistory();
@@ -7372,6 +7605,17 @@ User's request: ${msg}`;
                      border-radius: 5px;
                      display: inline-block;
                 }
+                .workout-title {
+                     font-weight: 800 !important;
+                     font-size: 16px !important;
+                     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+                     padding: 5px 8px;
+                     background: rgba(${backgroundRgb.r}, ${backgroundRgb.g}, ${backgroundRgb.b}, 0.85);
+                     border-radius: 5px;
+                     display: inline-block;
+                     margin-bottom: 15px;
+                     color: ${textColor} !important;
+                }
 
                 /* ==================== FIX STARTS HERE ==================== */
                 /* This single rule now applies a uniform accent border to ALL card types */
@@ -7447,6 +7691,7 @@ User's request: ${msg}`;
                 .exercise-name, .history-date, .history-exercise-name, .measurement-label, .chart-title { color: ${cardTextColor}; }
                 .exercise-equipment, .history-exercises, .history-exercise-stats, .day-workout-count, .rest-indicator { color: ${fadedCardTextColor}; }
                 .exercise-not-found { color: ${textColor}; }
+                .drag-handle { color: ${colors.primary}; }
                 
                 .btn {
                     background: linear-gradient(135deg, ${colors.primary} 0%, ${adjustBrightness(colors.primary, 20)} 100%);
