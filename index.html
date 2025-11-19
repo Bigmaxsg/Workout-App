@@ -1222,6 +1222,7 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 
 <body>
@@ -1897,6 +1898,14 @@
                     <h3 style="color: #001f3f; margin-bottom: 15px;">Scan to Import Workout</h3>
                     <div id="qrCodeOutput" style="margin: 0 auto; display: inline-block;"></div>
                     <p style="margin-top: 15px; color: #666; font-size: 14px;">Have your friend scan this QR code with their device camera</p>
+                    <button class="btn btn-primary" onclick="copyShareLinkToClipboard()" style="margin-top: 15px;">📋 Copy Share Link</button>
+                    <p style="margin-top: 10px; color: #666; font-size: 13px;"><strong>iOS Homescreen App Users:</strong> Use "Copy Link" then paste in the app using "Import from Clipboard" below</p>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #f0f8ff; border-radius: 10px; border: 2px solid #4a90e2;">
+                    <h3 style="color: #001f3f; margin-bottom: 15px;">📥 Import from Clipboard</h3>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">If someone shared a workout link with you, copy it and click below to import:</p>
+                    <button class="btn btn-success" onclick="importFromClipboard()">📋 Import Workout from Clipboard</button>
                 </div>
                 
                 <div class="info-box" style="margin-top: 30px;">
@@ -7395,7 +7404,10 @@ User's request: ${msg}`;
                 // Create URL
                 const baseUrl = window.location.origin + window.location.pathname;
                 const shareUrl = `${baseUrl}?workout=${encodeURIComponent(base64String)}`;
-                
+
+                // Store URL globally for clipboard copy
+                window.currentShareUrl = shareUrl;
+
                 console.log('Share URL length:', shareUrl.length);
                 
                 // Make the container visible
@@ -7426,6 +7438,148 @@ User's request: ${msg}`;
             } catch (error) {
                 console.error('Error generating QR code:', error);
                 alert(`Error generating QR code: ${error.message}\n\nPlease check the console for more details.`);
+            }
+        }
+
+        async function copyShareLinkToClipboard() {
+            if (!window.currentShareUrl) {
+                alert('Please generate a QR code first.');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(window.currentShareUrl);
+                alert('✅ Share link copied to clipboard!\n\nYou can now paste this link in your homescreen app using "Import from Clipboard".');
+            } catch (error) {
+                // Fallback for older browsers or when clipboard API is not available
+                const textArea = document.createElement('textarea');
+                textArea.value = window.currentShareUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+
+                try {
+                    document.execCommand('copy');
+                    alert('✅ Share link copied to clipboard!\n\nYou can now paste this link in your homescreen app using "Import from Clipboard".');
+                } catch (err) {
+                    alert('❌ Failed to copy link. Please try again or manually copy the URL from your browser.');
+                }
+
+                document.body.removeChild(textArea);
+            }
+        }
+
+        async function importFromClipboard() {
+            try {
+                let clipboardText;
+
+                try {
+                    // Try modern clipboard API first
+                    clipboardText = await navigator.clipboard.readText();
+                } catch (error) {
+                    // Fallback: ask user to paste
+                    clipboardText = prompt('📋 Paste the workout share link here:');
+                    if (!clipboardText) {
+                        return; // User cancelled
+                    }
+                }
+
+                // Extract workout parameter from URL
+                let workoutParam;
+
+                if (clipboardText.includes('?workout=')) {
+                    // It's a full URL
+                    const url = new URL(clipboardText);
+                    workoutParam = url.searchParams.get('workout');
+                } else if (clipboardText.trim().length > 0) {
+                    // Assume it's just the encoded workout data
+                    workoutParam = clipboardText.trim();
+                } else {
+                    alert('❌ No workout data found in clipboard. Please copy a valid workout share link first.');
+                    return;
+                }
+
+                if (!workoutParam) {
+                    alert('❌ Invalid workout link. Please make sure you copied the complete share link.');
+                    return;
+                }
+
+                // Decode and import the workout using existing logic
+                try {
+                    const qrData = decodeURIComponent(workoutParam);
+                    let sharedWorkout;
+
+                    // Try to decompress
+                    try {
+                        const binaryString = atob(qrData);
+                        const compressedBinary = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            compressedBinary[i] = binaryString.charCodeAt(i);
+                        }
+                        const jsonString = pako.inflate(compressedBinary, { to: 'string' });
+                        sharedWorkout = JSON.parse(jsonString);
+                    } catch (e) {
+                        // Fallback to plain JSON
+                        sharedWorkout = JSON.parse(qrData);
+                    }
+
+                    const title = sharedWorkout.t || sharedWorkout.title;
+                    const workoutData = sharedWorkout.d || sharedWorkout.workoutData;
+                    const customExercisesData = sharedWorkout.c || sharedWorkout.customExercisesData;
+
+                    if (!title || !workoutData) {
+                        alert('❌ Invalid workout data in the link.');
+                        return;
+                    }
+
+                    // Ask user for confirmation
+                    const confirmMsg = `Import workout "${title}"?\n\nThis will add the workout to your app.`;
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+
+                    // Import custom exercises
+                    let importedExerciseCount = 0;
+                    if (customExercisesData && customExercisesData.length > 0) {
+                        customExercisesData.forEach(ex => {
+                            const { name, ...exerciseData } = ex;
+                            if (!exerciseDatabase[name]) {
+                                saveCustomExerciseToDB(name, exerciseData);
+                                importedExerciseCount++;
+                            }
+                        });
+                    }
+
+                    // Save workout with conflict handling
+                    const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+                    let newName = title;
+                    let counter = 1;
+                    while (savedCustomWorkouts[newName]) {
+                        newName = `${title} (Imported ${counter++})`;
+                    }
+
+                    savedCustomWorkouts[newName] = workoutData;
+                    localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+
+                    // Update UI
+                    loadCustomWorkoutsIntoDropdown();
+                    populateShareWorkoutSelect();
+
+                    let successMsg = `✅ Workout "${newName}" imported successfully!`;
+                    if (importedExerciseCount > 0) {
+                        successMsg += `\n\n${importedExerciseCount} custom exercise(s) were also imported.`;
+                    }
+                    alert(successMsg);
+
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('❌ Error importing workout. The link may be invalid or corrupted.\n\nError: ' + error.message);
+                }
+
+            } catch (error) {
+                console.error('Clipboard error:', error);
+                alert('❌ Unable to read from clipboard. Please make sure you have copied a workout share link first.');
             }
         }
 
