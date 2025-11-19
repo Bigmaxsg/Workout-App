@@ -2461,6 +2461,21 @@
                 reps: ex.reps,
             };
         });
+
+        // Apply saved preferences (modifications made during previous workouts)
+        const preferences = JSON.parse(localStorage.getItem('workoutPreferences') || '{}');
+        const workoutKey = 'saved_' + workoutName;
+        if (preferences[workoutKey]) {
+            currentWorkout.forEach(exercise => {
+                const savedPrefs = preferences[workoutKey][exercise.name];
+                if (savedPrefs) {
+                    exercise.weight = savedPrefs.weight ?? exercise.weight;
+                    exercise.sets = savedPrefs.sets ?? exercise.sets;
+                    exercise.reps = savedPrefs.reps ?? exercise.reps;
+                }
+            });
+        }
+
         // Call the main display function, telling it this is NOT a HIIT workout
         displayWorkout(false);
     }
