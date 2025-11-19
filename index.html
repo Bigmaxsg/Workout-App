@@ -7250,9 +7250,22 @@ User's request: ${msg}`;
                         if (exerciseName && allCustomExercises[exerciseName]) {
                             // Check if not already added
                             if (!customExercisesData.some(customEx => customEx.name === exerciseName)) {
-                                customExercisesData.push({ 
-                                    name: exerciseName, 
-                                    ...allCustomExercises[exerciseName] 
+                                const exerciseData = allCustomExercises[exerciseName];
+                                // Truncate instructions to 150 chars for QR code optimization
+                                const instructions = exerciseData.instructions || '';
+                                const truncatedInstructions = instructions.length > 150
+                                    ? instructions.substring(0, 150) + '...'
+                                    : instructions;
+
+                                // Only include essential fields for QR code
+                                customExercisesData.push({
+                                    name: exerciseName,
+                                    equipment: exerciseData.equipment,
+                                    instructions: truncatedInstructions,
+                                    image: exerciseData.image,
+                                    defaultWeight: exerciseData.defaultWeight,
+                                    defaultSets: exerciseData.defaultSets,
+                                    defaultReps: exerciseData.defaultReps
                                 });
                             }
                         }
@@ -7271,9 +7284,21 @@ User's request: ${msg}`;
                                 // If it has a custom image or equipment field that differs from defaults
                                 const exerciseData = exerciseDatabase[exerciseName];
                                 if (exerciseData.image === 'Custom exercise' || exerciseData.image === 'AI Generated Exercise') {
-                                    customExercisesData.push({ 
-                                        name: exerciseName, 
-                                        ...exerciseData 
+                                    // Truncate instructions to 150 chars for QR code optimization
+                                    const instructions = exerciseData.instructions || '';
+                                    const truncatedInstructions = instructions.length > 150
+                                        ? instructions.substring(0, 150) + '...'
+                                        : instructions;
+
+                                    // Only include essential fields for QR code
+                                    customExercisesData.push({
+                                        name: exerciseName,
+                                        equipment: exerciseData.equipment,
+                                        instructions: truncatedInstructions,
+                                        image: exerciseData.image,
+                                        defaultWeight: exerciseData.defaultWeight,
+                                        defaultSets: exerciseData.defaultSets,
+                                        defaultReps: exerciseData.defaultReps
                                     });
                                 }
                             }
@@ -7333,7 +7358,7 @@ User's request: ${msg}`;
                     height: 280,
                     colorDark: "#001f3f",
                     colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M
+                    correctLevel: QRCode.CorrectLevel.L
                 });
                 
                 console.log('QR Code generated successfully!');
