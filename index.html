@@ -5371,15 +5371,15 @@ Respond with this EXACT JSON structure (no markdown):
 
 1. If the user wants to create a standard strength workout (e.g., "give me a leg workout", "create a 30 minute dumbbell routine"):
 Respond with a JSON object for the workout plan. The JSON must have this EXACT structure:
-{"title": "Workout Name", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "equipment": "e.g., Dumbbells", "description": "Concise 1-2 sentence description of proper form and key points (max 200 characters)"}]}
+{"title": "Workout Name", "exercises": [{"name": "Exercise Name", "sets": number, "reps": number, "weight": number, "equipment": "e.g., Dumbbells", "description": "Complete instructions covering starting position, movement execution, and key form cues. Be thorough but concise (300-400 characters)"}]}
 
 2. If the user wants to create a High-Intensity Interval Training (HIIT) workout (e.g., "give me a 20 minute HIIT workout", "bodyweight HIIT routine"):
 Respond with a JSON object specifically for a HIIT workout. The JSON must have this EXACT structure:
-{"title": "Workout Name", "workoutType": "hiit", "workTime": number, "restTime": number, "rounds": number, "exercises": [{"name": "Exercise Name", "description": "Brief, clear instructions on how to do the exercise (max 200 characters). Assume bodyweight unless specified."}]}
+{"title": "Workout Name", "workoutType": "hiit", "workTime": number, "restTime": number, "rounds": number, "exercises": [{"name": "Exercise Name", "description": "Clear instructions on how to perform the exercise properly, including form cues (300-400 characters). Assume bodyweight unless specified."}]}
 
 3. If the user wants to add, fix, or update the details for a SINGLE exercise (e.g., "add instructions for farmers walk", "what's the equipment for a dumbbell squat?"):
 Respond with a JSON object to update the app's database. The JSON must have this EXACT structure:
-{"action": "update_exercise", "exerciseName": "Name Of The Exercise", "details": {"description": "Clear, concise instructions on how to perform the exercise with key form cues (max 250 characters).", "equipment": "The equipment needed."}}
+{"action": "update_exercise", "exerciseName": "Name Of The Exercise", "details": {"description": "Complete instructions covering starting position, movement execution, key form cues, and what to avoid. Be thorough but concise (400-500 characters).", "equipment": "The equipment needed."}}
 
 4. If the user asks a general fitness question or wants advice (e.g., "what's the best way to warm up?", "should I do cardio before or after weights?", "how many rest days should I take?", "what's better for fat loss?"):
 Respond conversationally with helpful, accurate fitness advice. Do NOT use JSON format for these responses - just respond naturally as a knowledgeable fitness coach.
@@ -5595,7 +5595,7 @@ User's request: ${msg}`;
             btn.textContent = '🤖 Generating...';
             btn.disabled = true;
 
-            const prompt = `Provide a clear, concise description and the typical equipment for the exercise: "${exerciseName}". The description should include key form cues and how to perform the exercise properly, but be brief (maximum 250 characters). Respond ONLY with a JSON object in this exact format: {"description": "...", "equipment": "..."}`;
+            const prompt = `Provide a complete description and the typical equipment for the exercise: "${exerciseName}". The description should include starting position, movement execution, key form cues, and what to avoid. Be thorough but concise (aim for 400-500 characters). Respond ONLY with a JSON object in this exact format: {"description": "...", "equipment": "..."}`;
 
             try {
                 // Add timeout wrapper for iOS standalone mode
@@ -7251,10 +7251,10 @@ User's request: ${msg}`;
                             // Check if not already added
                             if (!customExercisesData.some(customEx => customEx.name === exerciseName)) {
                                 const exerciseData = allCustomExercises[exerciseName];
-                                // Truncate instructions to 250 chars for QR code optimization
+                                // Truncate instructions to 400 chars for QR code optimization
                                 const instructions = exerciseData.instructions || '';
-                                const truncatedInstructions = instructions.length > 250
-                                    ? instructions.substring(0, 250) + '...'
+                                const truncatedInstructions = instructions.length > 400
+                                    ? instructions.substring(0, 400) + '...'
                                     : instructions;
 
                                 // Only include essential fields for QR code
@@ -7284,10 +7284,10 @@ User's request: ${msg}`;
                                 // If it has a custom image or equipment field that differs from defaults
                                 const exerciseData = exerciseDatabase[exerciseName];
                                 if (exerciseData.image === 'Custom exercise' || exerciseData.image === 'AI Generated Exercise') {
-                                    // Truncate instructions to 250 chars for QR code optimization
+                                    // Truncate instructions to 400 chars for QR code optimization
                                     const instructions = exerciseData.instructions || '';
-                                    const truncatedInstructions = instructions.length > 250
-                                        ? instructions.substring(0, 250) + '...'
+                                    const truncatedInstructions = instructions.length > 400
+                                        ? instructions.substring(0, 400) + '...'
                                         : instructions;
 
                                     // Only include essential fields for QR code
