@@ -7251,10 +7251,10 @@ User's request: ${msg}`;
                             // Check if not already added
                             if (!customExercisesData.some(customEx => customEx.name === exerciseName)) {
                                 const exerciseData = allCustomExercises[exerciseName];
-                                // Truncate instructions to 400 chars for QR code optimization
+                                // Truncate instructions to 200 chars for QR code optimization
                                 const instructions = exerciseData.instructions || '';
-                                const truncatedInstructions = instructions.length > 400
-                                    ? instructions.substring(0, 400) + '...'
+                                const truncatedInstructions = instructions.length > 200
+                                    ? instructions.substring(0, 200) + '...'
                                     : instructions;
 
                                 // Only include essential fields for QR code
@@ -7284,10 +7284,10 @@ User's request: ${msg}`;
                                 // If it has a custom image or equipment field that differs from defaults
                                 const exerciseData = exerciseDatabase[exerciseName];
                                 if (exerciseData.image === 'Custom exercise' || exerciseData.image === 'AI Generated Exercise') {
-                                    // Truncate instructions to 400 chars for QR code optimization
+                                    // Truncate instructions to 200 chars for QR code optimization
                                     const instructions = exerciseData.instructions || '';
-                                    const truncatedInstructions = instructions.length > 400
-                                        ? instructions.substring(0, 400) + '...'
+                                    const truncatedInstructions = instructions.length > 200
+                                        ? instructions.substring(0, 200) + '...'
                                         : instructions;
 
                                     // Only include essential fields for QR code
