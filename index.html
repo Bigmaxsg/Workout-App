@@ -1306,7 +1306,67 @@
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- Traditional/Circuit Rest Time Adjustments -->
+                        <div id="traditionalRestAdjustments" class="info-box" style="display:none;">
+                            <div style="font-weight: 600; margin-bottom: 10px; text-align: center;">
+                                Adjust Rest Times (seconds):</div>
+                            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 10px; margin-bottom: 6px;">Between Sets</div>
+                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('setBetweenSets', -5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="preWorkRestBetweenSetsDisplay"
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">60</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('setBetweenSets', 5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 10px; margin-bottom: 6px;">Between Exercises</div>
+                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('setBetweenExercises', -5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="preWorkRestBetweenExercisesDisplay"
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">90</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('setBetweenExercises', 5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Circuit Rest Time Adjustments -->
+                        <div id="circuitRestAdjustments" class="info-box" style="display:none;">
+                            <div style="font-weight: 600; margin-bottom: 10px; text-align: center;">
+                                Adjust Circuit Rest Times (seconds):</div>
+                            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 10px; margin-bottom: 6px;">Between Exercises</div>
+                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('circuitBetweenExercises', -5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="preWorkCircuitRestBetweenExercisesDisplay"
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">30</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('circuitBetweenExercises', 5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 10px; margin-bottom: 6px;">Between Rounds</div>
+                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('circuitBetweenRounds', -5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="preWorkCircuitRestBetweenRoundsDisplay"
+                                            style="min-width: 40px; text-align: center; font-weight: bold; font-size: 14px;">60</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamPreWorkout('circuitBetweenRounds', 5)"
+                                            style="width: 36px; padding: 6px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Add workout notes field -->
                         <div class="form-group" style="margin-top: 15px;">
                             <label>📝 Workout Notes (Optional)</label>
@@ -1382,6 +1442,61 @@
                             🛑 End Workout Early
                         </button>
                     </div>
+
+                    <!-- Rest Time Adjustments During Workout -->
+                    <div id="activeWorkoutRestAdjustments" style="margin-top: 20px; padding: 12px; background: rgba(0, 61, 92, 0.1); border-radius: 10px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; text-align: center; font-size: 13px;">
+                            Adjust Rest Times (seconds):</div>
+                        <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 10px; margin-bottom: 4px;">Between Sets</div>
+                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenSets', -5)"
+                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+                                    <span id="activeRestBetweenSetsDisplay"
+                                        style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">60</span>
+                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenSets', 5)"
+                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 10px; margin-bottom: 4px;">Between Exercises</div>
+                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenExercises', -5)"
+                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+                                    <span id="activeRestBetweenExercisesDisplay"
+                                        style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">90</span>
+                                    <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('setBetweenExercises', 5)"
+                                        style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+                                </div>
+                            </div>
+                            <div id="activeCircuitRestControls" style="display: none;">
+                                <div style="text-align: center; margin-right: 12px;">
+                                    <div style="font-size: 10px; margin-bottom: 4px;">Circuit: Between Ex</div>
+                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenExercises', -5)"
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="activeCircuitRestBetweenExercisesDisplay"
+                                            style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">30</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenExercises', 5)"
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 10px; margin-bottom: 4px;">Circuit: Between Rounds</div>
+                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenRounds', -5)"
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">-</button>
+                                        <span id="activeCircuitRestBetweenRoundsDisplay"
+                                            style="min-width: 35px; text-align: center; font-weight: bold; font-size: 13px;">60</span>
+                                        <button class="btn btn-secondary" onclick="adjustRestParamDuringWorkout('circuitBetweenRounds', 5)"
+                                            style="width: 32px; height: 32px; padding: 4px; margin: 0; font-size: 12px;">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="progress-chart" style="margin-top: 20px;">
                         <h3 class="chart-title">📊 Workout Progress</h3>
                         <div id="workoutProgressList"></div>
@@ -2119,7 +2234,17 @@
             restTime: 15,
             totalRounds: 4
         };
-        
+
+        // Traditional/Circuit Workout Rest Time Parameters
+        // Load from localStorage or use defaults
+        let savedRestParams = JSON.parse(localStorage.getItem('workoutRestParams') || '{}');
+        let workoutRestParams = {
+            restBetweenSets: savedRestParams.restBetweenSets || 60,
+            restBetweenExercises: savedRestParams.restBetweenExercises || 90,
+            circuitRestBetweenExercises: savedRestParams.circuitRestBetweenExercises || 30,
+            circuitRestBetweenRounds: savedRestParams.circuitRestBetweenRounds || 60
+        };
+
         // Calendar & Body Stats State
         let currentCalendarDate = new Date();
         let currentCalendarView = 'month';
@@ -2591,6 +2716,9 @@
     container.innerHTML = html;
     document.getElementById('workoutModeSelection').style.display = 'block';
     document.getElementById('hiitPreWorkoutAdjustments').style.display = isHiit ? 'block' : 'none';
+    // Show traditional/circuit rest adjustments only for non-HIIT workouts
+    document.getElementById('traditionalRestAdjustments').style.display = isHiit ? 'none' : 'block';
+    document.getElementById('circuitRestAdjustments').style.display = isHiit ? 'none' : 'block';
 }
         function removeExerciseFromCurrentWorkout(index) {
     if (!confirm('Are you sure you want to remove this exercise from the workout?')) return;
@@ -3615,7 +3743,7 @@ function cancelQuickCardio() {
 }
        // ==================== GUIDED WORKOUT MODE ====================
         function startGuidedWorkout(mode, bypassSavePrompt = false) {
-    window.scrollTo(0, 0); 
+    window.scrollTo(0, 0);
     // REMOVED: document.querySelector('.nav').style.display = 'none'; FROM HERE
 
     if (isWorkoutModified && !bypassSavePrompt) {
@@ -3624,13 +3752,13 @@ function cancelQuickCardio() {
     }
 
     // ADDED: Only hide nav if we proceed past the check
-    document.querySelector('.nav').style.display = 'none'; 
+    document.querySelector('.nav').style.display = 'none';
 
     document.querySelector('.workout-timer').style.display = 'block';
     if (currentWorkout.length === 0 || !currentWorkout[0].name) {
         alert('Please select or create a workout first!');
         // Restore nav if we error out here
-        document.querySelector('.nav').style.display = 'flex'; 
+        document.querySelector('.nav').style.display = 'flex';
         return;
     }
 
@@ -3650,6 +3778,21 @@ function cancelQuickCardio() {
     }
     if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
+    }
+
+    // Initialize rest time displays for active workout
+    document.getElementById('activeRestBetweenSetsDisplay').textContent = workoutRestParams.restBetweenSets;
+    document.getElementById('activeRestBetweenExercisesDisplay').textContent = workoutRestParams.restBetweenExercises;
+    document.getElementById('activeCircuitRestBetweenExercisesDisplay').textContent = workoutRestParams.circuitRestBetweenExercises;
+    document.getElementById('activeCircuitRestBetweenRoundsDisplay').textContent = workoutRestParams.circuitRestBetweenRounds;
+
+    // Show/hide circuit controls based on workout mode
+    const circuitControls = document.getElementById('activeCircuitRestControls');
+    if (mode === 'circuit') {
+        circuitControls.style.display = 'flex';
+        circuitControls.style.gap = '12px';
+    } else {
+        circuitControls.style.display = 'none';
     }
 
     document.getElementById('workoutSetup').style.display = 'none';
@@ -3687,7 +3830,7 @@ function cancelQuickCardio() {
                 if (currentSet < exercise.sets) {
                     currentSet++;
                     displayCurrentExercise();
-                    startRestTimer(60);
+                    startRestTimer(workoutRestParams.restBetweenSets);
                 } else {
                     moveToNextExercise();
                 }
@@ -3695,14 +3838,14 @@ function cancelQuickCardio() {
                 if (currentExerciseIndex < currentWorkout.length - 1) {
                     currentExerciseIndex++;
                     displayCurrentExercise();
-                    startRestTimer(30);
+                    startRestTimer(workoutRestParams.circuitRestBetweenExercises);
                 } else {
                     const totalSets = currentWorkout[0].sets;
                     if (currentSet < totalSets) {
                         currentSet++;
                         currentExerciseIndex = 0;
                         displayCurrentExercise();
-                        startRestTimer(60);
+                        startRestTimer(workoutRestParams.circuitRestBetweenRounds);
                     } else {
                         finishWorkout();
                     }
@@ -3715,7 +3858,7 @@ function cancelQuickCardio() {
                 currentExerciseIndex++;
                 currentSet = 1;
                 displayCurrentExercise();
-                startRestTimer(90);
+                startRestTimer(workoutRestParams.restBetweenExercises);
             } else {
                 finishWorkout();
             }
@@ -4097,6 +4240,52 @@ function cancelQuickCardio() {
                 document.getElementById('hiitRoundDisplay').textContent = `Round ${hiitCurrentRound} of ${hiitWorkoutParams.totalRounds}`;
                 console.log("Rounds adjusted to:", hiitWorkoutParams.totalRounds);
             }
+        }
+
+        // Adjust rest time parameters for Traditional/Circuit workouts (pre-workout)
+        function adjustRestParamPreWorkout(param, change) {
+            if (param === 'setBetweenSets') {
+                workoutRestParams.restBetweenSets = Math.max(5, workoutRestParams.restBetweenSets + change);
+                document.getElementById('preWorkRestBetweenSetsDisplay').textContent = workoutRestParams.restBetweenSets;
+                console.log("Pre-workout: Rest between sets adjusted to:", workoutRestParams.restBetweenSets);
+            } else if (param === 'setBetweenExercises') {
+                workoutRestParams.restBetweenExercises = Math.max(5, workoutRestParams.restBetweenExercises + change);
+                document.getElementById('preWorkRestBetweenExercisesDisplay').textContent = workoutRestParams.restBetweenExercises;
+                console.log("Pre-workout: Rest between exercises adjusted to:", workoutRestParams.restBetweenExercises);
+            } else if (param === 'circuitBetweenExercises') {
+                workoutRestParams.circuitRestBetweenExercises = Math.max(5, workoutRestParams.circuitRestBetweenExercises + change);
+                document.getElementById('preWorkCircuitRestBetweenExercisesDisplay').textContent = workoutRestParams.circuitRestBetweenExercises;
+                console.log("Pre-workout: Circuit rest between exercises adjusted to:", workoutRestParams.circuitRestBetweenExercises);
+            } else if (param === 'circuitBetweenRounds') {
+                workoutRestParams.circuitRestBetweenRounds = Math.max(5, workoutRestParams.circuitRestBetweenRounds + change);
+                document.getElementById('preWorkCircuitRestBetweenRoundsDisplay').textContent = workoutRestParams.circuitRestBetweenRounds;
+                console.log("Pre-workout: Circuit rest between rounds adjusted to:", workoutRestParams.circuitRestBetweenRounds);
+            }
+            // Save to localStorage
+            localStorage.setItem('workoutRestParams', JSON.stringify(workoutRestParams));
+        }
+
+        // Adjust rest time parameters during active Traditional/Circuit workout
+        function adjustRestParamDuringWorkout(param, change) {
+            if (param === 'setBetweenSets') {
+                workoutRestParams.restBetweenSets = Math.max(5, workoutRestParams.restBetweenSets + change);
+                document.getElementById('activeRestBetweenSetsDisplay').textContent = workoutRestParams.restBetweenSets;
+                console.log("During workout: Rest between sets adjusted to:", workoutRestParams.restBetweenSets);
+            } else if (param === 'setBetweenExercises') {
+                workoutRestParams.restBetweenExercises = Math.max(5, workoutRestParams.restBetweenExercises + change);
+                document.getElementById('activeRestBetweenExercisesDisplay').textContent = workoutRestParams.restBetweenExercises;
+                console.log("During workout: Rest between exercises adjusted to:", workoutRestParams.restBetweenExercises);
+            } else if (param === 'circuitBetweenExercises') {
+                workoutRestParams.circuitRestBetweenExercises = Math.max(5, workoutRestParams.circuitRestBetweenExercises + change);
+                document.getElementById('activeCircuitRestBetweenExercisesDisplay').textContent = workoutRestParams.circuitRestBetweenExercises;
+                console.log("During workout: Circuit rest between exercises adjusted to:", workoutRestParams.circuitRestBetweenExercises);
+            } else if (param === 'circuitBetweenRounds') {
+                workoutRestParams.circuitRestBetweenRounds = Math.max(5, workoutRestParams.circuitRestBetweenRounds + change);
+                document.getElementById('activeCircuitRestBetweenRoundsDisplay').textContent = workoutRestParams.circuitRestBetweenRounds;
+                console.log("During workout: Circuit rest between rounds adjusted to:", workoutRestParams.circuitRestBetweenRounds);
+            }
+            // Save to localStorage
+            localStorage.setItem('workoutRestParams', JSON.stringify(workoutRestParams));
         }
 
         function pauseResumeHiit() {
