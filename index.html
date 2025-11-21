@@ -4208,6 +4208,25 @@ function cancelQuickCardio() {
                 return;
             }
 
+            // Initialize audio context if not already initialized (for countdown sounds)
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log("Audio Context initialized for rest timer countdown sounds.");
+                } catch (e) {
+                    console.log("Could not initialize audio context:", e);
+                }
+            }
+
+            // Resume audio context if suspended (required for sounds to play)
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    console.log("Audio Context resumed for rest timer sounds.");
+                }).catch(e => {
+                    console.log("Could not resume audio context:", e);
+                });
+            }
+
             let restTime = seconds;
             document.getElementById('restTimer').style.display = 'block';
             document.getElementById('completeSetBtn').style.display = 'none';
@@ -4750,6 +4769,11 @@ function cancelQuickCardio() {
         function playHiitSound(type) {
             // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
             if (!audioCtx) return;
+
+            // Resume audio context if suspended before playing sound
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
 
             try {
                 const ctx = audioCtx;
