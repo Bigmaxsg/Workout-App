@@ -4428,6 +4428,12 @@ function cancelQuickCardio() {
             console.log("Could not initialize audio context:", e);
         }
     }
+    // Resume audio context immediately to ensure sounds can play
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+            console.log("Audio context resumed and ready for HIIT sounds.");
+        });
+    }
 
     hiitWorkoutParams.exercises = currentWorkout.map(ex => ex.name);
 
@@ -4763,13 +4769,14 @@ function cancelQuickCardio() {
                 // Go to a neutral tab after workout completion
                 showSection('history');
             }
-        function playHiitSound(type) {
+        async function playHiitSound(type) {
             // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
             if (!audioCtx) return;
 
             // Resume audio context if suspended before playing sound
             if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+                await audioCtx.resume();
+                console.log("Audio context resumed before playing sound");
             }
 
             try {
