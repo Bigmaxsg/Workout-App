@@ -4447,11 +4447,8 @@ function cancelQuickCardio() {
     document.getElementById('hiitActiveScreen').style.display = 'none';
     document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
 
-    // Start the main workout timer
+    // Start the main workout timer (which will trigger HIIT countdown)
     startTimer();
-    
-    // Start HIIT countdown
-    startHiitCountdown();
 }
 
         function startHiitCountdown() {
