@@ -3827,11 +3827,11 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
     document.getElementById('hiitCountdownScreen').style.display = 'block';
     document.getElementById('hiitActiveScreen').style.display = 'none';
     document.getElementById('hiitPauseResumeBtn').textContent = 'Pause Exercise';
-    
+
     // Initialize audio context if needed
-    if (!window.audioCtx) {
+    if (!audioCtx) {
         try {
-            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             console.log("Audio context initialized for interval cardio.");
         } catch (e) {
             console.log("Could not initialize audio context:", e);
@@ -4420,9 +4420,9 @@ function cancelQuickCardio() {
 
     // This is the user interaction needed for sound.
     // We prepare everything but wait for the user to click the main timer's start button.
-    if (!window.audioCtx) {
+    if (!audioCtx) {
         try {
-            window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             console.log("Audio context initialized by HIIT start button.");
         } catch (e) {
             console.log("Could not initialize audio context:", e);
@@ -4642,10 +4642,10 @@ function cancelQuickCardio() {
             } else {
                 // We are resuming. Update the button text.
                 btn.textContent = 'Pause Exercise';
-                
+
                 // It's still good practice to resume the audio context here.
-                if (window.audioCtx && window.audioCtx.state === 'suspended') {
-                    window.audioCtx.resume();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
                 }
             }
         }
