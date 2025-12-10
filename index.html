@@ -4318,10 +4318,39 @@ function cancelQuickCardio() {
             clearInterval(countdownInterval);
             const workoutDuration = timerSeconds;
 
+            // Only include exercises that were actually completed
+            let completedExercises;
+            if (workoutMode === 'traditional') {
+                // For traditional mode: include fully completed exercises
+                // If currentSet > 1, at least one set of current exercise was done
+                const lastCompletedIndex = currentSet > 1 ? currentExerciseIndex : currentExerciseIndex - 1;
+                completedExercises = currentWorkout.slice(0, lastCompletedIndex + 1);
+            } else if (workoutMode === 'circuit') {
+                // For circuit mode: include all exercises but adjust rounds
+                completedExercises = currentWorkout.map(ex => ({...ex}));
+                const completedRounds = currentExerciseIndex === 0 && currentSet === 1 ? 0 :
+                                       currentExerciseIndex === 0 ? currentSet - 1 : currentSet;
+                completedExercises.forEach(ex => ex.sets = completedRounds);
+            } else {
+                // Fallback for other modes
+                completedExercises = currentWorkout;
+            }
+
+            // Mark which exercises are new PRs BEFORE updating the records
+            const prs = JSON.parse(localStorage.getItem('personalRecords') || '{}');
+            completedExercises.forEach(exercise => {
+                if (exercise.weight > 0) {
+                    const currentMax = prs[exercise.name] || 0;
+                    exercise.isPR = exercise.weight > currentMax;
+                } else {
+                    exercise.isPR = false;
+                }
+            });
+
             const workoutData = {
                 id: Date.now(), // <-- ADD THIS LINE
                 date: new Date().toISOString(),
-                exercises: currentWorkout,
+                exercises: completedExercises,
                 duration: workoutDuration,
                 type: workoutStyle === 'hiit' && currentWorkout[0] && exerciseDatabase[currentWorkout[0].name]?.exerciseType === 'cardio' ? 'Interval Cardio' : workoutStyle,
                 workoutName: document.getElementById('workoutType').value || 'Custom',
@@ -4332,7 +4361,7 @@ function cancelQuickCardio() {
             history.unshift(workoutData);
             localStorage.setItem('workoutHistory', JSON.stringify(history));
 
-            updatePersonalRecords(currentWorkout);
+            updatePersonalRecords(completedExercises);
 
             // Check for interval cardio stats, otherwise show the standard completion message
             if (workoutData.type === 'Interval Cardio') {
@@ -4393,7 +4422,8 @@ function cancelQuickCardio() {
 
         function isPersonalRecord(exerciseName, weight) {
             const prs = JSON.parse(localStorage.getItem('personalRecords') || '{}');
-            return weight > 0 && weight >= (prs[exerciseName] || 0);
+            // Only return true if the weight BEATS the current PR, not just matches it
+            return weight > 0 && weight > (prs[exerciseName] || 0);
         }
 
         // ==================== HIIT WORKOUT MODE ====================
@@ -4702,10 +4732,23 @@ function cancelQuickCardio() {
                 }
             }
 
+            // Mark PRs before saving
+            const exercises = hiitWorkoutParams.exercises.map(ex => ({...ex}));
+            const prs = JSON.parse(localStorage.getItem('personalRecords') || '{}');
+            exercises.forEach(exercise => {
+                if (exercise.weight && exercise.weight > 0) {
+                    const currentMax = prs[exercise.name] || 0;
+                    exercise.isPR = exercise.weight > currentMax;
+                } else {
+                    exercise.isPR = false;
+                }
+            });
+
             const workout = {
+                id: Date.now(),
                 date: new Date().toISOString(),
                 type: 'HIIT Workout',
-                exercises: hiitWorkoutParams.exercises,
+                exercises: exercises,
                 rounds: hiitCurrentRound - 1,
                 volume: 0,
                 duration: timerSeconds,
@@ -4741,11 +4784,23 @@ function cancelQuickCardio() {
                     }
                 }
 
+                // Mark PRs before saving
+                const exercises = hiitWorkoutParams.exercises.map(ex => ({...ex}));
+                const prs = JSON.parse(localStorage.getItem('personalRecords') || '{}');
+                exercises.forEach(exercise => {
+                    if (exercise.weight && exercise.weight > 0) {
+                        const currentMax = prs[exercise.name] || 0;
+                        exercise.isPR = exercise.weight > currentMax;
+                    } else {
+                        exercise.isPR = false;
+                    }
+                });
+
                 const workout = {
                     id: Date.now(), // <-- ADD THIS LINE
                     date: new Date().toISOString(),
                     type: 'HIIT Workout',
-                    exercises: hiitWorkoutParams.exercises,
+                    exercises: exercises,
                     rounds: hiitWorkoutParams.totalRounds,
                     volume: 0,
                     duration: timerSeconds,
@@ -6564,7 +6619,8 @@ User's request: ${msg}`;
                if (Array.isArray(workout.exercises) && workout.exercises.length > 0) {
                     if (typeof workout.exercises[0] === 'object' && workout.exercises[0] !== null && workout.exercises[0].name) {
                         workout.exercises.forEach(exercise => {
-                            const isPR = isPersonalRecord(exercise.name, exercise.weight) && exercise.weight > 0;
+                            // Use stored isPR flag if available, otherwise fall back to checking current PRs (for old workouts)
+                            const isPR = exercise.isPR !== undefined ? exercise.isPR : (isPersonalRecord(exercise.name, exercise.weight) && exercise.weight > 0);
                             const isCardioLog = exercise.duration !== undefined; 
 
                             html += `
