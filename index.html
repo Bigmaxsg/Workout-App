@@ -4236,6 +4236,17 @@ function cancelQuickCardio() {
                 restTime--;
                 document.getElementById('restDisplay').textContent = restTime;
 
+                // Re-initialize audio at 4 seconds to ensure beeps work after app interruptions
+                if (restTime === 4) {
+                    if (audioCtx && audioCtx.state === 'suspended') {
+                        audioCtx.resume().then(() => {
+                            console.log('Audio context resumed at 4-second mark for countdown beeps.');
+                        }).catch(e => {
+                            console.log('Could not resume audio context:', e);
+                        });
+                    }
+                }
+
                 // Play countdown beeps in the last 3 seconds
                 if (restTime === 3) {
                     playHiitSound('countdown3');
@@ -4487,6 +4498,15 @@ function cancelQuickCardio() {
 
             updateHiitDisplay();
 
+            // Resume audio context before playing phase transition sound
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    console.log('Audio context resumed for phase transition beep.');
+                }).catch(e => {
+                    console.log('Could not resume audio context:', e);
+                });
+            }
+
             // Play sound when phase starts
             if (hiitCurrentMode === 'work') {
                 playHiitSound('work'); // High pitch for work
@@ -4499,6 +4519,17 @@ function cancelQuickCardio() {
 
                 hiitTimeRemaining--;
                 document.getElementById('hiitTimerDisplay').textContent = hiitTimeRemaining;
+
+                // Re-initialize audio at 4 seconds to ensure beeps work after app interruptions
+                if (hiitTimeRemaining === 4) {
+                    if (audioCtx && audioCtx.state === 'suspended') {
+                        audioCtx.resume().then(() => {
+                            console.log('Audio context resumed at 4-second mark for HIIT countdown beeps.');
+                        }).catch(e => {
+                            console.log('Could not resume audio context:', e);
+                        });
+                    }
+                }
 
                 // Play beeps during final 3 seconds countdown (3, 2, 1)
                 if (hiitTimeRemaining === 3) {
