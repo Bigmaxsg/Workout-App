@@ -8348,6 +8348,17 @@ function loadBackgroundImage() {
             loadSavedColors();
             loadBackgroundImage();
 
+            // Function to resume audio context (for workout beeps after app interruptions)
+            function resumeAudioContext() {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        console.log('Audio context resumed after app became visible.');
+                    }).catch(err => {
+                        console.log('Failed to resume audio context:', err);
+                    });
+                }
+            }
+
             // Add this new block of code
         document.addEventListener('visibilitychange', () => {
             // Check if the page has become visible
@@ -8359,7 +8370,22 @@ function loadBackgroundImage() {
                     // This will trigger the specific data refresh function for that tab.
                     showSection(activeSectionId);
                 }
+
+                // Resume audio context for workout beeps
+                resumeAudioContext();
             }
+        });
+
+        // Additional event listeners for better mobile browser support
+        window.addEventListener('focus', () => {
+            console.log('Window focused - resuming audio context.');
+            resumeAudioContext();
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            // Handle page restoration from back/forward cache
+            console.log('Page shown - resuming audio context.');
+            resumeAudioContext();
         });
             // Load the initial tab's background image (workout tab is active by default)
             showSection('workout');
