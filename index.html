@@ -3249,16 +3249,15 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
             const isHiit = typeof workout === 'object' && !Array.isArray(workout) && workout.workoutType === 'hiit';
 
             if (isHiit) {
+                // Populate with existing data BEFORE calling the builder
+                currentWorkout = [...workout.exercises];
+                hiitWorkoutParams = { ...workout.hiitParams };
+
                 // Load HIIT builder with this workout
                 document.getElementById('workoutType').value = 'custom_hiit';
                 showCustomHiitBuilder();
 
-                // Populate with existing data
-                currentWorkout = [...workout.exercises];
-                hiitWorkoutParams = { ...workout.hiitParams };
-
-                // Update the display
-                updateHiitExerciseList();
+                // Set HIIT parameters in the input fields
                 document.getElementById('hiitWorkTime').value = hiitWorkoutParams.workTime;
                 document.getElementById('hiitRestTime').value = hiitWorkoutParams.restTime;
                 document.getElementById('hiitRounds').value = hiitWorkoutParams.totalRounds;
@@ -3269,15 +3268,12 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                     if (nameInput) nameInput.value = selectedWorkoutName;
                 }, 100);
             } else {
+                // Populate with existing data BEFORE calling the builder
+                currentWorkout = JSON.parse(JSON.stringify(workout));
+
                 // Load Strength builder with this workout
                 document.getElementById('workoutType').value = 'custom';
                 showCustomWorkoutBuilder();
-
-                // Populate with existing data
-                currentWorkout = JSON.parse(JSON.stringify(workout));
-
-                // Update the display
-                updateCustomExerciseList();
 
                 // Pre-fill the workout name
                 setTimeout(() => {
@@ -3353,7 +3349,11 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         // ==================== CUSTOM WORKOUT BUILDER ====================
         function showCustomWorkoutBuilder() {
             const container = document.getElementById('workoutContainer');
-            currentWorkout = [];
+
+            // Only clear currentWorkout if NOT in edit mode
+            if (!isEditingWorkout) {
+                currentWorkout = [];
+            }
 
             const editModeInfo = isEditingWorkout ?
                 `<div class="info-box" style="background-color: #fff3cd; border-color: #ffc107;">
@@ -3390,9 +3390,14 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
             `;
 
             container.innerHTML = html;
-            if (!isEditingWorkout) {
+
+            // If in edit mode, populate the exercise list with loaded data
+            if (isEditingWorkout) {
+                updateCustomExerciseList();
+            } else {
                 populateLoadCustomWorkoutSelect();
             }
+
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('hiitPreWorkoutAdjustments').style.display = 'none';
         }
@@ -3634,7 +3639,11 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         // ==================== CUSTOM HIIT BUILDER ====================
         function showCustomHiitBuilder() {
             const container = document.getElementById('workoutContainer');
-            currentWorkout = [];
+
+            // Only clear currentWorkout if NOT in edit mode
+            if (!isEditingWorkout) {
+                currentWorkout = [];
+            }
 
             const editModeInfo = isEditingWorkout ?
                 `<div class="info-box" style="background-color: #fff3cd; border-color: #ffc107;">
@@ -3674,9 +3683,14 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
             `;
 
             container.innerHTML = html;
-            if (!isEditingWorkout) {
+
+            // If in edit mode, populate the exercise list with loaded data
+            if (isEditingWorkout) {
+                updateHiitExerciseList();
+            } else {
                 populateLoadCustomHiitWorkoutSelect();
             }
+
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('hiitPreWorkoutAdjustments').style.display = 'block';
         }
