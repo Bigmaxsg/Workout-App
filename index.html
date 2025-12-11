@@ -3503,7 +3503,7 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         function updateCustomExerciseDisplay(index) {
             const exercise = currentWorkout[index];
             const exerciseDiv = document.getElementById(`custom-exercise-${index}`);
-            
+
             exerciseDiv.innerHTML = `
                 <div class="exercise-header">
                     <div class="exercise-name">${exercise.name}</div>
@@ -3512,34 +3512,34 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                 <div class="exercise-details">
                     <div class="detail-input">
                         <label>Weight (lbs)</label>
-                        <input type="number" value="${exercise.weight}" 
-                            onchange="updateCustomExerciseValue(${index}, 'weight', this.value)">
+                        <input type="number" value="${exercise.weight}"
+                            onchange="updateCustomExercise(${index}, 'weight', this.value)">
                     </div>
                     <div class="detail-input">
                         <label>Sets</label>
-                        <input type="number" value="${exercise.sets}" 
-                            onchange="updateCustomExerciseValue(${index}, 'sets', this.value)">
+                        <input type="number" value="${exercise.sets}"
+                            onchange="updateCustomExercise(${index}, 'sets', this.value)">
                     </div>
                     <div class="detail-input">
                         <label>Reps</label>
-                        <input type="number" value="${exercise.reps}" 
-                            onchange="updateCustomExerciseValue(${index}, 'reps', this.value)">
+                        <input type="number" value="${exercise.reps}"
+                            onchange="updateCustomExercise(${index}, 'reps', this.value)">
                     </div>
                 </div>
             `;
         }
 
-        function updateCustomExerciseValue(index, field, value) {
+        function updateCustomExercise(index, field, value) {
             currentWorkout[index][field] = parseInt(value);
-            
+
             const exerciseName = currentWorkout[index].name;
             const lastUsedValues = JSON.parse(localStorage.getItem('lastUsedExerciseValues') || '{}');
-            
+
             if (!lastUsedValues[exerciseName]) {
                 lastUsedValues[exerciseName] = {};
             }
             lastUsedValues[exerciseName][field] = parseInt(value);
-            
+
             localStorage.setItem('lastUsedExerciseValues', JSON.stringify(lastUsedValues));
         }
 
