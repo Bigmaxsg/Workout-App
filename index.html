@@ -1327,15 +1327,18 @@
                     </div>
                     <!-- Custom Workout Management Section -->
                     <div class="form-group" id="manageCustomWorkoutsSection" style="display:none;">
-                        <label>Delete a Custom Workout</label>
+                        <label>Manage Custom Workouts</label>
                         <select id="manageCustomWorkoutSelect">
                             <option value="">-- Select a Custom Workout --</option>
                         </select>
-                        <div style="margin-top: 10px;">
-                        <button class="btn btn-danger" onclick="deleteCustomWorkout()">
-                            🗑️ Delete Selected Workout
-                        </button>
-                    </div>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="editCustomWorkout()" style="flex: 1;">
+                                ✏️ Edit Selected Workout
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteCustomWorkout()" style="flex: 1;">
+                                🗑️ Delete Selected Workout
+                            </button>
+                        </div>
                     </div>
                     <div id="workoutContainer"></div>
                     <div id="workoutModeSelection" style="display:none;">
@@ -2250,6 +2253,8 @@
         // App State
         let currentWorkout = [];
         let isWorkoutModified = false; // <-- ADD THIS LINE
+        let isEditingWorkout = false; // Track if we're editing an existing workout
+        let editingWorkoutOriginalName = ''; // Track the original name when editing
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
         let timerInterval = null;
         let timerSeconds = 0;
@@ -2655,6 +2660,10 @@
         
         function loadWorkout() {
              isWorkoutModified = false; // <-- ADD THIS LINE
+            // Reset edit mode flags when loading a new workout from dropdown
+            isEditingWorkout = false;
+            editingWorkoutOriginalName = '';
+
             const workoutType = document.getElementById('workoutType').value;
             const container = document.getElementById('workoutContainer');
 
@@ -2667,7 +2676,7 @@
                 showQuickCardioLogger();
                 return;
             }
-            
+
             if (workoutType === 'interval_cardio') {
                 showIntervalCardioBuilder();
                 return;
@@ -3218,38 +3227,42 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         function editCustomWorkout() {
             const manageDropdown = document.getElementById('manageCustomWorkoutSelect');
             const selectedWorkoutName = manageDropdown.value;
-            
+
             if (!selectedWorkoutName) {
                 alert('Please select a workout to edit.');
                 return;
             }
-            
+
             const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
             const workout = savedCustomWorkouts[selectedWorkoutName];
-            
+
             if (!workout) {
                 alert('Workout not found.');
                 return;
             }
-            
+
+            // Set edit mode flags
+            isEditingWorkout = true;
+            editingWorkoutOriginalName = selectedWorkoutName;
+
             // Determine if it's a HIIT or Strength workout
             const isHiit = typeof workout === 'object' && !Array.isArray(workout) && workout.workoutType === 'hiit';
-            
+
             if (isHiit) {
                 // Load HIIT builder with this workout
                 document.getElementById('workoutType').value = 'custom_hiit';
                 showCustomHiitBuilder();
-                
+
                 // Populate with existing data
                 currentWorkout = [...workout.exercises];
                 hiitWorkoutParams = { ...workout.hiitParams };
-                
+
                 // Update the display
                 updateHiitExerciseList();
                 document.getElementById('hiitWorkTime').value = hiitWorkoutParams.workTime;
                 document.getElementById('hiitRestTime').value = hiitWorkoutParams.restTime;
                 document.getElementById('hiitRounds').value = hiitWorkoutParams.totalRounds;
-                
+
                 // Pre-fill the workout name
                 setTimeout(() => {
                     const nameInput = document.getElementById('customHiitWorkoutName');
@@ -3259,20 +3272,20 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                 // Load Strength builder with this workout
                 document.getElementById('workoutType').value = 'custom';
                 showCustomWorkoutBuilder();
-                
+
                 // Populate with existing data
                 currentWorkout = JSON.parse(JSON.stringify(workout));
-                
+
                 // Update the display
                 updateCustomExerciseList();
-                
+
                 // Pre-fill the workout name
                 setTimeout(() => {
                     const nameInput = document.getElementById('customWorkoutName');
                     if (nameInput) nameInput.value = selectedWorkoutName;
                 }, 100);
             }
-            
+
             // Clear the management dropdown selection
             manageDropdown.value = '';
         }
@@ -3304,33 +3317,82 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
             alert(`"${selectedWorkoutName}" has been deleted.`);
         }
 
+        function deleteCurrentEditingWorkout() {
+            if (!isEditingWorkout || !editingWorkoutOriginalName) {
+                alert('No workout is currently being edited.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete "${editingWorkoutOriginalName}"? This cannot be undone.`)) {
+                return;
+            }
+
+            // Remove from localStorage
+            const savedCustomWorkouts = JSON.parse(localStorage.getItem('customWorkouts')) || {};
+            delete savedCustomWorkouts[editingWorkoutOriginalName];
+            localStorage.setItem('customWorkouts', JSON.stringify(savedCustomWorkouts));
+
+            // Reset edit mode flags
+            isEditingWorkout = false;
+            editingWorkoutOriginalName = '';
+
+            // Clear the workout container and reset state
+            currentWorkout = [];
+            document.getElementById('workoutContainer').innerHTML = '';
+            document.getElementById('workoutModeSelection').style.display = 'none';
+
+            // Refresh dropdowns
+            loadCustomWorkoutsIntoDropdown();
+            populateLoadCustomWorkoutSelect();
+            populateLoadCustomHiitWorkoutSelect();
+            populateShareWorkoutSelect();
+
+            alert('Workout deleted successfully!');
+        }
+
         // ==================== CUSTOM WORKOUT BUILDER ====================
         function showCustomWorkoutBuilder() {
             const container = document.getElementById('workoutContainer');
             currentWorkout = [];
-            
+
+            const editModeInfo = isEditingWorkout ?
+                `<div class="info-box" style="background-color: #fff3cd; border-color: #ffc107;">
+                    <p><strong>✏️ Editing Workout:</strong> ${editingWorkoutOriginalName}</p>
+                </div>` : '';
+
+            const saveButtonText = isEditingWorkout ? '💾 Update Workout' : '💾 Save This Workout';
+
+            const deleteButton = isEditingWorkout ?
+                `<button class="btn btn-danger" onclick="deleteCurrentEditingWorkout()" style="margin-top: 10px; width: 100%;">
+                    🗑️ Delete This Workout
+                </button>` : '';
+
             let html = `
-                <h3>Build Your Custom Workout</h3>
+                <h3>${isEditingWorkout ? 'Edit Your Custom Workout' : 'Build Your Custom Workout'}</h3>
+                ${editModeInfo}
                 <div id="customExerciseList"></div>
                 <button class="add-exercise-btn" onclick="addExerciseToCustomWorkout()">
                     ➕ Add Exercise
                 </button>
                 <div style="margin-top: 20px;">
-                    <input type="text" id="customWorkoutName" placeholder="Enter workout name (optional)" 
+                    <input type="text" id="customWorkoutName" placeholder="Enter workout name (optional)"
                         style="margin-bottom: 10px;">
                     <button class="btn btn-success" onclick="saveCustomWorkout()">
-                        💾 Save This Workout
+                        ${saveButtonText}
                     </button>
+                    ${deleteButton}
                 </div>
-                <div style="margin-top: 10px;">
+                ${!isEditingWorkout ? `<div style="margin-top: 10px;">
                     <select id="loadCustomWorkoutSelect" onchange="loadSavedCustomWorkout()" style="margin-bottom: 10px;">
                         <option value="">-- Load Saved Workout --</option>
                     </select>
-                </div>
+                </div>` : ''}
             `;
-            
+
             container.innerHTML = html;
-            populateLoadCustomWorkoutSelect();
+            if (!isEditingWorkout) {
+                populateLoadCustomWorkoutSelect();
+            }
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('hiitPreWorkoutAdjustments').style.display = 'none';
         }
@@ -3500,15 +3562,30 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                 alert('Please add at least one exercise to your workout!');
                 return;
             }
-            
-            const workoutName = document.getElementById('customWorkoutName').value || 
+
+            const workoutName = document.getElementById('customWorkoutName').value ||
                 `Custom Workout ${new Date().toLocaleDateString()}`;
-            
+
             const customWorkouts = JSON.parse(localStorage.getItem('customWorkouts') || '{}');
+
+            // If in edit mode and name changed, delete the old workout
+            if (isEditingWorkout && editingWorkoutOriginalName !== workoutName) {
+                delete customWorkouts[editingWorkoutOriginalName];
+            }
+
+            // Save the workout (either new or updated)
             customWorkouts[workoutName] = JSON.parse(JSON.stringify(currentWorkout));
             localStorage.setItem('customWorkouts', JSON.stringify(customWorkouts));
-            
-            alert(`Workout "${workoutName}" saved successfully!`);
+
+            const message = isEditingWorkout ?
+                `Workout "${workoutName}" updated successfully!` :
+                `Workout "${workoutName}" saved successfully!`;
+            alert(message);
+
+            // Reset edit mode flags
+            isEditingWorkout = false;
+            editingWorkoutOriginalName = '';
+
             populateLoadCustomWorkoutSelect();
             populateShareWorkoutSelect();
             loadCustomWorkoutsIntoDropdown();
@@ -3558,9 +3635,22 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
         function showCustomHiitBuilder() {
             const container = document.getElementById('workoutContainer');
             currentWorkout = [];
-            
+
+            const editModeInfo = isEditingWorkout ?
+                `<div class="info-box" style="background-color: #fff3cd; border-color: #ffc107;">
+                    <p><strong>✏️ Editing HIIT Workout:</strong> ${editingWorkoutOriginalName}</p>
+                </div>` : '';
+
+            const saveButtonText = isEditingWorkout ? '💾 Update HIIT Workout' : '💾 Save This HIIT Workout';
+
+            const deleteButton = isEditingWorkout ?
+                `<button class="btn btn-danger" onclick="deleteCurrentEditingWorkout()" style="margin-top: 10px; width: 100%;">
+                    🗑️ Delete This Workout
+                </button>` : '';
+
             let html = `
-                <h3>Build Your Custom HIIT Workout</h3>
+                <h3>${isEditingWorkout ? 'Edit Your Custom HIIT Workout' : 'Build Your Custom HIIT Workout'}</h3>
+                ${editModeInfo}
                 <div class="info-box">
                     <p><strong>HIIT Style:</strong> Select bodyweight or cardio exercises. You'll perform each for timed intervals with rest periods between.</p>
                 </div>
@@ -3569,21 +3659,24 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                     ➕ Add Exercise
                 </button>
                 <div style="margin-top: 20px;">
-                    <input type="text" id="customHiitWorkoutName" placeholder="Enter workout name (optional)" 
+                    <input type="text" id="customHiitWorkoutName" placeholder="Enter workout name (optional)"
                         style="margin-bottom: 10px;">
                     <button class="btn btn-success" onclick="saveCustomHiitWorkout()">
-                        💾 Save This HIIT Workout
+                        ${saveButtonText}
                     </button>
+                    ${deleteButton}
                 </div>
-                <div style="margin-top: 10px;">
+                ${!isEditingWorkout ? `<div style="margin-top: 10px;">
                     <select id="loadCustomHiitWorkoutSelect" onchange="loadSavedCustomHiitWorkout()" style="margin-bottom: 10px;">
                         <option value="">-- Load Saved HIIT Workout --</option>
                     </select>
-                </div>
+                </div>` : ''}
             `;
-            
+
             container.innerHTML = html;
-            populateLoadCustomHiitWorkoutSelect();
+            if (!isEditingWorkout) {
+                populateLoadCustomHiitWorkoutSelect();
+            }
             document.getElementById('workoutModeSelection').style.display = 'block';
             document.getElementById('hiitPreWorkoutAdjustments').style.display = 'block';
         }
@@ -3664,15 +3757,43 @@ function promptToSaveModifiedWorkout(onSaveCallback) {
                 alert('Please add at least one exercise to your HIIT workout!');
                 return;
             }
-            
-            const workoutName = document.getElementById('customHiitWorkoutName').value || 
+
+            const workoutName = document.getElementById('customHiitWorkoutName').value ||
                 `Custom HIIT ${new Date().toLocaleDateString()}`;
-            
+
+            // Get HIIT parameters from the input fields
+            const workTime = parseInt(document.getElementById('hiitWorkTime').value) || hiitWorkoutParams.workTime || 30;
+            const restTime = parseInt(document.getElementById('hiitRestTime').value) || hiitWorkoutParams.restTime || 15;
+            const totalRounds = parseInt(document.getElementById('hiitRounds').value) || hiitWorkoutParams.totalRounds || 4;
+
             const customWorkouts = JSON.parse(localStorage.getItem('customWorkouts') || '{}');
-            customWorkouts[workoutName] = JSON.parse(JSON.stringify(currentWorkout));
+
+            // If in edit mode and name changed, delete the old workout
+            if (isEditingWorkout && editingWorkoutOriginalName !== workoutName) {
+                delete customWorkouts[editingWorkoutOriginalName];
+            }
+
+            // Save the HIIT workout with proper structure
+            customWorkouts[workoutName] = {
+                workoutType: 'hiit',
+                exercises: JSON.parse(JSON.stringify(currentWorkout)),
+                hiitParams: {
+                    workTime: workTime,
+                    restTime: restTime,
+                    totalRounds: totalRounds
+                }
+            };
             localStorage.setItem('customWorkouts', JSON.stringify(customWorkouts));
-            
-            alert(`HIIT Workout "${workoutName}" saved successfully!`);
+
+            const message = isEditingWorkout ?
+                `HIIT Workout "${workoutName}" updated successfully!` :
+                `HIIT Workout "${workoutName}" saved successfully!`;
+            alert(message);
+
+            // Reset edit mode flags
+            isEditingWorkout = false;
+            editingWorkoutOriginalName = '';
+
             populateLoadCustomHiitWorkoutSelect();
             populateShareWorkoutSelect();
             loadCustomWorkoutsIntoDropdown();
