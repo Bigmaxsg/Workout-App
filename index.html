@@ -1497,11 +1497,19 @@
                             style="background: rgba(245,245,220,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
                             <div style="display: flex; justify-content: space-around; text-align: center;">
                                 <div>
-                                    <div style="font-size: 28px; font-weight: bold;" id="currentWeight">25</div>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <button class="btn btn-secondary" onclick="adjustActiveExercise('weight', -5)" style="width: 28px; height: 28px; padding: 0; margin: 0; font-size: 16px; line-height: 1;">-</button>
+                                        <input type="number" id="currentWeight" value="25" onchange="updateActiveExercise('weight', this.value)" style="width: 50px; text-align: center; font-size: 22px; font-weight: bold; background: rgba(212,175,55,0.2); border: 1px solid #d4af37; border-radius: 5px; color: #f5f5dc; padding: 4px;">
+                                        <button class="btn btn-secondary" onclick="adjustActiveExercise('weight', 5)" style="width: 28px; height: 28px; padding: 0; margin: 0; font-size: 16px; line-height: 1;">+</button>
+                                    </div>
                                     <div style="font-size: 14px;">lbs</div>
                                 </div>
                                 <div>
-                                    <div style="font-size: 28px; font-weight: bold;" id="currentReps">12</div>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <button class="btn btn-secondary" onclick="adjustActiveExercise('reps', -1)" style="width: 28px; height: 28px; padding: 0; margin: 0; font-size: 16px; line-height: 1;">-</button>
+                                        <input type="number" id="currentReps" value="12" onchange="updateActiveExercise('reps', this.value)" style="width: 50px; text-align: center; font-size: 22px; font-weight: bold; background: rgba(212,175,55,0.2); border: 1px solid #d4af37; border-radius: 5px; color: #f5f5dc; padding: 4px;">
+                                        <button class="btn btn-secondary" onclick="adjustActiveExercise('reps', 1)" style="width: 28px; height: 28px; padding: 0; margin: 0; font-size: 16px; line-height: 1;">+</button>
+                                    </div>
                                     <div style="font-size: 14px;">reps</div>
                                 </div>
                                 <div>
@@ -4251,8 +4259,8 @@ function cancelQuickCardio() {
             }
             document.getElementById('currentExerciseName').textContent = displayName;
 
-            document.getElementById('currentWeight').textContent = exercise.weight;
-            document.getElementById('currentReps').textContent = exercise.reps;
+            document.getElementById('currentWeight').value = exercise.weight;
+            document.getElementById('currentReps').value = exercise.reps;
             document.getElementById('currentSets').textContent = exercise.sets;
 
             if (workoutMode === 'traditional') {
@@ -4261,6 +4269,43 @@ function cancelQuickCardio() {
                 const totalSets = currentWorkout[0].sets;
                 document.getElementById('setProgress').textContent = `Round ${currentSet}/${totalSets}`;
             }
+
+            updateWorkoutProgressList();
+        }
+
+        // Update exercise value during active workout (from input change)
+        function updateActiveExercise(field, value) {
+            const exercise = currentWorkout[currentExerciseIndex];
+            const numValue = parseInt(value) || 0;
+            exercise[field] = numValue;
+
+            // Also save to workout preferences for future sessions
+            const workoutType = currentWorkoutType || 'custom';
+            const prefs = JSON.parse(localStorage.getItem('workoutPreferences') || '{}');
+            if (!prefs[workoutType]) prefs[workoutType] = {};
+            if (!prefs[workoutType][exercise.name]) prefs[workoutType][exercise.name] = {};
+            prefs[workoutType][exercise.name][field] = numValue;
+            localStorage.setItem('workoutPreferences', JSON.stringify(prefs));
+
+            updateWorkoutProgressList();
+        }
+
+        // Adjust exercise value with +/- buttons during active workout
+        function adjustActiveExercise(field, delta) {
+            const exercise = currentWorkout[currentExerciseIndex];
+            const currentValue = exercise[field] || 0;
+            const newValue = Math.max(0, currentValue + delta);
+
+            exercise[field] = newValue;
+            document.getElementById(field === 'weight' ? 'currentWeight' : 'currentReps').value = newValue;
+
+            // Also save to workout preferences
+            const workoutType = currentWorkoutType || 'custom';
+            const prefs = JSON.parse(localStorage.getItem('workoutPreferences') || '{}');
+            if (!prefs[workoutType]) prefs[workoutType] = {};
+            if (!prefs[workoutType][exercise.name]) prefs[workoutType][exercise.name] = {};
+            prefs[workoutType][exercise.name][field] = newValue;
+            localStorage.setItem('workoutPreferences', JSON.stringify(prefs));
 
             updateWorkoutProgressList();
         }
@@ -6852,6 +6897,63 @@ User's request: ${msg}`;
     document.getElementById('editDistanceUnit').value = workout.distanceUnit || '';
     document.getElementById('editWorkoutNotes').value = workout.notes || '';
 
+    // Populate exercises list for editing
+    const exercisesList = document.getElementById('editExercisesList');
+    if (Array.isArray(workout.exercises) && workout.exercises.length > 0 &&
+        typeof workout.exercises[0] === 'object' && workout.exercises[0].name) {
+        let exercisesHtml = '';
+        workout.exercises.forEach((exercise, idx) => {
+            const isCardioLog = exercise.duration !== undefined;
+            if (isCardioLog) {
+                // Cardio exercise - show duration and distance
+                exercisesHtml += `
+                    <div style="background: rgba(245,245,220,0.1); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #d4af37;">${exercise.name}</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 80px;">
+                                <label style="font-size: 11px; color: #6c757d;">Duration (min)</label>
+                                <input type="number" id="editExercise_${idx}_duration" value="${exercise.duration || 0}"
+                                    style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #f5f5dc;">
+                            </div>
+                            <div style="flex: 1; min-width: 80px;">
+                                <label style="font-size: 11px; color: #6c757d;">Distance</label>
+                                <input type="number" step="0.1" id="editExercise_${idx}_distance" value="${exercise.distance || 0}"
+                                    style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #f5f5dc;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Strength exercise - show sets, reps, weight
+                exercisesHtml += `
+                    <div style="background: rgba(245,245,220,0.1); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: bold; margin-bottom: 8px; color: #d4af37;">${exercise.name}</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 60px;">
+                                <label style="font-size: 11px; color: #6c757d;">Sets</label>
+                                <input type="number" id="editExercise_${idx}_sets" value="${exercise.sets || 0}"
+                                    style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #f5f5dc;">
+                            </div>
+                            <div style="flex: 1; min-width: 60px;">
+                                <label style="font-size: 11px; color: #6c757d;">Reps</label>
+                                <input type="number" id="editExercise_${idx}_reps" value="${exercise.reps || 0}"
+                                    style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #f5f5dc;">
+                            </div>
+                            <div style="flex: 1; min-width: 70px;">
+                                <label style="font-size: 11px; color: #6c757d;">Weight (lbs)</label>
+                                <input type="number" id="editExercise_${idx}_weight" value="${exercise.weight || 0}"
+                                    style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #f5f5dc;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        exercisesList.innerHTML = exercisesHtml;
+    } else {
+        exercisesList.innerHTML = '<p style="color: #6c757d; font-size: 13px;">No exercise details to edit.</p>';
+    }
+
     showModalById('editStatsModal');
 }
        function saveWorkoutStats() {
@@ -6920,6 +7022,27 @@ User's request: ${msg}`;
     }
     
     workout.notes = document.getElementById('editWorkoutNotes').value.trim() || '';
+
+    // Save edited exercise values
+    if (Array.isArray(workout.exercises) && workout.exercises.length > 0 &&
+        typeof workout.exercises[0] === 'object' && workout.exercises[0].name) {
+        workout.exercises.forEach((exercise, idx) => {
+            const isCardioLog = exercise.duration !== undefined;
+            if (isCardioLog) {
+                const durationInput = document.getElementById(`editExercise_${idx}_duration`);
+                const distanceInput = document.getElementById(`editExercise_${idx}_distance`);
+                if (durationInput) exercise.duration = parseInt(durationInput.value) || 0;
+                if (distanceInput) exercise.distance = parseFloat(distanceInput.value) || 0;
+            } else {
+                const setsInput = document.getElementById(`editExercise_${idx}_sets`);
+                const repsInput = document.getElementById(`editExercise_${idx}_reps`);
+                const weightInput = document.getElementById(`editExercise_${idx}_weight`);
+                if (setsInput) exercise.sets = parseInt(setsInput.value) || 0;
+                if (repsInput) exercise.reps = parseInt(repsInput.value) || 0;
+                if (weightInput) exercise.weight = parseInt(weightInput.value) || 0;
+            }
+        });
+    }
 
     localStorage.setItem('workoutHistory', JSON.stringify(history));
     workoutHistory = history;
@@ -8889,6 +9012,10 @@ function loadBackgroundImage() {
                 <div class="form-group">
                     <label>📝 Notes (Optional)</label>
                     <textarea id="editWorkoutNotes" rows="3" placeholder="How did you feel? Any achievements?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>💪 Exercises</label>
+                    <div id="editExercisesList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
                 </div>
                 <button class="btn btn-success" onclick="saveWorkoutStats()">💾 Save Changes</button>
             </div>
