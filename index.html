@@ -4342,6 +4342,9 @@ function cancelQuickCardio() {
         }
 
         function completeSet() {
+            // Resume/reinit audio now (user gesture) so rest-timer beeps work on iOS
+            resumeOrReinitAudio();
+
             const exercise = currentWorkout[currentExerciseIndex];
 
             // Handle unilateral exercises (left side then right side = 1 set)
