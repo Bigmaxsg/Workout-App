@@ -2456,6 +2456,38 @@
                     }
                 }
         // ==================== TIMER FUNCTIONS ====================
+
+        // Resumes or fully re-creates the AudioContext after iOS phone/text interruptions.
+        // Must be called from within a user gesture (button click) to work on iOS.
+        async function resumeOrReinitAudio() {
+            if (!audioCtx) return;
+            try {
+                // iOS sets state to 'interrupted' during calls/texts; 'suspended' is the standard paused state
+                if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
+                    await audioCtx.resume();
+                    console.log('Audio context resumed, state:', audioCtx.state);
+                }
+                // If still not running after resume (e.g. context is closed/broken), close and recreate
+                if (audioCtx.state !== 'running') {
+                    console.log('Audio context still not running, reinitializing...');
+                    try { await audioCtx.close(); } catch(e) {}
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('Audio context reinitialized, state:', audioCtx.state);
+                }
+                // Play a near-silent blip to unblock iOS audio pipeline
+                const ctx = audioCtx;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                gain.gain.value = 0.001;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.01);
+            } catch(e) {
+                console.log('Could not resume/reinit audio context:', e);
+            }
+        }
+
         function startTimer() {
             // Check if it's for starting a HIIT workout
             const hiitMode = document.getElementById('hiitWorkoutMode');
@@ -2470,10 +2502,9 @@
                         console.log("Could not initialize audio context:", e);
                     }
                 }
-                if (audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
             }
+            // Resume/reinit audio for all workout modes — this is a user gesture so iOS will allow it
+            resumeOrReinitAudio();
 
             if (!timerRunning) {
                 timerRunning = true;
@@ -4233,7 +4264,7 @@ function cancelQuickCardio() {
             console.log("Could not initialize audio context:", e);
         }
     }
-    if (audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
         audioCtx.resume();
     }
 
@@ -4311,6 +4342,9 @@ function cancelQuickCardio() {
         }
 
         function completeSet() {
+            // Resume/reinit audio now (user gesture) so rest-timer beeps work on iOS
+            resumeOrReinitAudio();
+
             const exercise = currentWorkout[currentExerciseIndex];
 
             // Handle unilateral exercises (left side then right side = 1 set)
@@ -4402,7 +4436,7 @@ function cancelQuickCardio() {
             }
 
             // Resume audio context if suspended (required for sounds to play)
-            if (audioCtx && audioCtx.state === 'suspended') {
+            if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
                 audioCtx.resume().then(() => {
                     console.log("Audio Context resumed for rest timer sounds.");
                 }).catch(e => {
@@ -4421,7 +4455,7 @@ function cancelQuickCardio() {
 
                 // Re-initialize audio at 4 seconds to ensure beeps work after app interruptions
                 if (restTime === 4) {
-                    if (audioCtx && audioCtx.state === 'suspended') {
+                    if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
                         audioCtx.resume().then(() => {
                             console.log('Audio context resumed at 4-second mark for countdown beeps.');
                         }).catch(e => {
@@ -4655,7 +4689,7 @@ function cancelQuickCardio() {
         }
     }
     // Resume audio context immediately to ensure sounds can play
-    if (audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
         audioCtx.resume().then(() => {
             console.log("Audio context resumed and ready for HIIT sounds.");
         });
@@ -4714,7 +4748,7 @@ function cancelQuickCardio() {
             updateHiitDisplay();
 
             // Resume audio context before playing phase transition sound
-            if (audioCtx && audioCtx.state === 'suspended') {
+            if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
                 audioCtx.resume().then(() => {
                     console.log('Audio context resumed for phase transition beep.');
                 }).catch(e => {
@@ -4737,7 +4771,7 @@ function cancelQuickCardio() {
 
                 // Re-initialize audio at 4 seconds to ensure beeps work after app interruptions
                 if (hiitTimeRemaining === 4) {
-                    if (audioCtx && audioCtx.state === 'suspended') {
+                    if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
                         audioCtx.resume().then(() => {
                             console.log('Audio context resumed at 4-second mark for HIIT countdown beeps.');
                         }).catch(e => {
@@ -4892,10 +4926,8 @@ function cancelQuickCardio() {
                 // We are resuming. Update the button text.
                 btn.textContent = 'Pause Exercise';
 
-                // It's still good practice to resume the audio context here.
-                if (audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                // Resume/reinit audio — called from a user gesture so iOS will allow it
+                resumeOrReinitAudio();
             }
         }
 
@@ -5050,8 +5082,8 @@ function cancelQuickCardio() {
             // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
             if (!audioCtx) return;
 
-            // Resume audio context if suspended before playing sound
-            if (audioCtx.state === 'suspended') {
+            // Resume audio context if suspended or interrupted (iOS) before playing sound
+            if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
                 await audioCtx.resume();
                 console.log("Audio context resumed before playing sound");
             }
@@ -8706,7 +8738,7 @@ function loadBackgroundImage() {
 
             // Function to resume audio context (for workout beeps after app interruptions)
             function resumeAudioContext() {
-                if (audioCtx && audioCtx.state === 'suspended') {
+                if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
                     audioCtx.resume().then(() => {
                         console.log('Audio context resumed after app became visible.');
                     }).catch(err => {
