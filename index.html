@@ -1949,6 +1949,29 @@
                  <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
                 <label for="importFile" class="btn btn-danger">📥 Import Data from Backup File</label>
                 
+                <!-- Timer Volume Section -->
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #8b7355;">
+                    <h3 style="margin-bottom: 20px;">🔔 Timer Beep Volume</h3>
+                    <div class="info-box">
+                        <p><strong>Beep Volume:</strong> Controls the volume of countdown and phase-change beeps during workouts and rest timers.</p>
+                    </div>
+                    <div class="color-setting-card" style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label style="font-weight: 600; font-size: 15px;">🔔 Beep Volume</label>
+                            <span id="timerVolumeDisplay" style="font-weight: 600; min-width: 40px; text-align: right;">70%</span>
+                        </div>
+                        <input type="range" id="timerVolumeSlider" min="0" max="100" value="70"
+                               oninput="updateTimerVolumeDisplay(this.value)"
+                               onchange="saveTimerVolume(this.value)"
+                               style="width: 100%; accent-color: var(--primary-color, #001f3f);">
+                        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                            <small style="color: #6c757d;">Mute</small>
+                            <small style="color: #6c757d;">Max</small>
+                        </div>
+                        <button class="btn btn-secondary" onclick="testTimerBeep()" style="margin-top: 15px; width: 100%;">▶ Test Beep</button>
+                    </div>
+                </div>
+
                 <!-- Color Customization Section -->
                 <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #8b7355;">
                     <h3 style="margin-bottom: 20px;">🎨 Color Customization</h3>
@@ -5078,6 +5101,37 @@ function cancelQuickCardio() {
                 // Go to a neutral tab after workout completion
                 showSection('history');
             }
+        // ==================== TIMER VOLUME ====================
+        function updateTimerVolumeDisplay(value) {
+            const display = document.getElementById('timerVolumeDisplay');
+            if (display) display.textContent = value + '%';
+        }
+
+        function saveTimerVolume(value) {
+            const normalized = parseFloat(value) / 100;
+            localStorage.setItem('timerVolume', normalized.toFixed(2));
+        }
+
+        function loadTimerVolume() {
+            const stored = parseFloat(localStorage.getItem('timerVolume') || '0.7');
+            const percent = Math.round(stored * 100);
+            const slider = document.getElementById('timerVolumeSlider');
+            if (slider) slider.value = percent;
+            updateTimerVolumeDisplay(percent);
+        }
+
+        async function testTimerBeep() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Could not initialize audio context:', e);
+                    return;
+                }
+            }
+            await playHiitSound('countdown1');
+        }
+
         async function playHiitSound(type) {
             // If audioCtx was never created (because it's not a HIIT workout), it will just exit silently.
             if (!audioCtx) return;
@@ -5107,10 +5161,12 @@ function cancelQuickCardio() {
                     duration = 0.15;
                 }
 
+                const volume = parseFloat(localStorage.getItem('timerVolume') || '0.7');
+
                 osc.frequency.value = freq;
                 osc.type = 'sine';
-                gain.gain.setValueAtTime(0.7, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                gain.gain.setValueAtTime(volume, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start(ctx.currentTime);
@@ -8734,6 +8790,7 @@ function loadBackgroundImage() {
             loadBodyStats();
             loadCustomWorkoutsIntoDropdown();
             loadSavedColors();
+            loadTimerVolume();
             loadBackgroundImage();
 
             // Function to resume audio context (for workout beeps after app interruptions)
